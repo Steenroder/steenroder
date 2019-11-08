@@ -130,7 +130,6 @@ def check_cochain_to_vector(filtration, cochain):
     return cochain == new_cochain
 
 def check_duality(filtration):
-    
     boundary = get_boundary(filtration)
     barcode = get_barcode(get_reduced_triangular(boundary)[0], filtration)
     
@@ -227,8 +226,9 @@ def reduce_matrix(reduced, matrix):
     return reduced[:, -num_vector:]
 
 def get_rank(matrix):
-    sums = np.sum(matrix.astype(np.int8),axis=0)
-    return len(sums.nonzero()[0])
+    sums = np.sum(matrix,axis=0)
+    rank = len(sums.nonzero()[0])
+    return rank
 
 def steenrod_curve(barcode, steenrod_reps, filtration, reduced):
     steenrod_matrix = np.array(steenrod_reps)
