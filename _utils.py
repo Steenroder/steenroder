@@ -180,7 +180,7 @@ def get_steenrod_reps(k, coho_reps, filtration):
         steenrod_reps[:,idx:idx+1] = STSQ(k,rep,filtration)
     return steenrod_reps
 
-def betti_curves(barcode, filtration):
+def get_betti_curves(barcode, filtration):
     dim = max([len(spx)-1 for spx in filtration])
     betti_curves = {i: np.zeros((len(filtration),), np.int8) 
                    for i in range(dim+1)}
@@ -201,6 +201,11 @@ def get_pivots(matrix):
         pivots.append(_pivot(matrix[:,i]))
     return pivots
 
+def get_rank(matrix):
+    sums = np.sum(matrix,axis=0)
+    rank = len(sums.nonzero()[0])
+    return rank
+
 def reduce_vector(reduced, vector):
     num_col = reduced.shape[1]
     i = -1
@@ -215,31 +220,23 @@ def reduce_vector(reduced, vector):
                 vector[:,0] = np.logical_xor(reduced[:,i], vector[:,0])
                 i = 0
             i -= 1
-    return vector
-
+            
 def reduce_matrix(reduced, matrix):
     num_vector = matrix.shape[1]
-
+    reducing = reduced.copy()
+    
     for i in range(num_vector):
-        reduced_vector = reduce_vector(reduced, matrix[:, i:i+1])
-        reduced = np.concatenate([reduced, reduced_vector], axis=1)
-    return reduced[:, -num_vector:]
+        reduce_vector(reducing, matrix[:, i:i+1])
+        reducing = np.concatenate([reducing, matrix[:, i:i+1]], axis=1)
 
-def get_rank(matrix):
-    sums = np.sum(matrix,axis=0)
-    rank = len(sums.nonzero()[0])
-    return rank
-
-def steenrod_curve(barcode, steenrod_reps, filtration, reduced):
+def get_steenrod_curve(barcode, steenrod_reps, filtration, reduced):
     steenrod_matrix = np.array(steenrod_reps)
     births = [pair[0] for pair in barcode] + [len(filtration)]
     
     curve = [0]*births[0]
     for i, b in enumerate(births[:-1]):
         for j in range(b, births[i+1]):
-            reducing = np.hstack((reduced[:,:j], steenrod_matrix[:,:i]))
-            steenrod_matrix[:,i:i+1] = reduce_vector(reducing, steenrod_matrix[:,i:i+1])
+            reduce_matrix(reduced[:,:j], steenrod_matrix[:,:i+1])
             curve.append(get_rank(steenrod_matrix[:,:i+1]))
 
     return curve
-
