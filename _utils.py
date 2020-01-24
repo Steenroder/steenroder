@@ -7,6 +7,30 @@ def _pivot(column):
         return max(column.nonzero()[0])
     except ValueError:
         return None
+    
+def get_boundary(filtration):
+    spx_filtration_idx = {tuple(v): idx for idx, v in enumerate(filtration)}
+    boundary = np.zeros((len(filtration), len(filtration)), dtype=np.bool)
+    for idx, spx in enumerate(filtration):
+        faces_idxs = []
+        try:
+            faces_idxs = [spx_filtration_idx[spx[:j]+spx[j+1:]] 
+                          for j in range(len(spx))]
+        except KeyError:
+            pass
+        boundary[faces_idxs,idx] = True
+    
+    return boundary
+
+def get_coboundary(filtration):
+    coboundary = np.flip(get_boundary(filtration), axis=[0,1]).transpose()
+    return coboundary
+
+def check_square_zero(matrix):
+    test = np.matmul(matrix.astype(np.int8), 
+                     matrix.astype(np.int8))
+    test = test%2
+    return not np.any(test)
 
 def get_reduced_triangular(matrix):
     '''R = MV'''
@@ -30,45 +54,47 @@ def get_reduced_triangular(matrix):
                     
     return reduced, triangular
 
-def check_factorization(matrix):
-    reduced, triangular = get_reduced_triangular(matrix)
+def check_factorization(coboundary, reduced, triangular):
     test = np.matmul(coboundary.astype(np.int8), 
                      triangular.astype(np.int8))
     test = test%2
     return np.all(reduced == test)
 
 def get_barcode(reduced, filtration):
-    triples = []
+    pairs = []
     all_indices = []
     for j in range(len(filtration)):
         if np.any(reduced[:,j]):
             i = _pivot(reduced[:,j])
-            triples.append((i,j))
+            pairs.append((i,j))
             all_indices += [i,j]
     
     for i in [i for i in range(len(filtration)) if i not in all_indices]:    
         if not np.any(reduced[:,i]):
-            triples.append((i,np.inf))
+            pairs.append((i,np.inf))
     
-    barcode = sorted([bar for bar in triples if bar[1]-bar[0]>1])
+    barcode = sorted(pairs)
     
-    return barcode
+    return [pair for pair in barcode if pair[1]-pair[0] > 1]
 
-def get_boundary(filtration):
-    spx_filtration_idx = {tuple(v): idx for idx, v in enumerate(filtration)}
-    boundary = np.zeros((len(filtration), len(filtration)), dtype=np.bool)
-    for idx, spx in enumerate(filtration):
-        faces_idxs = []
-        try:
-            faces_idxs = [spx_filtration_idx[spx[:j]+spx[j+1:]] 
-                          for j in range(len(spx))]
-        except KeyError:
-            pass
-        boundary[faces_idxs,idx] = True
+def check_duality(filtration):
+    boundary = get_boundary(filtration)
+    barcode = get_barcode(get_reduced_triangular(boundary)[0], filtration)
     
-    return boundary
+    coboundary = get_coboundary(filtration)
+    cobarcode = get_barcode(get_reduced_triangular(coboundary)[0], filtration)
 
-def checking_against_gudhi(filtration):
+    new_barcode = []
+    for bar in cobarcode:
+        if bar[1] == np.inf:
+            new_barcode.append((len(filtration)-bar[0]-1, np.inf))
+        else:
+            new_barcode.append((len(filtration)-bar[1]-1, len(filtration)-bar[0]-1))
+            
+    return all([(bar1 == bar2) for bar1, bar2 in 
+                zip(sorted(barcode), sorted(new_barcode))])
+
+def check_against_gudhi(filtration):
     
     from gudhi import SimplexTree
 
@@ -88,11 +114,21 @@ def checking_against_gudhi(filtration):
                                for bar in st.persistence(homology_coeff_field=2) 
                                if bar[1][1]-bar[1][0]>1])
     
-    return [(a == b) for a,b in zip(barcode_w_dimensions, gudhi_barcode)]
+    same_size = (len(barcode) == len(gudhi_barcode))
+    same_values = all([(a == b) for a,b in zip(barcode_w_dimensions, 
+                                        gudhi_barcode)])
+    
+#     print(set(gudhi_barcode).symmetric_difference(set(barcode_w_dimensions)))
+    
+    return (same_size and same_values)
 
-def get_coboundary(filtration):
-    coboundary = np.flip(get_boundary(filtration), axis=[0,1]).transpose()
-    return coboundary
+def filter_barcode_by_dim(barcode, filtration):
+    max_dim = max([len(spx) for spx in filtration]) - 1
+    barcode_by_dim = {i:[] for i in range(max_dim+1)}
+    for pair in barcode:
+        d = len(filtration[-pair[0]-1]) - 1
+        barcode_by_dim[d] += [pair]
+    return barcode_by_dim
 
 def get_coho_reps(barcode, reduced, triangular, filtration):
     coho_reps = np.empty((len(filtration), len(barcode)),dtype=np.bool)
@@ -129,22 +165,6 @@ def check_cochain_to_vector(filtration, cochain):
     new_cochain = vector_to_cochain(cochain_to_vector(cochain, filtration), filtration)
     return cochain == new_cochain
 
-def check_duality(filtration):
-    boundary = get_boundary(filtration)
-    barcode = get_barcode(get_reduced_triangular(boundary)[0], filtration)
-    
-    coboundary = get_coboundary(filtration)
-    cobarcode = get_barcode(get_reduced_triangular(coboundary)[0], filtration)
-
-    new_barcode = []
-    for bar in cobarcode:
-        if bar[1] == np.inf:
-            new_barcode.append((len(filtration)-bar[0]-1, np.inf))
-        else:
-            new_barcode.append((len(filtration)-bar[1]-1, len(filtration)-bar[0]-1))
-            
-    return [(bar1 == bar2) for bar1, bar2 in zip(sorted(barcode), sorted(new_barcode))]
-
 def STSQ(k, vector, filtration):
     
     # from vector to cochain
@@ -180,20 +200,6 @@ def get_steenrod_reps(k, coho_reps, filtration):
         steenrod_reps[:,idx:idx+1] = STSQ(k,rep,filtration)
     return steenrod_reps
 
-def get_betti_curves(barcode, filtration):
-    dim = max([len(spx)-1 for spx in filtration])
-    betti_curves = {i: np.zeros((len(filtration),), np.int8) 
-                   for i in range(dim+1)}
-    for bar in barcode:        
-        degree = len(filtration[-bar[0]-1])-1
-        end = bar[1]
-        if end == np.inf:
-            end = len(filtration)
-            
-        betti_curves[degree][bar[0]:end] += 1
-            
-    return betti_curves
-
 def get_pivots(matrix):
     n = matrix.shape[1]
     pivots = []
@@ -228,6 +234,20 @@ def reduce_matrix(reduced, matrix):
     for i in range(num_vector):
         reduce_vector(reducing, matrix[:, i:i+1])
         reducing = np.concatenate([reducing, matrix[:, i:i+1]], axis=1)
+        
+def get_betti_curves(barcode, filtration):
+    dim = max([len(spx)-1 for spx in filtration])
+    betti_curves = {i: np.zeros((len(filtration),), np.int8) 
+                   for i in range(dim+1)}
+    for bar in barcode:        
+        degree = len(filtration[-bar[0]-1])-1
+        end = bar[1]
+        if end == np.inf:
+            end = len(filtration)
+            
+        betti_curves[degree][bar[0]:end] += 1
+            
+    return betti_curves
 
 def get_steenrod_curve(barcode, steenrod_reps, filtration, reduced):
     steenrod_matrix = np.array(steenrod_reps)
@@ -240,3 +260,11 @@ def get_steenrod_curve(barcode, steenrod_reps, filtration, reduced):
             curve.append(get_rank(steenrod_matrix[:,:i+1]))
 
     return curve
+
+def check_steenrod_lq_betti(steenrod_curve, betti_curves, filtration):
+    big_betti = np.zeros((len(filtration),), dtype=np.int8)
+    for curve in betti_curves.values():
+        big_betti += curve
+    
+    difference = (big_betti - steenrod_curve >= 0)
+    return np.all(difference)
