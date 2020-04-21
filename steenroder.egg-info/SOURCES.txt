@@ -1,7 +1,5 @@
-README.md
 setup.py
 steenroder/__init__.py
-steenroder/steenroder.py
 steenroder.egg-info/PKG-INFO
 steenroder.egg-info/SOURCES.txt
 steenroder.egg-info/dependency_links.txt
