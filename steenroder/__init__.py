@@ -1,6 +1,5 @@
 import numpy as np
 from itertools import combinations
-import pickle as pkl
 
 
 def _pivot(column):
@@ -30,8 +29,16 @@ def get_coboundary(filtration):
     return coboundary
 
 
-def get_reduced_triangular(matrix):
+def get_reduced_triangular(matrix, homology=False):
     '''R = MV'''
+
+    # if a filtration is passed
+    if isinstance(matrix, tuple):
+        matrix = get_boundary(matrix)
+        if not homology:
+            matrix = np.flip(matrix, axis=[0, 1]).transpose()
+
+    # reduction steps
     n = matrix.shape[1]
     reduced = np.array(matrix)
     triangular = np.eye(n, dtype=np.bool)
@@ -67,7 +74,7 @@ def get_barcode(filtration, reduced=None):
             pairs.append((i, j))
             all_indices += [i, j]
 
-    for i in [i for i in range(len(filtration)) if i not in all_indices]:
+    for i in [j for j in range(len(filtration)) if j not in all_indices]:
         if not np.any(reduced[:, i]):
             pairs.append((i, np.inf))
 
@@ -221,7 +228,7 @@ def get_steenrod_barcode(reduced, steenrod_matrix):
                     barcode.append((i, j))
     barcode += [(i, np.inf) for i in alive if alive[i]]
 
-    return(sorted([pair for pair in barcode if pair[1] > pair[0]]))
+    return sorted([pair for pair in barcode if pair[1] > pair[0]])
 
 
 def barcodes(k, filtration):
