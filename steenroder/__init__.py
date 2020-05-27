@@ -142,8 +142,8 @@ def STSQ(k, vector, filtration):
                 index[v] = (pos + pos_bar) % 2
             index_a = {index[v] for v in a_bar}
             index_b = {index[w] for w in b_bar}
-            if (index_a == {0} and index_b == {1} or
-                    index_a == {1} and index_b == {0}):
+            if (index_a == {0} and index_b == {1}
+                    or index_a == {1} and index_b == {0}):
                 u = sorted(a.union(b))
                 answer ^= {tuple(u)}
 
@@ -158,8 +158,8 @@ def get_st_reps(filtration, k, barcode=None, coho_reps=None):
         barcode = get_barcode(filtration)
     if coho_reps is None:
         coho_reps = get_coho_reps(filtration, barcode)
-    dim = coho_reps.shape[0]
-    st_reps = np.zeros((dim, dim), dtype=np.bool)
+
+    st_reps = np.zeros(coho_reps.shape, dtype=np.bool)
     for idx, rep in enumerate(np.transpose(coho_reps)):
         st_reps[:, idx:idx + 1] = STSQ(k, rep, filtration)
     return st_reps
