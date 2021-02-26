@@ -1,9 +1,9 @@
 import numpy as np
 from itertools import combinations
-from numba import jit
+from numba import njit
 
 
-@jit(nopython=True)
+@njit
 def _pivot(column):
     try:
         return max(column.nonzero()[0])
@@ -13,7 +13,7 @@ def _pivot(column):
 
 def get_boundary(filtration):
     spx_filtration_idx = {tuple(v): idx for idx, v in enumerate(filtration)}
-    boundary = np.zeros((len(filtration), len(filtration)), dtype=np.bool)
+    boundary = np.zeros((len(filtration), len(filtration)), dtype=bool)
     for idx, spx in enumerate(filtration):
         faces_idxs = []
         try:
@@ -43,7 +43,7 @@ def get_reduced_triangular(matrix, homology=False):
     # reduction steps
     n = matrix.shape[1]
     reduced = np.array(matrix)
-    triangular = np.eye(n, dtype=np.bool)
+    triangular = np.eye(n, dtype=bool)
     for j in range(n):
         i = j
         while i > 0:
@@ -100,7 +100,7 @@ def get_coho_reps(filtration, barcode=None, reduced=None, triangular=None):
     if barcode is None:
         barcode = get_barcode(filtration, reduced)
 
-    coho_reps = np.empty((len(filtration), len(barcode)), dtype=np.bool)
+    coho_reps = np.empty((len(filtration), len(barcode)), dtype=bool)
     for col, pair in enumerate(barcode):
         if pair[1] < np.inf:
             coho_reps[:, col] = reduced[:, pair[1]]
@@ -120,7 +120,7 @@ def cochain_to_vector(filtration, cochain):
     def simplex_to_index(spx):
         return len(filtration) - filtration.index(spx) - 1
     nonzero_indices = [simplex_to_index(spx) for spx in cochain]
-    vector = np.zeros(shape=(len(filtration), 1), dtype=np.bool)
+    vector = np.zeros(shape=(len(filtration), 1), dtype=bool)
     vector[nonzero_indices] = True
     return vector
 
@@ -161,7 +161,7 @@ def get_st_reps(filtration, k, barcode=None, coho_reps=None):
     if coho_reps is None:
         coho_reps = get_coho_reps(filtration, barcode)
 
-    st_reps = np.zeros(coho_reps.shape, dtype=np.bool)
+    st_reps = np.zeros(coho_reps.shape, dtype=bool)
     for idx, rep in enumerate(np.transpose(coho_reps)):
         st_reps[:, idx:idx + 1] = STSQ(k, rep, filtration)
     return st_reps
@@ -169,7 +169,7 @@ def get_st_reps(filtration, k, barcode=None, coho_reps=None):
 
 def get_steenrod_matrix(k, coho_reps, barcode, filtration):
     dim = coho_reps.shape[0]
-    steenrod_matrix = np.zeros((dim, dim), dtype=np.bool)
+    steenrod_matrix = np.zeros((dim, dim), dtype=bool)
     for idx, rep in enumerate(np.transpose(coho_reps)):
         pos = barcode[idx][0]
         steenrod_matrix[:, pos:pos + 1] = STSQ(k, rep, filtration)
@@ -190,7 +190,7 @@ def get_rank(matrix):
     return rank
 
 
-@jit(nopython=True)
+@njit
 def reduce_vector(reduced, vector):
     num_col = reduced.shape[1]
     i = -1
@@ -207,7 +207,7 @@ def reduce_vector(reduced, vector):
             i -= 1
 
 
-@jit(nopython=True)
+@njit
 def reduce_matrix(reduced, matrix):
     num_vector = matrix.shape[1]
     reducing = reduced.copy()
@@ -217,7 +217,7 @@ def reduce_matrix(reduced, matrix):
         reducing = np.concatenate((reducing, matrix[:, i:i + 1]), axis=1)
 
 
-# @jit(nopython=True)
+@njit
 def get_steenrod_barcode(reduced, steenrod_matrix):
     dim = reduced.shape[0]
     alive = {}
@@ -234,7 +234,9 @@ def get_steenrod_barcode(reduced, steenrod_matrix):
                 alive[i] = False
                 if j > i:
                     barcode.append((i, j))
-    barcode += [(i, np.inf) for i in alive if alive[i]]
+    for i in alive:
+        if alive[i]:
+            barcode.append((i, np.inf))
 
     return sorted([pair for pair in barcode if pair[1] > pair[0]])
 
@@ -252,16 +254,3 @@ def barcodes(k, filtration):
     st_barcode = get_steenrod_barcode(reduced, steenrod_matrix)
 
     return barcode, st_barcode
-
-
-filtration = (
-    (0,),
-    (1,), (0, 1),
-    (2,), (0, 2), (1, 2), (0, 1, 2),
-    (3,), (0, 3), (1, 3), (0, 1, 3), (2, 3),
-    (4,), (0, 4), (1, 4), (2, 4), (1, 2, 4), (3, 4), (0, 3, 4), (2, 3, 4),
-    (5,), (0, 5), (1, 5), (2, 5), (0, 2, 5), (3, 5), (1, 3, 5), (2, 3, 5), (4, 5), (0, 4, 5), (1, 4, 5)
-)
-k = 1
-barcode, st_barcode = barcodes(k, filtration)
-print(st_barcode)
