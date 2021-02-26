@@ -1,12 +1,14 @@
 import numpy as np
 from itertools import combinations
+from numba import jit
 
 
+@jit(nopython=True)
 def _pivot(column):
     try:
         return max(column.nonzero()[0])
-    except ValueError:
-        return None
+    except:
+        return -1
 
 
 def get_boundary(filtration):
@@ -188,6 +190,7 @@ def get_rank(matrix):
     return rank
 
 
+@jit(nopython=True)
 def reduce_vector(reduced, vector):
     num_col = reduced.shape[1]
     i = -1
@@ -204,21 +207,26 @@ def reduce_vector(reduced, vector):
             i -= 1
 
 
+@jit(nopython=True)
 def reduce_matrix(reduced, matrix):
     num_vector = matrix.shape[1]
     reducing = reduced.copy()
 
     for i in range(num_vector):
         reduce_vector(reducing, matrix[:, i:i + 1])
-        reducing = np.concatenate([reducing, matrix[:, i:i + 1]], axis=1)
+        reducing = np.concatenate((reducing, matrix[:, i:i + 1]), axis=1)
 
 
+# @jit(nopython=True)
 def get_steenrod_barcode(reduced, steenrod_matrix):
     dim = reduced.shape[0]
-    alive = {i: True for i in range(dim)}
+    alive = {}
+    for i in range(dim):
+        alive[i] = True
+
     R = reduced
     Q = steenrod_matrix
-    barcode = list()
+    barcode = []
     for j in range(dim):
         reduce_matrix(R[:, :j + 1], Q[:, :j + 1])
         for i in range(j + 1):
@@ -244,3 +252,16 @@ def barcodes(k, filtration):
     st_barcode = get_steenrod_barcode(reduced, steenrod_matrix)
 
     return barcode, st_barcode
+
+
+filtration = (
+    (0,),
+    (1,), (0, 1),
+    (2,), (0, 2), (1, 2), (0, 1, 2),
+    (3,), (0, 3), (1, 3), (0, 1, 3), (2, 3),
+    (4,), (0, 4), (1, 4), (2, 4), (1, 2, 4), (3, 4), (0, 3, 4), (2, 3, 4),
+    (5,), (0, 5), (1, 5), (2, 5), (0, 2, 5), (3, 5), (1, 3, 5), (2, 3, 5), (4, 5), (0, 4, 5), (1, 4, 5)
+)
+k = 1
+barcode, st_barcode = barcodes(k, filtration)
+print(st_barcode)
