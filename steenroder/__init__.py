@@ -33,7 +33,7 @@ def get_coboundary(filtration):
 
 @njit
 def get_reduced_triangular(matrix, homology=False):
-    '''R = MV'''
+    """R = MV"""
 
     # # if a filtration is passed
     # if isinstance(matrix, tuple):
@@ -244,7 +244,7 @@ def get_steenrod_barcode(reduced, steenrod_matrix):
 
 
 def barcodes(k, filtration):
-    '''serves as the main function'''
+    """Serves as the main function"""
 
     coboundary = get_coboundary(filtration)
     reduced, triangular = get_reduced_triangular(coboundary)
