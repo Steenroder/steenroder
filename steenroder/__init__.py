@@ -5,10 +5,10 @@ from numba import njit
 
 @njit
 def _pivot(column):
-    try:
-        return max(column.nonzero()[0])
-    except:
-        return -1
+    nonzero = column.nonzero()[0]
+    if len(nonzero):
+        return max(nonzero)
+    return -1
 
 
 def get_boundary(filtration):
@@ -31,19 +31,21 @@ def get_coboundary(filtration):
     return coboundary
 
 
+@njit
 def get_reduced_triangular(matrix, homology=False):
     '''R = MV'''
 
-    # if a filtration is passed
-    if isinstance(matrix, tuple):
-        matrix = get_boundary(matrix)
-        if not homology:
-            matrix = np.flip(matrix, axis=[0, 1]).transpose()
+    # # if a filtration is passed
+    # if isinstance(matrix, tuple):
+    #     matrix = get_boundary(matrix)
+    #     if not homology:
+    #         matrix = np.flip(matrix, axis=[0, 1]).transpose()
 
     # reduction steps
     n = matrix.shape[1]
-    reduced = np.array(matrix)
-    triangular = np.eye(n, dtype=bool)
+    reduced = matrix.copy()
+    triangular = np.zeros((n, n), dtype=np.bool_)
+    np.fill_diagonal(triangular, True)
     for j in range(n):
         i = j
         while i > 0:
