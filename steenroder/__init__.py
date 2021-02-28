@@ -106,7 +106,7 @@ def get_coho_reps(filtration, barcode=None, reduced=None, triangular=None):
     for col, pair in enumerate(barcode):
         if pair[1] < np.inf:
             coho_reps[:, col] = reduced[:, pair[1]]
-        if pair[1] == np.inf:
+        else:
             coho_reps[:, col] = triangular[:, pair[0]]
     return coho_reps
 
@@ -127,34 +127,27 @@ def cochain_to_vector(filtration, cochain):
     return vector
 
 
-def STSQ(k, vector, filtration):
-    '''...'''
-    # from vector to cochain
-    cocycle = vector_to_cochain(filtration, vector)
-
-    # bulk of the algorithm
+def STSQ(k, cocycle, filtration):
+    """..."""
     answer = set()
     for pair in combinations(cocycle, 2):
         a, b = set(pair[0]), set(pair[1])
-        if (len(a.union(b)) == len(a) + k and
-                tuple(sorted(a.union(b))) in filtration):
+        u = sorted(a.union(b))
+        if len(u) == len(a) + k and tuple(u) in filtration:
             a_bar, b_bar = a.difference(b), b.difference(a)
+            u_bar = sorted(a_bar.union(b_bar))
             index = dict()
             for v in a_bar.union(b_bar):
-                pos = sorted(a.union(b)).index(v)
-                pos_bar = sorted(a_bar.union(b_bar)).index(v)
+                pos = u.index(v)
+                pos_bar = u_bar.index(v)
                 index[v] = (pos + pos_bar) % 2
             index_a = {index[v] for v in a_bar}
             index_b = {index[w] for w in b_bar}
             if (index_a == {0} and index_b == {1}
                     or index_a == {1} and index_b == {0}):
-                u = sorted(a.union(b))
-                answer ^= {tuple(u)}
+                answer.add(tuple(u))
 
-    # cochain to vector
-    st_rep = cochain_to_vector(filtration, answer)
-
-    return st_rep
+    return answer
 
 
 def get_st_reps(filtration, k, barcode=None, coho_reps=None):
@@ -163,18 +156,30 @@ def get_st_reps(filtration, k, barcode=None, coho_reps=None):
     if coho_reps is None:
         coho_reps = get_coho_reps(filtration, barcode)
 
+    filtration_ = set(filtration)
     st_reps = np.zeros(coho_reps.shape, dtype=bool)
     for idx, rep in enumerate(np.transpose(coho_reps)):
-        st_reps[:, idx:idx + 1] = STSQ(k, rep, filtration)
+        # from vector to cochain
+        cocycle = vector_to_cochain(filtration, rep)
+        cochain = STSQ(k, cocycle, filtration_)
+        # cochain to vector
+        st_reps[:, idx:idx + 1] = cochain_to_vector(filtration, cochain)
+
     return st_reps
 
 
 def get_steenrod_matrix(k, coho_reps, barcode, filtration):
+    filtration_ = set(filtration)
     dim = coho_reps.shape[0]
     steenrod_matrix = np.zeros((dim, dim), dtype=bool)
     for idx, rep in enumerate(np.transpose(coho_reps)):
         pos = barcode[idx][0]
-        steenrod_matrix[:, pos:pos + 1] = STSQ(k, rep, filtration)
+        # from vector to cochain
+        cocycle = vector_to_cochain(filtration, rep)
+        cochain = STSQ(k, cocycle, filtration_)
+        # cochain to vector
+        steenrod_matrix[:, pos:pos + 1] = cochain_to_vector(filtration,
+                                                            cochain)
     return steenrod_matrix
 
 
