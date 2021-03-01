@@ -5,9 +5,9 @@ from numba import njit
 
 @njit
 def _pivot(column):
-    nonzero = column.nonzero()[0]
-    if len(nonzero):
-        return max(nonzero)
+    for i in range(len(column) - 1, -1, -1):
+        if column[i]:
+            return i
     return -1
 
 
@@ -208,7 +208,7 @@ def reduce_vector(reduced, vector, num_col):
             piv_i = _pivot(reduced[:, i])
 
             if piv_i == piv_v:
-                vector[:, 0] = np.logical_xor(vector[:, 0], reduced[:, i])
+                vector[:] = np.logical_xor(vector, reduced[:, i])
                 i = 0
             i -= 1
 
@@ -221,7 +221,7 @@ def reduce_matrix(reduced, matrix):
     reducing[:, :reduced.shape[1]] = reduced
 
     for i in range(num_vector):
-        reduce_vector(reducing, matrix[:, i:i + 1], reduced.shape[1] + i)
+        reduce_vector(reducing, matrix[:, i], reduced.shape[1] + i)
         reducing[:, reduced.shape[1] + i] = matrix[:, i]
 
 
