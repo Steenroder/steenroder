@@ -44,7 +44,7 @@ def get_reduced_triangular(matrix, homology=False):
     # reduction steps
     n = matrix.shape[1]
     reduced = matrix.copy()
-    triangular = np.zeros((n, n), dtype=np.bool_)
+    triangular = np.zeros((n, n), dtype=np.bool_).T
     np.fill_diagonal(triangular, True)
     for j in range(n):
         i = j
@@ -216,8 +216,8 @@ def reduce_vector(reduced, vector, num_col):
 @njit
 def reduce_matrix(reduced, matrix):
     num_vector = matrix.shape[1]
-    reducing = np.empty((reduced.shape[0], reduced.shape[1] + num_vector),
-                        dtype=reduced.dtype)
+    reducing = np.empty((reduced.shape[1] + num_vector, reduced.shape[0]),
+                        dtype=reduced.dtype).T
     reducing[:, :reduced.shape[1]] = reduced
 
     for i in range(num_vector):
