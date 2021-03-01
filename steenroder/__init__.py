@@ -11,6 +11,17 @@ def _pivot(column):
     return -1
 
 
+@njit
+def _are_pivots_same(column_1, column_2):
+    # Assumes column_1 and column_2 have the same length
+    for i in range(len(column_1) - 1, -1, -1):
+        if column_1[i] or column_2[i]:
+            if column_1[i] and column_2[i]:
+                return True
+            return False
+    return False
+
+
 def get_boundary(filtration):
     spx_filtration_idx = {tuple(v): idx for idx, v in enumerate(filtration)}
     boundary = np.zeros((len(filtration), len(filtration)), dtype=bool)
@@ -53,10 +64,7 @@ def get_reduced_triangular(matrix, homology=False):
             if not np.any(reduced[:, j]):
                 break
             else:
-                piv_j = _pivot(reduced[:, j])
-                piv_i = _pivot(reduced[:, i])
-
-                if piv_i == piv_j:
+                if _are_pivots_same(reduced[:, j], reduced[:, i]):
                     reduced[:, j] = np.logical_xor(
                         reduced[:, i], reduced[:, j])
                     triangular[:, j] = np.logical_xor(
@@ -204,10 +212,7 @@ def reduce_vector(reduced, vector, num_col):
         if not np.any(vector):
             break
         else:
-            piv_v = _pivot(vector)
-            piv_i = _pivot(reduced[:, i])
-
-            if piv_i == piv_v:
+            if _are_pivots_same(vector, reduced[:, i]):
                 vector[:] = np.logical_xor(vector, reduced[:, i])
                 i = 0
             i -= 1
