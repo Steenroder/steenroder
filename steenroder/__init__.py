@@ -198,8 +198,7 @@ def get_rank(matrix):
 
 
 @njit
-def reduce_vector(reduced, vector):
-    num_col = reduced.shape[1]
+def reduce_vector(reduced, vector, num_col):
     i = -1
     while i >= -num_col:
         if not np.any(vector):
@@ -209,7 +208,7 @@ def reduce_vector(reduced, vector):
             piv_i = _pivot(reduced[:, i])
 
             if piv_i == piv_v:
-                vector[:, 0] = np.logical_xor(reduced[:, i], vector[:, 0])
+                vector[:, 0] = np.logical_xor(vector[:, 0], reduced[:, i])
                 i = 0
             i -= 1
 
@@ -217,19 +216,19 @@ def reduce_vector(reduced, vector):
 @njit
 def reduce_matrix(reduced, matrix):
     num_vector = matrix.shape[1]
-    reducing = reduced.copy()
+    reducing = np.empty((reduced.shape[0], reduced.shape[1] + num_vector),
+                        dtype=reduced.dtype)
+    reducing[:, :reduced.shape[1]] = reduced
 
     for i in range(num_vector):
-        reduce_vector(reducing, matrix[:, i:i + 1])
-        reducing = np.concatenate((reducing, matrix[:, i:i + 1]), axis=1)
+        reduce_vector(reducing, matrix[:, i:i + 1], reduced.shape[1] + i)
+        reducing[:, reduced.shape[1] + i] = matrix[:, i]
 
 
 @njit
 def get_steenrod_barcode(reduced, steenrod_matrix):
     dim = reduced.shape[0]
-    alive = {}
-    for i in range(dim):
-        alive[i] = True
+    alive = np.full(dim, True)
 
     R = reduced
     Q = steenrod_matrix
@@ -241,7 +240,7 @@ def get_steenrod_barcode(reduced, steenrod_matrix):
                 alive[i] = False
                 if j > i:
                     barcode.append((i, j))
-    for i in alive:
+    for i in range(len(alive)):
         if alive[i]:
             barcode.append((i, np.inf))
 
