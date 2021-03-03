@@ -153,7 +153,7 @@ def STSQ(k, cocycle, filtration):
             index_b = {index[w] for w in b_bar}
             if (index_a == {0} and index_b == {1}
                     or index_a == {1} and index_b == {0}):
-                answer.add(tuple(u))
+                answer ^= {tuple(u)}
 
     return answer
 
