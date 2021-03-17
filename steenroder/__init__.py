@@ -1,19 +1,30 @@
 import numpy as np
 from itertools import combinations
-from numba import jit
+from numba import njit
 
 
-@jit(nopython=True)
+@njit
 def _pivot(column):
-    try:
-        return max(column.nonzero()[0])
-    except:
-        return -1
+    for i in range(len(column) - 1, -1, -1):
+        if column[i]:
+            return i
+    return -1
+
+
+@njit
+def _are_pivots_same(column_1, column_2):
+    # Assumes column_1 and column_2 have the same length
+    for i in range(len(column_1) - 1, -1, -1):
+        if column_1[i] or column_2[i]:
+            if column_1[i] and column_2[i]:
+                return True
+            return False
+    return False
 
 
 def get_boundary(filtration):
     spx_filtration_idx = {tuple(v): idx for idx, v in enumerate(filtration)}
-    boundary = np.zeros((len(filtration), len(filtration)), dtype=np.bool)
+    boundary = np.zeros((len(filtration), len(filtration)), dtype=bool)
     for idx, spx in enumerate(filtration):
         faces_idxs = []
         try:
@@ -31,19 +42,21 @@ def get_coboundary(filtration):
     return coboundary
 
 
+@njit
 def get_reduced_triangular(matrix, homology=False):
-    '''R = MV'''
+    """R = MV"""
 
-    # if a filtration is passed
-    if isinstance(matrix, tuple):
-        matrix = get_boundary(matrix)
-        if not homology:
-            matrix = np.flip(matrix, axis=[0, 1]).transpose()
+    # # if a filtration is passed
+    # if isinstance(matrix, tuple):
+    #     matrix = get_boundary(matrix)
+    #     if not homology:
+    #         matrix = np.flip(matrix, axis=[0, 1]).transpose()
 
     # reduction steps
     n = matrix.shape[1]
-    reduced = np.array(matrix)
-    triangular = np.eye(n, dtype=np.bool)
+    reduced = matrix.copy()
+    triangular = np.zeros((n, n), dtype=np.bool_).T
+    np.fill_diagonal(triangular, True)
     for j in range(n):
         i = j
         while i > 0:
@@ -51,10 +64,7 @@ def get_reduced_triangular(matrix, homology=False):
             if not np.any(reduced[:, j]):
                 break
             else:
-                piv_j = _pivot(reduced[:, j])
-                piv_i = _pivot(reduced[:, i])
-
-                if piv_i == piv_j:
+                if _are_pivots_same(reduced[:, j], reduced[:, i]):
                     reduced[:, j] = np.logical_xor(
                         reduced[:, i], reduced[:, j])
                     triangular[:, j] = np.logical_xor(
@@ -100,11 +110,11 @@ def get_coho_reps(filtration, barcode=None, reduced=None, triangular=None):
     if barcode is None:
         barcode = get_barcode(filtration, reduced)
 
-    coho_reps = np.empty((len(filtration), len(barcode)), dtype=np.bool)
+    coho_reps = np.empty((len(filtration), len(barcode)), dtype=bool)
     for col, pair in enumerate(barcode):
         if pair[1] < np.inf:
             coho_reps[:, col] = reduced[:, pair[1]]
-        if pair[1] == np.inf:
+        else:
             coho_reps[:, col] = triangular[:, pair[0]]
     return coho_reps
 
@@ -120,39 +130,32 @@ def cochain_to_vector(filtration, cochain):
     def simplex_to_index(spx):
         return len(filtration) - filtration.index(spx) - 1
     nonzero_indices = [simplex_to_index(spx) for spx in cochain]
-    vector = np.zeros(shape=(len(filtration), 1), dtype=np.bool)
+    vector = np.zeros(shape=(len(filtration), 1), dtype=bool)
     vector[nonzero_indices] = True
     return vector
 
 
-def STSQ(k, vector, filtration):
-    '''...'''
-    # from vector to cochain
-    cocycle = vector_to_cochain(filtration, vector)
-
-    # bulk of the algorithm
+def STSQ(k, cocycle, filtration):
+    """..."""
     answer = set()
     for pair in combinations(cocycle, 2):
         a, b = set(pair[0]), set(pair[1])
-        if (len(a.union(b)) == len(a) + k and
-                tuple(sorted(a.union(b))) in filtration):
+        u = sorted(a.union(b))
+        if len(u) == len(a) + k and tuple(u) in filtration:
             a_bar, b_bar = a.difference(b), b.difference(a)
+            u_bar = sorted(a_bar.union(b_bar))
             index = dict()
             for v in a_bar.union(b_bar):
-                pos = sorted(a.union(b)).index(v)
-                pos_bar = sorted(a_bar.union(b_bar)).index(v)
+                pos = u.index(v)
+                pos_bar = u_bar.index(v)
                 index[v] = (pos + pos_bar) % 2
             index_a = {index[v] for v in a_bar}
             index_b = {index[w] for w in b_bar}
             if (index_a == {0} and index_b == {1}
                     or index_a == {1} and index_b == {0}):
-                u = sorted(a.union(b))
                 answer ^= {tuple(u)}
 
-    # cochain to vector
-    st_rep = cochain_to_vector(filtration, answer)
-
-    return st_rep
+    return answer
 
 
 def get_st_reps(filtration, k, barcode=None, coho_reps=None):
@@ -161,18 +164,30 @@ def get_st_reps(filtration, k, barcode=None, coho_reps=None):
     if coho_reps is None:
         coho_reps = get_coho_reps(filtration, barcode)
 
-    st_reps = np.zeros(coho_reps.shape, dtype=np.bool)
+    filtration_ = set(filtration)
+    st_reps = np.zeros(coho_reps.shape, dtype=bool)
     for idx, rep in enumerate(np.transpose(coho_reps)):
-        st_reps[:, idx:idx + 1] = STSQ(k, rep, filtration)
+        # from vector to cochain
+        cocycle = vector_to_cochain(filtration, rep)
+        cochain = STSQ(k, cocycle, filtration_)
+        # cochain to vector
+        st_reps[:, idx:idx + 1] = cochain_to_vector(filtration, cochain)
+
     return st_reps
 
 
 def get_steenrod_matrix(k, coho_reps, barcode, filtration):
+    filtration_ = set(filtration)
     dim = coho_reps.shape[0]
-    steenrod_matrix = np.zeros((dim, dim), dtype=np.bool)
+    steenrod_matrix = np.zeros((dim, dim), dtype=bool)
     for idx, rep in enumerate(np.transpose(coho_reps)):
         pos = barcode[idx][0]
-        steenrod_matrix[:, pos:pos + 1] = STSQ(k, rep, filtration)
+        # from vector to cochain
+        cocycle = vector_to_cochain(filtration, rep)
+        cochain = STSQ(k, cocycle, filtration_)
+        # cochain to vector
+        steenrod_matrix[:, pos:pos + 1] = cochain_to_vector(filtration,
+                                                            cochain)
     return steenrod_matrix
 
 
@@ -190,39 +205,35 @@ def get_rank(matrix):
     return rank
 
 
-@jit(nopython=True)
-def reduce_vector(reduced, vector):
-    num_col = reduced.shape[1]
+@njit
+def reduce_vector(reduced, vector, num_col):
     i = -1
     while i >= -num_col:
         if not np.any(vector):
             break
         else:
-            piv_v = _pivot(vector)
-            piv_i = _pivot(reduced[:, i])
-
-            if piv_i == piv_v:
-                vector[:, 0] = np.logical_xor(reduced[:, i], vector[:, 0])
+            if _are_pivots_same(vector, reduced[:, i]):
+                vector[:] = np.logical_xor(vector, reduced[:, i])
                 i = 0
             i -= 1
 
 
-@jit(nopython=True)
+@njit
 def reduce_matrix(reduced, matrix):
     num_vector = matrix.shape[1]
-    reducing = reduced.copy()
+    reducing = np.empty((reduced.shape[1] + num_vector, reduced.shape[0]),
+                        dtype=reduced.dtype).T
+    reducing[:, :reduced.shape[1]] = reduced
 
     for i in range(num_vector):
-        reduce_vector(reducing, matrix[:, i:i + 1])
-        reducing = np.concatenate((reducing, matrix[:, i:i + 1]), axis=1)
+        reduce_vector(reducing, matrix[:, i], reduced.shape[1] + i)
+        reducing[:, reduced.shape[1] + i] = matrix[:, i]
 
 
-# @jit(nopython=True)
+@njit
 def get_steenrod_barcode(reduced, steenrod_matrix):
     dim = reduced.shape[0]
-    alive = {}
-    for i in range(dim):
-        alive[i] = True
+    alive = np.full(dim, True)
 
     R = reduced
     Q = steenrod_matrix
@@ -234,13 +245,15 @@ def get_steenrod_barcode(reduced, steenrod_matrix):
                 alive[i] = False
                 if j > i:
                     barcode.append((i, j))
-    barcode += [(i, np.inf) for i in alive if alive[i]]
+    for i in range(len(alive)):
+        if alive[i]:
+            barcode.append((i, np.inf))
 
     return sorted([pair for pair in barcode if pair[1] > pair[0]])
 
 
 def barcodes(k, filtration):
-    '''serves as the main function'''
+    """Serves as the main function"""
 
     coboundary = get_coboundary(filtration)
     reduced, triangular = get_reduced_triangular(coboundary)
@@ -252,16 +265,3 @@ def barcodes(k, filtration):
     st_barcode = get_steenrod_barcode(reduced, steenrod_matrix)
 
     return barcode, st_barcode
-
-
-filtration = (
-    (0,),
-    (1,), (0, 1),
-    (2,), (0, 2), (1, 2), (0, 1, 2),
-    (3,), (0, 3), (1, 3), (0, 1, 3), (2, 3),
-    (4,), (0, 4), (1, 4), (2, 4), (1, 2, 4), (3, 4), (0, 3, 4), (2, 3, 4),
-    (5,), (0, 5), (1, 5), (2, 5), (0, 2, 5), (3, 5), (1, 3, 5), (2, 3, 5), (4, 5), (0, 4, 5), (1, 4, 5)
-)
-k = 1
-barcode, st_barcode = barcodes(k, filtration)
-print(st_barcode)
