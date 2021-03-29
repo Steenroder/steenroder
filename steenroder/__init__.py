@@ -99,7 +99,7 @@ def gen_coboundary_by_dim(filtration):
                 else:
                     coboundary[face_idx].append(idx)
 
-        coboundary_keys_sorted = sorted(coboundary.keys())
+        coboundary_keys_sorted = sorted(coboundary.keys())[::-1]
 
         yield (coboundary_keys_sorted,
                List([np.asarray(coboundary[x], dtype=np.int32)
@@ -132,7 +132,7 @@ def _get_reduced_triangular_sparse(matrix):
                 break
             elif not reduced[i]:
                 continue
-            elif max(reduced[j]) == max(reduced[i]):
+            elif min(reduced[j]) == min(reduced[i]):
                 reduced[j] ^= reduced[i]
                 triangular[j] ^= triangular[i]
                 i = j
