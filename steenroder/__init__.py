@@ -99,9 +99,11 @@ def gen_coboundary_by_dim(filtration):
                 else:
                     coboundary[face_idx].append(idx)
 
-        yield (list(coboundary.keys()),
-               List([np.asarray(x, dtype=np.int32)
-                     for x in coboundary.values()]))
+        coboundary_keys_sorted = sorted(coboundary.keys())
+
+        yield (coboundary_keys_sorted,
+               List([np.asarray(coboundary[x], dtype=np.int32)
+                     for x in coboundary_keys_sorted]))
 
 
 def get_reduced_triangular_sparse(matrices_by_dim):
