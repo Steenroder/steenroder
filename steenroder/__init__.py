@@ -1,6 +1,7 @@
 import numpy as np
 from itertools import combinations
 from numba import njit
+from numba.typed import List
 
 
 @njit
@@ -70,6 +71,69 @@ def get_reduced_triangular(matrix, homology=False):
                     triangular[:, j] = np.logical_xor(
                         triangular[:, i], triangular[:, j])
                     i = j
+
+    return reduced, triangular
+
+
+def gen_coboundary_by_dim(filtration):
+    """Generates sparse coboundary matrices in order of increasing homology
+    dimension"""
+    maxdim = max(map(len, filtration)) - 1
+    filtration_ = [{} for i in range(maxdim + 1)]
+    spx_filtration_idx = [{} for i in range(maxdim + 1)]
+    for idx, v in enumerate(filtration):
+        v_t = tuple(sorted(v))
+        filtration_[len(v_t) - 1][idx] = v_t
+        spx_filtration_idx[len(v_t) - 1][v_t] = idx
+
+    for dim in range(maxdim):
+        filtration_dim_plus_one = filtration_[dim + 1]
+        filtration_dim = filtration_[dim]
+        spx_filtration_idx_dim = spx_filtration_idx[dim]
+        coboundary = {}
+        for idx, spx in filtration_dim_plus_one.items():
+            for j in range(dim + 2):
+                face_idx = spx_filtration_idx_dim[spx[:j] + spx[j + 1:]]
+                if face_idx not in coboundary:
+                    coboundary[face_idx] = [idx]
+                else:
+                    coboundary[face_idx].append(idx)
+
+        yield (list(coboundary.keys()),
+               List([np.asarray(x, dtype=np.int32)
+                     for x in coboundary.values()]))
+
+
+def get_reduced_triangular_sparse(matrices_by_dim):
+    """R = MV"""
+    ret = []
+    for mat in matrices_by_dim:
+        ret.append((mat[0], _get_reduced_triangular(mat[1])))
+
+    return ret
+
+
+@njit
+def _get_reduced_triangular_sparse(matrix):
+    """R = MV"""
+
+    n = len(matrix)
+    reduced = []
+    triangular = []
+    for j in range(n):
+        reduced.append(set(matrix[j]))
+        triangular.append({j})
+        i = j
+        while i > 0:
+            i -= 1
+            if not reduced[j]:
+                break
+            elif not reduced[i]:
+                continue
+            elif max(reduced[j]) == max(reduced[i]):
+                reduced[j] ^= reduced[i]
+                triangular[j] ^= triangular[i]
+                i = j
 
     return reduced, triangular
 
