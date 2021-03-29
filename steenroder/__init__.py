@@ -108,7 +108,7 @@ def get_reduced_triangular_sparse(matrices_by_dim):
     """R = MV"""
     ret = []
     for mat in matrices_by_dim:
-        ret.append((mat[0], _get_reduced_triangular(mat[1])))
+        ret.append((mat[0], _get_reduced_triangular_sparse(mat[1])))
 
     return ret
 
