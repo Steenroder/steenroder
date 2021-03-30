@@ -75,18 +75,21 @@ def get_reduced_triangular(matrix, homology=False):
     return reduced, triangular
 
 
-def gen_coboundary_by_dim(filtration):
+def gen_coboundary_by_dim(filtration, maxdim=None):
     """Generates sparse coboundary matrices in order of increasing homology
     dimension"""
-    maxdim = max(map(len, filtration)) - 1
+    if maxdim is None:
+        maxdim = max(map(len, filtration))
     filtration_ = [{} for i in range(maxdim + 1)]
     spx_filtration_idx = [{} for i in range(maxdim + 1)]
     for idx, v in enumerate(filtration):
         v_t = tuple(sorted(v))
-        filtration_[len(v_t) - 1][idx] = v_t
-        spx_filtration_idx[len(v_t) - 1][v_t] = idx
+        dim = len(v_t) - 1
+        if dim <= maxdim:
+            filtration_[dim][idx] = v_t
+            spx_filtration_idx[dim][v_t] = idx
 
-    for dim in range(maxdim):
+    for dim in range(maxdim - 1):
         filtration_dim_plus_one = filtration_[dim + 1]
         filtration_dim = filtration_[dim]
         spx_filtration_idx_dim = spx_filtration_idx[dim]
@@ -99,34 +102,44 @@ def gen_coboundary_by_dim(filtration):
                 else:
                     coboundary[face_idx].append(idx)
 
-        coboundary_keys_sorted = sorted(coboundary.keys())[::-1]
+        coboundary_keys_sorted = np.asarray(sorted(coboundary.keys()))[::-1]
 
         yield (coboundary_keys_sorted,
                List([np.asarray(coboundary[x], dtype=np.int32)
                      for x in coboundary_keys_sorted]))
+    
+    yield None
+    maxdim_splx = np.asarray(sorted(filtration_[maxdim - 1].keys()))[::-1]
+    yield maxdim_splx, ([set()] * len(maxdim_splx), [{i} for i in maxdim_splx])
 
 
 def get_reduced_triangular_sparse(matrices_by_dim):
     """R = MV"""
     ret = []
     for mat in matrices_by_dim:
-        ret.append((mat[0], _get_reduced_triangular_sparse(mat[1])))
+        if mat is not None:
+            ret.append((mat[0],
+                        _get_reduced_triangular_sparse(mat[0], mat[1])))
+        else:
+            break
+            
+    ret.append(next(matrices_by_dim))
 
     return ret
 
 
 @njit
-def _get_reduced_triangular_sparse(matrix):
+def _get_reduced_triangular_sparse(idxs, matrix):
     """R = MV"""
 
-    n = len(matrix)
+    n = len(idxs)
     reduced = []
     triangular = []
     for j in range(n):
         reduced.append(set(matrix[j]))
-        triangular.append({j})
+        triangular.append({idxs[j]})
         i = j
-        while i > 0:
+        while i:
             i -= 1
             if not reduced[j]:
                 break
@@ -159,6 +172,29 @@ def get_barcode(filtration, reduced=None):
     return sorted(pairs)
 
 
+def get_barcode_from_sparse(filtration, idxs_reduced_triangular):
+    N = len(filtration)
+    pairs = []
+    all_indices = set()
+    for idxs, (reduced, triangular) in idxs_reduced_triangular:
+        pairs_dim = []
+        for i in range(len(idxs)):
+            if reduced[i]:
+                b = N - 1 - min(reduced[i])
+                d = N - 1 - idxs[i]
+                pairs_dim.append((b, d))
+                all_indices |= {b, d}
+
+        for i in range(len(idxs)):
+            if N - 1 - idxs[i] not in all_indices:
+                if not reduced[i]:
+                    pairs_dim.append((N - 1 - idxs[i], np.inf))
+            
+        pairs.append(sorted(pairs_dim))
+
+    return pairs
+
+
 def filter_barcode_by_dim(barcode, filtration):
     max_dim = max([len(spx) for spx in filtration]) - 1
     barcode_by_dim = {i: [] for i in range(max_dim + 1)}
@@ -182,6 +218,25 @@ def get_coho_reps(filtration, barcode=None, reduced=None, triangular=None):
             coho_reps[:, col] = reduced[:, pair[1]]
         else:
             coho_reps[:, col] = triangular[:, pair[0]]
+    return coho_reps
+
+
+def get_coho_reps_from_sparse(filtration, barcode, idxs_reduced_triangular):
+    N = len(filtration)
+    coho_reps = []
+    for dim, barcode_in_dim in enumerate(barcode):
+        idxs, (reduced, triangular) = idxs_reduced_triangular[dim]
+        coho_reps_in_dim = []
+        for pair in barcode_in_dim:
+            if pair[1] < np.inf:
+                idx = (i for i, x in enumerate(idxs) if x == N - 1 - pair[1])
+                coho_reps_in_dim.append(set(N - 1 - x for x in reduced[next(idx)]))
+            else:
+                idx = (i for i, x in enumerate(idxs) if x == N - 1 - pair[0])
+                coho_reps_in_dim.append(set(N - 1 - x for x in triangular[next(idx)]))
+                
+        coho_reps.append(coho_reps_in_dim)
+
     return coho_reps
 
 
