@@ -105,7 +105,7 @@ def gen_coboundary_by_dim(filtration, maxdim=None):
         coboundary_keys_sorted = np.asarray(sorted(coboundary.keys()))[::-1]
 
         yield (coboundary_keys_sorted,
-               List([np.asarray(coboundary[x], dtype=np.int32)
+               List([np.asarray(coboundary[x], dtype=np.int64)
                      for x in coboundary_keys_sorted]))
     
     yield None
@@ -136,8 +136,8 @@ def _get_reduced_triangular_sparse(idxs, matrix):
     reduced = []
     triangular = []
     for j in range(n):
-        reduced.append(set(matrix[j]))
-        triangular.append({idxs[j]})
+        reduced.append([x for x in matrix[j]])
+        triangular.append([idxs[j]])
         i = j
         while i:
             i -= 1
@@ -145,9 +145,9 @@ def _get_reduced_triangular_sparse(idxs, matrix):
                 break
             elif not reduced[i]:
                 continue
-            elif min(reduced[j]) == min(reduced[i]):
-                reduced[j] ^= reduced[i]
-                triangular[j] ^= triangular[i]
+            elif reduced[j][0] == reduced[i][0]:
+                reduced[j] = symm_diff(reduced[j], reduced[i])
+                triangular[j] = symm_diff(triangular[j], triangular[i])
                 i = j
 
     return reduced, triangular
@@ -386,3 +386,32 @@ def barcodes(k, filtration):
     st_barcode = get_steenrod_barcode(reduced, steenrod_matrix)
 
     return barcode, st_barcode
+
+
+@njit
+def symm_diff(arr1, arr2):
+    n = len(arr1)
+    m = len(arr2)
+    result = []
+    i = 0
+    j = 0
+    while (i < n) and (j < m):
+        if arr1[i] < arr2[j]:
+            result.append(arr1[i])
+            i += 1
+        elif arr2[j] < arr1[i]:
+            result.append(arr2[j])
+            j += 1
+        else:
+            i += 1
+            j += 1
+
+    while i < n:
+        result.append(arr1[i])
+        i += 1
+
+    while j < m:
+        result.append(arr2[j])
+        j += 1
+
+    return result
