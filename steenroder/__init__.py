@@ -109,8 +109,9 @@ def gen_coboundary_by_dim(filtration, maxdim=None):
                      for x in coboundary_keys_sorted]))
     
     yield None
+
     maxdim_splx = np.asarray(sorted(filtration_[maxdim - 1].keys()))[::-1]
-    yield maxdim_splx, ([set()] * len(maxdim_splx), [{i} for i in maxdim_splx])
+    yield maxdim_splx, ([list()] * len(maxdim_splx), [[i] for i in maxdim_splx])
 
 
 def get_reduced_triangular_sparse(matrices_by_dim):
