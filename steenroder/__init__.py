@@ -230,10 +230,10 @@ def get_coho_reps_from_sparse(filtration, barcode, idxs_reduced_triangular):
         for pair in barcode_in_dim:
             if pair[1] < np.inf:
                 idx = (i for i, x in enumerate(idxs) if x == N - 1 - pair[1])
-                coho_reps_in_dim.append(set(N - 1 - x for x in reduced[next(idx)]))
+                coho_reps_in_dim.append([N - 1 - x for x in reduced[next(idx)]])
             else:
                 idx = (i for i, x in enumerate(idxs) if x == N - 1 - pair[0])
-                coho_reps_in_dim.append(set(N - 1 - x for x in triangular[next(idx)]))
+                coho_reps_in_dim.append([N - 1 - x for x in triangular[next(idx)]])
                 
         coho_reps.append(coho_reps_in_dim)
 
