@@ -80,19 +80,18 @@ def gen_coboundary_by_dim(filtration, maxdim=None):
     dimension"""
     if maxdim is None:
         maxdim = max(map(len, filtration))
-    filtration_ = [{} for i in range(maxdim + 1)]
-    spx_filtration_idx = [{} for i in range(maxdim + 1)]
+    filtration_by_dim = [{} for i in range(maxdim + 1)]
+    spx_filtration_idx_by_dim = [{} for i in range(maxdim + 1)]
     for idx, v in enumerate(filtration):
         v_t = tuple(sorted(v))
         dim = len(v_t) - 1
         if dim <= maxdim:
-            filtration_[dim][idx] = v_t
-            spx_filtration_idx[dim][v_t] = idx
+            filtration_by_dim[dim][idx] = v_t
+            spx_filtration_idx_by_dim[dim][v_t] = idx
 
     for dim in range(maxdim - 1):
-        filtration_dim_plus_one = filtration_[dim + 1]
-        filtration_dim = filtration_[dim]
-        spx_filtration_idx_dim = spx_filtration_idx[dim]
+        filtration_dim_plus_one = filtration_by_dim[dim + 1]
+        spx_filtration_idx_dim = spx_filtration_idx_by_dim[dim]
         coboundary = {}
         for idx, spx in filtration_dim_plus_one.items():
             for j in range(dim + 2):
@@ -110,7 +109,7 @@ def gen_coboundary_by_dim(filtration, maxdim=None):
     
     yield None
 
-    maxdim_splx = np.asarray(sorted(filtration_[maxdim - 1].keys()))[::-1]
+    maxdim_splx = np.asarray(sorted(filtration_by_dim[maxdim - 1].keys()))[::-1]
     yield maxdim_splx, ([list()] * len(maxdim_splx), [[i] for i in maxdim_splx])
 
 
