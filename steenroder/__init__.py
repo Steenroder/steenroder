@@ -75,7 +75,7 @@ def get_reduced_triangular(matrix, homology=False):
     return reduced, triangular
 
 
-def gen_coboundary_by_dim(filtration, maxdim=None):
+def sort_filtration_by_dim(filtration, maxdim=None):
     """Generates sparse coboundary matrices in order of increasing homology
     dimension"""
     if maxdim is None:
@@ -88,7 +88,15 @@ def gen_coboundary_by_dim(filtration, maxdim=None):
         if dim <= maxdim:
             filtration_by_dim[dim][idx] = v_t
             spx_filtration_idx_by_dim[dim][v_t] = idx
+    
+    return filtration_by_dim, spx_filtration_idx_by_dim
 
+
+def gen_coboundary_by_dim(filtration_by_dim, spx_filtration_idx_by_dim):
+    """Generates sparse coboundary matrices in order of increasing homology
+    dimension"""
+
+    maxdim = len(filtration_by_dim) - 1
     for dim in range(maxdim - 1):
         filtration_dim_plus_one = filtration_by_dim[dim + 1]
         spx_filtration_idx_dim = spx_filtration_idx_by_dim[dim]
@@ -176,12 +184,24 @@ def get_barcode_from_sparse(filtration, idxs_reduced_triangular):
     N = len(filtration)
     pairs = []
     all_indices = set()
-    for idxs, (reduced, triangular) in idxs_reduced_triangular:
+    
+    idxs, (reduced, triangular) = idxs_reduced_triangular[0]
+    pairs_dim = []
+    for i in range(len(idxs)):
+        if N - 1 - idxs[i] not in all_indices:
+            if not reduced[i]:
+                pairs_dim.append((N - 1 - idxs[i], np.inf))
+    pairs.append(sorted(pairs_dim))
+    
+    for dim in range(1, len(idxs_reduced_triangular)):
+        idxs, (reduced, _) = idxs_reduced_triangular[dim]
+        idxs_prev, (reduced_prev, _) = idxs_reduced_triangular[dim - 1]
+
         pairs_dim = []
-        for i in range(len(idxs)):
-            if reduced[i]:
-                b = N - 1 - min(reduced[i])
-                d = N - 1 - idxs[i]
+        for i in range(len(idxs_prev)):
+            if reduced_prev[i]:
+                b = N - 1 - reduced_prev[i][0]
+                d = N - 1 - idxs_prev[i]
                 pairs_dim.append((b, d))
                 all_indices |= {b, d}
 
@@ -224,16 +244,27 @@ def get_coho_reps(filtration, barcode=None, reduced=None, triangular=None):
 def get_coho_reps_from_sparse(filtration, barcode, idxs_reduced_triangular):
     N = len(filtration)
     coho_reps = []
-    for dim, barcode_in_dim in enumerate(barcode):
+    
+    idxs, (reduced, triangular) = idxs_reduced_triangular[0]
+    coho_reps_in_dim = []
+    for pair in barcode[0]:
+        idx = np.flatnonzero(idxs == N - 1 - pair[0])[0]
+        coho_reps_in_dim.append([N - 1 - x for x in triangular[idx]])
+    coho_reps.append(coho_reps_in_dim)
+    
+    for dim in range(1, len(barcode)):
+        barcode_in_dim = barcode[dim]
         idxs, (reduced, triangular) = idxs_reduced_triangular[dim]
+        idxs_prev, (reduced_prev, _) = idxs_reduced_triangular[dim - 1]
+
         coho_reps_in_dim = []
         for pair in barcode_in_dim:
             if pair[1] < np.inf:
-                idx = (i for i, x in enumerate(idxs) if x == N - 1 - pair[1])
-                coho_reps_in_dim.append([N - 1 - x for x in reduced[next(idx)]])
+                idx = np.flatnonzero(idxs_prev == N - 1 - pair[1])[0]
+                coho_reps_in_dim.append([N - 1 - x for x in reduced_prev[idx]])
             else:
-                idx = (i for i, x in enumerate(idxs) if x == N - 1 - pair[0])
-                coho_reps_in_dim.append([N - 1 - x for x in triangular[next(idx)]])
+                idx = np.flatnonzero(idxs == N - 1 - pair[0])[0]
+                coho_reps_in_dim.append([N - 1 - x for x in triangular[idx]])
                 
         coho_reps.append(coho_reps_in_dim)
 
@@ -265,7 +296,7 @@ def STSQ(k, cocycle, filtration):
         if len(u) == len(a) + k and tuple(u) in filtration:
             a_bar, b_bar = a.difference(b), b.difference(a)
             u_bar = sorted(a_bar.union(b_bar))
-            index = dict()
+            index = {}
             for v in a_bar.union(b_bar):
                 pos = u.index(v)
                 pos_bar = u_bar.index(v)
@@ -280,6 +311,7 @@ def STSQ(k, cocycle, filtration):
 
 
 def get_st_reps(filtration, k, barcode=None, coho_reps=None):
+    # NOTE: Only used for checking, no need to change for now
     if barcode is None:
         barcode = get_barcode(filtration)
     if coho_reps is None:
@@ -309,6 +341,20 @@ def get_steenrod_matrix(k, coho_reps, barcode, filtration):
         # cochain to vector
         steenrod_matrix[:, pos:pos + 1] = cochain_to_vector(filtration,
                                                             cochain)
+    return steenrod_matrix
+
+
+def get_steenrod_matrix_sparse(k, coho_reps, filtration, spx_filtration_idx_by_dim):
+    N = len(filtration)
+    filtration_ = set(filtration)
+    steenrod_matrix = []
+    for dim, coho_reps_in_dim in enumerate(coho_reps):
+        steenrod_matrix.append([])
+        for i, rep in enumerate(coho_reps_in_dim):
+            cocycle = set(filtration[N - 1 - j] for j in rep)
+            cochain = STSQ(k, cocycle, filtration_)
+            steenrod_matrix[dim].append([N - 1 - spx_filtration_idx_by_dim[dim + k][spx] for spx in cochain])
+        
     return steenrod_matrix
 
 
