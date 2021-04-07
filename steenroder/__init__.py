@@ -115,7 +115,7 @@ def get_reduced_triangular_sparse(filtration_by_dim, spx_filtration_idx_by_dim):
         
         idxs_reduced_triangular.append(
             (coboundary_keys_sorted,
-             _get_reduced_triangular_sparse(coboundary_keys_sorted,coboundary_vals_sorted))
+             _get_reduced_triangular_sparse(coboundary_keys_sorted, coboundary_vals_sorted))
             )
 
     # Special treatment for top dimension
