@@ -92,11 +92,11 @@ def sort_filtration_by_dim(filtration, maxdim=None):
     return filtration_by_dim, spx_filtration_idx_by_dim
 
 
-def gen_coboundary_by_dim(filtration_by_dim, spx_filtration_idx_by_dim):
-    """Generates sparse coboundary matrices in order of increasing homology
-    dimension"""
-
+def get_reduced_triangular_sparse(filtration_by_dim, spx_filtration_idx_by_dim):
+    """R = MV"""
     maxdim = len(filtration_by_dim) - 1
+    idxs_reduced_triangular = []
+    
     for dim in range(maxdim - 1):
         filtration_dim_plus_one = filtration_by_dim[dim + 1]
         spx_filtration_idx_dim = spx_filtration_idx_by_dim[dim]
@@ -110,30 +110,22 @@ def gen_coboundary_by_dim(filtration_by_dim, spx_filtration_idx_by_dim):
                     coboundary[face_idx].append(idx)
 
         coboundary_keys_sorted = np.asarray(sorted(coboundary.keys()))[::-1]
+        coboundary_vals_sorted = List([np.asarray(coboundary[x], dtype=np.int64)
+                                       for x in coboundary_keys_sorted])
+        
+        idxs_reduced_triangular.append(
+            (coboundary_keys_sorted,
+             _get_reduced_triangular_sparse(coboundary_keys_sorted,coboundary_vals_sorted))
+            )
 
-        yield (coboundary_keys_sorted,
-               List([np.asarray(coboundary[x], dtype=np.int64)
-                     for x in coboundary_keys_sorted]))
-    
-    yield None
-
+    # Special treatment for top dimension
     maxdim_splx = np.asarray(sorted(filtration_by_dim[maxdim - 1].keys()))[::-1]
-    yield maxdim_splx, ([list()] * len(maxdim_splx), [[i] for i in maxdim_splx])
+    idxs_reduced_triangular.append(
+        (maxdim_splx,
+         ([list()] * len(maxdim_splx), [[i] for i in maxdim_splx]))
+        )
 
-
-def get_reduced_triangular_sparse(matrices_by_dim):
-    """R = MV"""
-    ret = []
-    for mat in matrices_by_dim:
-        if mat is not None:
-            ret.append((mat[0],
-                        _get_reduced_triangular_sparse(mat[0], mat[1])))
-        else:
-            break
-            
-    ret.append(next(matrices_by_dim))
-
-    return ret
+    return idxs_reduced_triangular
 
 
 @njit
