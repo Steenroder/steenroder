@@ -1,5 +1,6 @@
-import numpy as np
 from itertools import combinations
+
+import numpy as np
 from numba import njit
 from numba.typed import List
 
@@ -227,10 +228,8 @@ def get_steenrod_barcode(k, steenrod_matrix, idxs_reduced_triangular, barcode, f
     return st_barcode
                         
 
-
 def barcodes(k, filtration, maxdim=None):
     """Serves as the main function"""
-
     filtration_by_dim, spx_filtration_idx_by_dim = sort_filtration_by_dim(filtration, maxdim=maxdim)
     idxs_reduced_triangular = get_reduced_triangular(filtration_by_dim, spx_filtration_idx_by_dim)
     barcode = get_barcode(filtration, idxs_reduced_triangular)
