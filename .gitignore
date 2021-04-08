@@ -4,3 +4,4 @@
 *.pkl
 __pycache__
 .idea
+steenroder.egg-info
