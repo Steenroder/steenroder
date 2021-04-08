@@ -5,8 +5,6 @@ from numba.typed import List
 
 
 def sort_filtration_by_dim(filtration, maxdim=None):
-    """Generates sparse coboundary matrices in order of increasing homology
-    dimension"""
     if maxdim is None:
         maxdim = max(map(len, filtration))
     filtration_by_dim = [{} for i in range(maxdim + 1)]
@@ -189,7 +187,6 @@ def get_steenrod_barcode(k, steenrod_matrix, idxs_reduced_triangular, barcode, f
 
     st_barcode = [list()] * k
     for dim in range(k, len(steenrod_matrix)):
-        print(dim)
         st_barcode_dim = []
         if steenrod_matrix[dim]:
             alive = [True] * len(steenrod_matrix[dim])
@@ -217,12 +214,9 @@ def get_steenrod_barcode(k, steenrod_matrix, idxs_reduced_triangular, barcode, f
                                 iii = ii
 
                     if alive[ii - n] and (not augmented[ii]):
-                        print((births_dim[ii - n], idx))
-                        print(ii - n)
-                        print()
                         alive[ii - n] = False
-                        if idx > births_dim[ii - n]:
-                            st_barcode_dim.append((births_dim[ii - n], idx))
+                        if idx < births_dim[ii - n]:
+                            st_barcode_dim.append((N - 1 - births_dim[ii - n], N - 1 - idx))
 
             for i in range(len(alive)):
                 if alive[i]:
