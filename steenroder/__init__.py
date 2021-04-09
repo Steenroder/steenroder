@@ -188,44 +188,61 @@ def get_steenrod_barcode(k, steenrod_matrix, idxs_reduced_triangular, barcode, f
 
     st_barcode = [list()] * k
     for dim in range(k, len(steenrod_matrix)):
-        st_barcode_dim = []
         if steenrod_matrix[dim]:
-            alive = [True] * len(steenrod_matrix[dim])
-            births_dim = [N - 1 - pair[0] for pair in barcode[dim - k]]
+            births_dim = np.asarray([N - 1 - pair[0] for pair in barcode[dim - k]], dtype=np.int64)
             idxs_prev, (reduced_prev, _) = idxs_reduced_triangular[dim - 1]
-            n = len(reduced_prev)
-            augmented = reduced_prev[::-1] + \
-                [sorted([N - 1 - x for x in cochain]) for cochain in steenrod_matrix[dim]]
+            reduced_prev = List([np.asarray(x, dtype=np.int64) for x in reduced_prev])
+            steenrod_matrix_dim = List([np.sort([N - 1 - x for x in cochain]).astype(np.int64)
+                                        for cochain in steenrod_matrix[dim]])
 
-            j = 0
-            for i, idx in enumerate(idxs_prev):
-                if births_dim[j] == idx:
-                    j += 1
-                for ii in range(n, n + j):
-                    if augmented[ii]:
-                        iii = ii
-                        while iii >= n - i:
-                            iii -= 1
-                            if not augmented[ii]:
-                                break
-                            elif not augmented[iii]:
-                                continue
-                            elif augmented[iii][0] == augmented[ii][0]:
-                                augmented[ii] = _symm_diff(augmented[iii][1:], augmented[ii][1:])
-                                iii = ii
-
-                    if alive[ii - n] and (not augmented[ii]):
-                        alive[ii - n] = False
-                        if idx < births_dim[ii - n]:
-                            st_barcode_dim.append((N - 1 - births_dim[ii - n], N - 1 - idx))
-
-            for i in range(len(alive)):
-                if alive[i]:
-                    st_barcode_dim.append((N - 1 - births_dim[i], np.inf))
-
-        st_barcode.append(st_barcode_dim)
+            st_barcode.append([pair if pair[1] != -1 else (pair[0], np.inf)
+                               for pair in _get_steenrod_barcode_in_dim(steenrod_matrix_dim, idxs_prev, reduced_prev, births_dim, N)])
+        else:
+            st_barcode.append([])
 
     return st_barcode
+
+
+@njit
+def _get_steenrod_barcode_in_dim(steenrod_matrix_dim, idxs_prev, reduced_prev, births_dim, N):
+    augmented = []
+    for i in range(len(reduced_prev) - 1, -1, -1):
+        augmented.append([x for x in reduced_prev[i]])
+
+    for i in range(len(steenrod_matrix_dim)):
+        augmented.append([x for x in steenrod_matrix_dim[i]])
+
+    alive = [True] * len(births_dim)
+    n = len(reduced_prev)
+    st_barcode_dim = []
+
+    j = 0
+    for i, idx in enumerate(idxs_prev):
+        if births_dim[j] == idx:
+            j += 1
+        for ii in range(n, n + j):
+            if augmented[ii]:
+                iii = ii
+                while iii >= n - i:
+                    iii -= 1
+                    if not augmented[ii]:
+                        break
+                    elif not augmented[iii]:
+                        continue
+                    elif augmented[iii][0] == augmented[ii][0]:
+                        augmented[ii] = _symm_diff(augmented[iii][1:], augmented[ii][1:])
+                        iii = ii
+
+            if alive[ii - n] and (not augmented[ii]):
+                alive[ii - n] = False
+                if idx < births_dim[ii - n]:
+                    st_barcode_dim.append((N - 1 - births_dim[ii - n], N - 1 - idx))
+
+    for i in range(len(alive)):
+        if alive[i]:
+            st_barcode_dim.append((N - 1 - births_dim[i], -1))
+
+    return st_barcode_dim
                         
 
 def barcodes(k, filtration, maxdim=None):
