@@ -74,7 +74,7 @@ def _get_reduced_triangular(idxs, matrix):
             elif not reduced[i]:
                 continue
             elif reduced[j][0] == reduced[i][0]:
-                reduced[j] = _symm_diff(reduced[j], reduced[i])
+                reduced[j] = _symm_diff(reduced[j][1:], reduced[i][1:])
                 triangular[j] = _symm_diff(triangular[j], triangular[i])
                 i = j
 
@@ -211,7 +211,7 @@ def get_steenrod_barcode(k, steenrod_matrix, idxs_reduced_triangular, barcode, f
                             elif not augmented[iii]:
                                 continue
                             elif augmented[iii][0] == augmented[ii][0]:
-                                augmented[ii] = _symm_diff(augmented[iii], augmented[ii])
+                                augmented[ii] = _symm_diff(augmented[iii][1:], augmented[ii][1:])
                                 iii = ii
 
                     if alive[ii - n] and (not augmented[ii]):
