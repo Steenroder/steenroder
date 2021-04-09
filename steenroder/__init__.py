@@ -171,13 +171,13 @@ def STSQ(k, cocycle, filtration):
 
 def get_steenrod_matrix(k, coho_reps, filtration, spx_filtration_idx_by_dim):
     N = len(filtration)
-    filtration_ = set(filtration)
     steenrod_matrix = [list()] * k
     for dim, coho_reps_in_dim in enumerate(coho_reps[:-1]):
+        filtration_tuples_dim_plus_k = set(spx_filtration_idx_by_dim[dim + k].keys())
         steenrod_matrix.append([])
         for i, rep in enumerate(coho_reps_in_dim):
             cocycle = set(filtration[N - 1 - j] for j in rep)
-            cochain = STSQ(k, cocycle, filtration_)
+            cochain = STSQ(k, cocycle, filtration_tuples_dim_plus_k)
             steenrod_matrix[dim + k].append([N - 1 - spx_filtration_idx_by_dim[dim + k][spx] for spx in cochain])
         
     return steenrod_matrix
