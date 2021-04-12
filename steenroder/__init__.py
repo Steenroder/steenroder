@@ -28,14 +28,11 @@ def get_reduced_triangular(filtration_by_dim, spx_filtration_idx_by_dim):
     for dim in range(maxdim - 1):
         filtration_dim_plus_one = filtration_by_dim[dim + 1]
         spx_filtration_idx_dim = spx_filtration_idx_by_dim[dim]
-        coboundary = {}
+        coboundary = {idx: [] for idx in spx_filtration_idx_dim.values()}
         for idx, spx in filtration_dim_plus_one.items():
             for j in range(dim + 2):
                 face_idx = spx_filtration_idx_dim[spx[:j] + spx[j + 1:]]
-                if face_idx not in coboundary:
-                    coboundary[face_idx] = [idx]
-                else:
-                    coboundary[face_idx].append(idx)
+                coboundary[face_idx].append(idx)
 
         coboundary_keys_sorted = np.asarray(sorted(coboundary.keys()))[::-1]
         coboundary_vals_sorted = List([np.asarray(coboundary[x], dtype=np.int64)
@@ -86,7 +83,7 @@ def get_barcode(filtration, idxs_reduced_triangular):
     pairs = []
     all_indices = set()
     
-    idxs, (reduced, triangular) = idxs_reduced_triangular[0]
+    idxs, (reduced, _) = idxs_reduced_triangular[0]
     pairs_dim = []
     for i in range(len(idxs)):
         if N - 1 - idxs[i] not in all_indices:
