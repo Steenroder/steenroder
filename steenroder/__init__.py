@@ -232,7 +232,7 @@ def STSQ(length, cocycle, filtration):
 
 
 @njit
-def populate_steenrod_matrix_dim_plus_k(st_mat, N, cochain, idxs, spx_filtration_idx_dim):
+def populate_steenrod_matrix_dim_plus_k(st_mat, cochain, idxs, spx_filtration_idx_dim):
     st_mat.append(sorted([idxs[-1 - spx_filtration_idx_dim[spx]]
                           for spx in cochain]))
 
@@ -242,17 +242,16 @@ def populate_steenrod_matrix_dim_plus_k_with_empty(st_mat):
 
 
 def get_steenrod_matrix(k, coho_reps, filtration, spxdict_idxs_reduced_triangular):
-    N = len(filtration)
     steenrod_matrix = [list()] * k
     for dim, coho_reps_in_dim in enumerate(coho_reps[:-1]):
         length = dim + 1 + k
         steenrod_matrix.append(List.empty_list(types.List(types.int64)))
         for i, rep in enumerate(coho_reps_in_dim):
-            cocycle = [filtration[N - 1 - j] for j in rep]
+            cocycle = [filtration[-1 - j] for j in rep]
             spx_filtration_idx_dim, idxs, _, _ = spxdict_idxs_reduced_triangular[dim + k]
             cochain = STSQ(length, cocycle, spx_filtration_idx_dim)
             if cochain:
-                populate_steenrod_matrix_dim_plus_k(steenrod_matrix[dim + k], N, cochain, idxs, spx_filtration_idx_dim)
+                populate_steenrod_matrix_dim_plus_k(steenrod_matrix[dim + k], cochain, idxs, spx_filtration_idx_dim)
             else:
                 populate_steenrod_matrix_dim_plus_k_with_empty(steenrod_matrix[dim + k])
         
