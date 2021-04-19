@@ -27,6 +27,40 @@ def sort_filtration_by_dim(filtration, maxdim=None):
     return filtration_by_dim
 
 
+@njit
+def _standard_reduction(coboundary_matrix,
+                        triangular,
+                        pivots_lookup,
+                        filtration_dim_plus_one_idxs):
+    """R = MV"""
+    n = len(coboundary_matrix)
+
+    coboundary_matrix = coboundary_matrix[::-1]
+    triangular = triangular[::-1]
+    for j in range(n):
+        highest_one = coboundary_matrix[j][0] if coboundary_matrix[j] else -1
+        pivot_col = pivots_lookup[highest_one]
+        while (highest_one != -1) and (pivot_col != -1):
+            coboundary_matrix[j] = _symm_diff(
+                coboundary_matrix[j][1:],
+                coboundary_matrix[pivot_col][1:]
+                )
+            triangular[j] = _symm_diff(
+                triangular[j],
+                triangular[pivot_col]
+                )
+            highest_one = coboundary_matrix[j][0] if coboundary_matrix[j] else -1
+            pivot_col = pivots_lookup[highest_one]
+        if highest_one != -1:
+            pivots_lookup[highest_one] = j
+    
+    for j in range(n):
+        coboundary_matrix[j] = [filtration_dim_plus_one_idxs[k]
+                                for k in coboundary_matrix[j]]
+
+    return coboundary_matrix, triangular
+
+
 @lru_cache
 def get_reduced_triangular_single_dim(dim):
     len_tups_dim = dim + 1
@@ -67,40 +101,6 @@ def get_reduced_triangular_single_dim(dim):
         return spx_filtration_idx_dim, reduced, triangular
 
     return inner
-
-
-@njit
-def _standard_reduction(coboundary_matrix,
-                        triangular,
-                        pivots_lookup,
-                        filtration_dim_plus_one_idxs):
-    """R = MV"""
-    n = len(coboundary_matrix)
-
-    coboundary_matrix = coboundary_matrix[::-1]
-    triangular = triangular[::-1]
-    for j in range(n):
-        highest_one = coboundary_matrix[j][0] if coboundary_matrix[j] else -1
-        pivot_col = pivots_lookup[highest_one]
-        while (highest_one != -1) and (pivot_col != -1):
-            coboundary_matrix[j] = _symm_diff(
-                coboundary_matrix[j][1:],
-                coboundary_matrix[pivot_col][1:]
-                )
-            triangular[j] = _symm_diff(
-                triangular[j],
-                triangular[pivot_col]
-                )
-            highest_one = coboundary_matrix[j][0] if coboundary_matrix[j] else -1
-            pivot_col = pivots_lookup[highest_one]
-        if highest_one != -1:
-            pivots_lookup[highest_one] = j
-    
-    for j in range(n):
-        coboundary_matrix[j] = [filtration_dim_plus_one_idxs[k]
-                                for k in coboundary_matrix[j]]
-
-    return coboundary_matrix, triangular
 
 
 def get_reduced_triangular(filtration_by_dim):
