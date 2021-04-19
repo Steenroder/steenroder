@@ -206,25 +206,27 @@ def _tuple_in_dict(tup, d):
     return tup in d
     
 
-def STSQ(k, cocycle, filtration):
+def STSQ(length, cocycle, filtration):
     """..."""
     answer = set()
     for pair in combinations(cocycle, 2):
         a, b = set(pair[0]), set(pair[1])
-        u = sorted(a.union(b))
-        if len(u) == len(a) + k and _tuple_in_dict(tuple(u), filtration):
-            a_bar, b_bar = a.difference(b), b.difference(a)
-            u_bar = sorted(a_bar.union(b_bar))
-            index = {}
-            for v in a_bar.union(b_bar):
-                pos = u.index(v)
-                pos_bar = u_bar.index(v)
-                index[v] = (pos + pos_bar) % 2
-            index_a = {index[v] for v in a_bar}
-            index_b = {index[w] for w in b_bar}
-            if (index_a == {0} and index_b == {1}
-                    or index_a == {1} and index_b == {0}):
-                answer ^= {tuple(u)}
+        u = a.union(b)
+        if len(u) == length:
+            u_tuple = tuple(sorted(u))
+            if _tuple_in_dict(u_tuple, filtration):
+                a_bar, b_bar = a.difference(b), b.difference(a)
+                u_bar = sorted(a_bar.union(b_bar))
+                index = {}
+                for v in a_bar.union(b_bar):
+                    pos = u_tuple.index(v)
+                    pos_bar = u_bar.index(v)
+                    index[v] = (pos + pos_bar) % 2
+                index_a = {index[v] for v in a_bar}
+                index_b = {index[w] for w in b_bar}
+                if (index_a == {0} and index_b == {1}
+                        or index_a == {1} and index_b == {0}):
+                    answer ^= {u_tuple}
 
     return answer
 
@@ -243,11 +245,12 @@ def get_steenrod_matrix(k, coho_reps, filtration, spxdict_idxs_reduced_triangula
     N = len(filtration)
     steenrod_matrix = [list()] * k
     for dim, coho_reps_in_dim in enumerate(coho_reps[:-1]):
+        length = dim + 1 + k
         steenrod_matrix.append(List.empty_list(types.List(types.int64)))
         for i, rep in enumerate(coho_reps_in_dim):
             cocycle = [filtration[N - 1 - j] for j in rep]
             spx_filtration_idx_dim, idxs, _, _ = spxdict_idxs_reduced_triangular[dim + k]
-            cochain = STSQ(k, cocycle, spx_filtration_idx_dim)
+            cochain = STSQ(length, cocycle, spx_filtration_idx_dim)
             if cochain:
                 populate_steenrod_matrix_dim_plus_k(steenrod_matrix[dim + k], N, cochain, idxs, spx_filtration_idx_dim)
             else:
