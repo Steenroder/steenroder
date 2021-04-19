@@ -65,7 +65,8 @@ def _standard_reduction(coboundary_matrix,
 def get_reduced_triangular_single_dim(dim):
     len_tups_dim = dim + 1
     tuple_typ_dim = types.UniTuple(types.int64, len_tups_dim)
-    len_tups_dim_plus_one = dim + 2
+    len_tups_dim_plus_one = dim + 2 
+    int64_list_typ = types.List(types.int64)
 
     @njit
     def inner(filtration_dim_idxs,
@@ -75,14 +76,12 @@ def get_reduced_triangular_single_dim(dim):
         """R = MV"""
         spx_filtration_idx_dim = Dict.empty(tuple_typ_dim, types.int64)
         # Initialize reduced matrix as the coboundary matrix
-        # TODO avoid this silly initializing and popping, needed now for type inference
-        reduced = []
-        triangular = []
+        reduced = List.empty_list(int64_list_typ)
+        triangular = List.empty_list(int64_list_typ)
         for i in range(len(filtration_dim_idxs)):
             spx = to_fixed_tuple(filtration_dim_tups_array[i], len_tups_dim)
             spx_filtration_idx_dim[spx] = i
-            reduced.append([-1])
-            reduced[-1].pop()
+            reduced.append([types.int64(x) for x in range(0)])
             triangular.append([filtration_dim_idxs[i]])
 
         if filtration_dim_plus_one_idxs is not None:
@@ -202,13 +201,18 @@ def get_coho_reps(filtration, barcode, spxdict_idxs_reduced_triangular):
     return coho_reps
 
 
+@njit
+def _tuple_in_dict(tup, d):
+    return tup in d
+    
+
 def STSQ(k, cocycle, filtration):
     """..."""
     answer = set()
     for pair in combinations(cocycle, 2):
         a, b = set(pair[0]), set(pair[1])
         u = sorted(a.union(b))
-        if len(u) == len(a) + k and tuple(u) in filtration:
+        if len(u) == len(a) + k and _tuple_in_dict(tuple(u), filtration):
             a_bar, b_bar = a.difference(b), b.difference(a)
             u_bar = sorted(a_bar.union(b_bar))
             index = {}
@@ -225,17 +229,29 @@ def STSQ(k, cocycle, filtration):
     return answer
 
 
+@njit
+def populate_steenrod_matrix_dim_plus_k(st_mat, N, cochain, idxs, spx_filtration_idx_dim):
+    st_mat.append(sorted([idxs[-1 - spx_filtration_idx_dim[spx]]
+                          for spx in cochain]))
+
+@njit
+def populate_steenrod_matrix_dim_plus_k_with_empty(st_mat):
+    st_mat.append([types.int64(x) for x in range(0)])
+
+
 def get_steenrod_matrix(k, coho_reps, filtration, spxdict_idxs_reduced_triangular):
     N = len(filtration)
     steenrod_matrix = [list()] * k
     for dim, coho_reps_in_dim in enumerate(coho_reps[:-1]):
-        steenrod_matrix.append([])
+        steenrod_matrix.append(List.empty_list(types.List(types.int64)))
         for i, rep in enumerate(coho_reps_in_dim):
-            cocycle = set(filtration[N - 1 - j] for j in rep)
+            cocycle = [filtration[N - 1 - j] for j in rep]
             spx_filtration_idx_dim, idxs, _, _ = spxdict_idxs_reduced_triangular[dim + k]
             cochain = STSQ(k, cocycle, spx_filtration_idx_dim)
-            steenrod_matrix[dim + k].append([N - 1 - idxs[-1 - spx_filtration_idx_dim[spx]]
-                                             for spx in cochain])
+            if cochain:
+                populate_steenrod_matrix_dim_plus_k(steenrod_matrix[dim + k], N, cochain, idxs, spx_filtration_idx_dim)
+            else:
+                populate_steenrod_matrix_dim_plus_k_with_empty(steenrod_matrix[dim + k])
         
     return steenrod_matrix
 
@@ -248,11 +264,8 @@ def get_steenrod_barcode(k, steenrod_matrix, spxdict_idxs_reduced_triangular, ba
         if steenrod_matrix[dim]:
             births_dim = np.asarray([N - 1 - pair[0] for pair in barcode[dim - k]], dtype=np.int64)
             _, idxs_prev, reduced_prev, _ = spxdict_idxs_reduced_triangular[dim - 1]
-            reduced_prev = List([np.asarray(x, dtype=np.int64) for x in reduced_prev])
-            steenrod_matrix_dim = List([np.sort([N - 1 - x for x in cochain]).astype(np.int64)
-                                        for cochain in steenrod_matrix[dim]])
             st_barcode.append([pair if pair[1] != -1 else (pair[0], np.inf)
-                               for pair in _get_steenrod_barcode_in_dim(steenrod_matrix_dim, idxs_prev, reduced_prev, births_dim, N)])
+                               for pair in _get_steenrod_barcode_in_dim(steenrod_matrix[dim], idxs_prev, reduced_prev, births_dim, N)])
         else:
             st_barcode.append([])
 
