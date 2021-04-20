@@ -383,7 +383,8 @@ def get_steenrod_barcode(k, steenrod_matrix, spx2idx_idxs_reduced_triangular,
                         
 
 def barcodes(
-        k, filtration, homology=True, filtration_values=None, maxdim=None
+        k, filtration, homology=True, filtration_values=None,
+        return_filtration_values=True, maxdim=None
         ):
     """Serves as the main function"""
     N = len(filtration)
@@ -399,24 +400,74 @@ def barcodes(
                                       N, filtration_values=filtration_values)
 
     if homology:
-        barcode = to_homology_barcode(barcode, N)
-        st_barcode = to_homology_barcode(barcode, N)
+        barcode = to_homology_barcode(
+            barcode, N, filtration_values=filtration_values,
+            return_filtration_values=return_filtration_values
+            )
+        st_barcode = to_homology_barcode(
+            st_barcode, N, filtration_values=filtration_values,
+            return_filtration_values=return_filtration_values
+            )
+
+        return barcode, st_barcode
+
+    if return_filtration_values:
+        barcode = to_values_barcode(barcode, N, filtration_values)
+        st_barcode = to_values_barcode(st_barcode, N, filtration_values)
 
     return barcode, st_barcode
 
 
-def to_homology_barcode(rel_coho_barcode, N):
+def to_homology_barcode(rel_coho_barcode, N, filtration_values=None,
+                        return_filtration_values=True):
     hom_barcode = []
-    for dim, rel_coho_barcode_dim in enumerate(rel_coho_barcode):
-        hom_barcode_dim = []
-        for pair in rel_coho_barcode_dim:
-            if pair[1] == np.inf:
-                hom_barcode_dim.append((N - 1 - pair[0], np.inf))
-            else:
-                hom_barcode[dim - 1].append((N - 1 - pair[1], N - 1 - pair[0]))
-        hom_barcode.append(hom_barcode_dim)
+
+    if not return_filtration_values:
+        for dim, rel_coho_barcode_dim in enumerate(rel_coho_barcode):
+            hom_barcode_dim = []
+            for pair in rel_coho_barcode_dim:
+                if pair[1] == np.inf:
+                    hom_barcode_dim.append((N - 1 - pair[0], np.inf))
+                else:
+                    hom_barcode[dim - 1].append((N - 1 - pair[1],
+                                                 N - 1 - pair[0]))
+            hom_barcode.append(hom_barcode_dim)
+
+    else:
+        for dim, rel_coho_barcode_dim in enumerate(rel_coho_barcode):
+            hom_barcode_dim = []
+            for pair in rel_coho_barcode_dim:
+                if pair[1] == np.inf:
+                    hom_barcode_dim.append(
+                        (filtration_values[N - 1 - pair[0]], np.inf)
+                        )
+                else:
+                    hom_barcode[dim - 1].append(
+                        (filtration_values[N - 1 - pair[1]],
+                         filtration_values[N - 1 - pair[0]])
+                        )
+            hom_barcode.append(hom_barcode_dim)
 
     return hom_barcode
+
+
+def to_values_barcode(rel_coho_barcode, N, filtration_values):
+    values_barcode = []
+    for dim, rel_coho_barcode_dim in enumerate(rel_coho_barcode):
+        values_barcode_dim = []
+        for pair in rel_coho_barcode_dim:
+            if pair[1] == np.inf:
+                values_barcode_dim.append(
+                    (filtration_values[N - 1 - pair[0]], np.inf)
+                )
+            else:
+                values_barcode[dim - 1].append(
+                    (filtration_values[N - 1 - pair[0]],
+                     filtration_values[N - 1 - pair[1]])
+                )
+        values_barcode.append(values_barcode_dim)
+
+    return values_barcode
 
 
 def check_agreement_with_gudhi(gudhi_barcode, barcode):
