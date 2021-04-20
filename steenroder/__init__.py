@@ -122,9 +122,11 @@ def get_reduced_triangular(filtr_by_dim):
     return spx2idx_idxs_reduced_triangular
 
 
-def get_barcode(filtration, spx2idx_idxs_reduced_triangular,
+def get_barcode(N, spx2idx_idxs_reduced_triangular,
                 filtration_values=None):
-    N = len(filtration)
+    def is_nontrivial_bar(b, d):
+        return filtration_values[N - 1 - b] != filtration_values[N - 1 - d]
+
     pairs = []
     all_indices = set()
 
@@ -158,9 +160,6 @@ def get_barcode(filtration, spx2idx_idxs_reduced_triangular,
             pairs.append(sorted(pairs_dim))
 
     else:
-        is_nontrivial_bar = lambda b, d: filtration_values[N - 1 - b] != \
-                                         filtration_values[N - 1 - d]
-
         _, idxs_0, reduced_0, _ = spx2idx_idxs_reduced_triangular[0]
         pairs_0 = []
         for i in range(len(idxs_0)):
@@ -193,8 +192,7 @@ def get_barcode(filtration, spx2idx_idxs_reduced_triangular,
     return pairs
 
 
-def get_coho_reps(filtration, barcode, spx2idx_idxs_reduced_triangular):
-    N = len(filtration)
+def get_coho_reps(N, barcode, spx2idx_idxs_reduced_triangular):
     coho_reps = []
     
     _, idxs_0, _, triangular_0 = spx2idx_idxs_reduced_triangular[0]
@@ -333,66 +331,78 @@ def _steenrod_barcode_single_dim(steenrod_matrix_dim, idxs_prev_dim,
 
 
 def get_steenrod_barcode(k, steenrod_matrix, spx2idx_idxs_reduced_triangular,
-                         barcode, filtration):
-    N = len(filtration)
+                         barcode, N, filtration_values=None):
+    def is_nontrivial_bar(pair):
+        return (pair[1] != -1) and (filtration_values[N - 1 - pair[0]] !=
+                                    filtration_values[N - 1 - pair[1]])
 
     st_barcode = [list()] * k
-    for dim in range(k, len(steenrod_matrix)):
-        if steenrod_matrix[dim]:
-            births_dim = \
-                np.asarray([N - 1 - pair[0] for pair in barcode[dim - k]],
-                           dtype=np.int64)
-            _, idxs_prev_dim, reduced_prev_dim, _ = \
-                spx2idx_idxs_reduced_triangular[dim - 1]
-            st_barcode.append([
-                pair if pair[1] != -1 else (pair[0], np.inf)
-                for pair in _steenrod_barcode_single_dim(steenrod_matrix[dim],
-                                                         idxs_prev_dim,
-                                                         reduced_prev_dim,
-                                                         births_dim,
-                                                         N)
-                ])
-        else:
-            st_barcode.append([])
+    if filtration_values is None:
+        for dim in range(k, len(steenrod_matrix)):
+            if steenrod_matrix[dim]:
+                births_dim = \
+                    np.asarray([N - 1 - pair[0] for pair in barcode[dim - k]],
+                               dtype=np.int64)
+                _, idxs_prev_dim, reduced_prev_dim, _ = \
+                    spx2idx_idxs_reduced_triangular[dim - 1]
+                st_barcode.append([
+                    pair if pair[1] != -1 else (pair[0], np.inf)
+                    for pair in _steenrod_barcode_single_dim(
+                        steenrod_matrix[dim],
+                        idxs_prev_dim,
+                        reduced_prev_dim,
+                        births_dim,
+                        N
+                        )
+                    ])
+            else:
+                st_barcode.append([])
+
+    else:
+        for dim in range(k, len(steenrod_matrix)):
+            if steenrod_matrix[dim]:
+                births_dim = \
+                    np.asarray([N - 1 - pair[0] for pair in barcode[dim - k]],
+                               dtype=np.int64)
+                _, idxs_prev_dim, reduced_prev_dim, _ = \
+                    spx2idx_idxs_reduced_triangular[dim - 1]
+                st_barcode.append([
+                    pair if is_nontrivial_bar(pair) else (pair[0], np.inf)
+                    for pair in _steenrod_barcode_single_dim(
+                        steenrod_matrix[dim],
+                        idxs_prev_dim,
+                        reduced_prev_dim,
+                        births_dim,
+                        N
+                        )
+                    ])
+            else:
+                st_barcode.append([])
 
     return st_barcode
                         
 
-def barcodes(k, filtration, maxdim=None):
+def barcodes(
+        k, filtration, homology=True, filtration_values=None, maxdim=None
+        ):
     """Serves as the main function"""
+    N = len(filtration)
     filtration_by_dim = sort_filtration_by_dim(filtration, maxdim=maxdim)
     spx2idx_idxs_reduced_triangular = get_reduced_triangular(filtration_by_dim)
-    barcode = get_barcode(filtration, spx2idx_idxs_reduced_triangular)
-    coho_reps = get_coho_reps(filtration, barcode,
-                              spx2idx_idxs_reduced_triangular)
+    barcode = get_barcode(N, spx2idx_idxs_reduced_triangular,
+                          filtration_values=filtration_values)
+    coho_reps = get_coho_reps(N, barcode, spx2idx_idxs_reduced_triangular)
     steenrod_matrix = get_steenrod_matrix(k, coho_reps, filtration,
                                           spx2idx_idxs_reduced_triangular)
     st_barcode = get_steenrod_barcode(k, steenrod_matrix,
                                       spx2idx_idxs_reduced_triangular, barcode,
-                                      filtration)
+                                      N, filtration_values=filtration_values)
+
+    if homology:
+        barcode = to_homology_barcode(barcode, N)
+        st_barcode = to_homology_barcode(barcode, N)
 
     return barcode, st_barcode
-
-
-def remove_trivial_bars(barcode, filtration):
-    """Note: filtration is as returned by GUDHI, i.e. [(simplex_tuple,
-    filtration value), ...]"""
-    N = len(filtration)
-    barcode_vals = []
-    for barcode_dim in barcode:
-        barcode_vals_dim = []
-        for tup in barcode_dim:
-            if not np.isinf(tup[1]):
-                candidate = (filtration[N - 1 - tup[0]][1],
-                             filtration[N - 1 - tup[1]][1])
-                if candidate[0] != candidate[1]:
-                    barcode_vals_dim.append(candidate)
-            else:
-                barcode_vals_dim.append((filtration[N - 1 - tup[0]][1],
-                                         -np.inf))
-        barcode_vals.append(barcode_vals_dim)
-    
-    return barcode_vals
 
 
 def to_homology_barcode(rel_coho_barcode, N):
