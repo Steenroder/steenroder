@@ -360,6 +360,20 @@ def remove_trivial_bars(barcode, filtration):
     return barcode_vals
 
 
+def to_homology_barcode(rel_coho_barcode, N):
+    hom_barcode = []
+    for dim, rel_coho_barcode_dim in enumerate(rel_coho_barcode):
+        hom_barcode_dim = []
+        for pair in rel_coho_barcode_dim:
+            if pair[1] == np.inf:
+                hom_barcode_dim.append((N - 1 - pair[0], np.inf))
+            else:
+                hom_barcode[dim - 1].append((N - 1 - pair[1], N - 1 - pair[0]))
+        hom_barcode.append(hom_barcode_dim)
+
+    return hom_barcode
+
+
 @njit
 def _symm_diff(x, y):
     n = len(x)
