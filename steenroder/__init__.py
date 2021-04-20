@@ -411,7 +411,7 @@ def barcodes(
 
         return barcode, st_barcode
 
-    if return_filtration_values:
+    if return_filtration_values and (filtration_values is not None):
         barcode = to_values_barcode(barcode, N, filtration_values)
         st_barcode = to_values_barcode(st_barcode, N, filtration_values)
 
@@ -422,7 +422,7 @@ def to_homology_barcode(rel_coho_barcode, N, filtration_values=None,
                         return_filtration_values=True):
     hom_barcode = []
 
-    if not return_filtration_values:
+    if (not return_filtration_values) or (filtration_values is None):
         for dim, rel_coho_barcode_dim in enumerate(rel_coho_barcode):
             hom_barcode_dim = []
             for pair in rel_coho_barcode_dim:
