@@ -122,38 +122,73 @@ def get_reduced_triangular(filtr_by_dim):
     return spx2idx_idxs_reduced_triangular
 
 
-def get_barcode(filtration, spx2idx_idxs_reduced_triangular):
+def get_barcode(filtration, spx2idx_idxs_reduced_triangular,
+                filtration_values=None):
     N = len(filtration)
     pairs = []
     all_indices = set()
-    
-    _, idxs_0, reduced_0, _ = spx2idx_idxs_reduced_triangular[0]
-    pairs_0 = []
-    for i in range(len(idxs_0)):
-        if N - 1 - idxs_0[i] not in all_indices:
-            if not reduced_0[i]:
-                pairs_0.append((N - 1 - idxs_0[i], np.inf))
-    pairs.append(sorted(pairs_0))
-    
-    for dim in range(1, len(spx2idx_idxs_reduced_triangular)):
-        _, idxs_dim, reduced_dim, _ = spx2idx_idxs_reduced_triangular[dim]
-        _, idxs_prev_dim, reduced_prev_dim, _ = \
-            spx2idx_idxs_reduced_triangular[dim - 1]
 
-        pairs_dim = []
-        for i in range(len(idxs_prev_dim)):
-            if reduced_prev_dim[i]:
-                b = N - 1 - reduced_prev_dim[i][0]
-                d = N - 1 - idxs_prev_dim[i]
-                pairs_dim.append((b, d))
-                all_indices |= {b, d}
+    if filtration_values is None:
+        _, idxs_0, reduced_0, _ = spx2idx_idxs_reduced_triangular[0]
+        pairs_0 = []
+        for i in range(len(idxs_0)):
+            if N - 1 - idxs_0[i] not in all_indices:
+                if not reduced_0[i]:
+                    pairs_0.append((N - 1 - idxs_0[i], np.inf))
+        pairs.append(sorted(pairs_0))
 
-        for i in range(len(idxs_dim)):
-            if N - 1 - idxs_dim[i] not in all_indices:
-                if not reduced_dim[i]:
-                    pairs_dim.append((N - 1 - idxs_dim[i], np.inf))
-            
-        pairs.append(sorted(pairs_dim))
+        for dim in range(1, len(spx2idx_idxs_reduced_triangular)):
+            _, idxs_dim, reduced_dim, _ = spx2idx_idxs_reduced_triangular[dim]
+            _, idxs_prev_dim, reduced_prev_dim, _ = \
+                spx2idx_idxs_reduced_triangular[dim - 1]
+
+            pairs_dim = []
+            for i in range(len(idxs_prev_dim)):
+                if reduced_prev_dim[i]:
+                    b = N - 1 - reduced_prev_dim[i][0]
+                    d = N - 1 - idxs_prev_dim[i]
+                    pairs_dim.append((b, d))
+                    all_indices |= {b, d}
+
+            for i in range(len(idxs_dim)):
+                if N - 1 - idxs_dim[i] not in all_indices:
+                    if not reduced_dim[i]:
+                        pairs_dim.append((N - 1 - idxs_dim[i], np.inf))
+
+            pairs.append(sorted(pairs_dim))
+
+    else:
+        is_nontrivial_bar = lambda b, d: filtration_values[N - 1 - b] != \
+                                         filtration_values[N - 1 - d]
+
+        _, idxs_0, reduced_0, _ = spx2idx_idxs_reduced_triangular[0]
+        pairs_0 = []
+        for i in range(len(idxs_0)):
+            if N - 1 - idxs_0[i] not in all_indices:
+                if not reduced_0[i]:
+                    pairs_0.append((N - 1 - idxs_0[i], np.inf))
+        pairs.append(sorted(pairs_0))
+
+        for dim in range(1, len(spx2idx_idxs_reduced_triangular)):
+            _, idxs_dim, reduced_dim, _ = spx2idx_idxs_reduced_triangular[dim]
+            _, idxs_prev_dim, reduced_prev_dim, _ = \
+                spx2idx_idxs_reduced_triangular[dim - 1]
+
+            pairs_dim = []
+            for i in range(len(idxs_prev_dim)):
+                if reduced_prev_dim[i]:
+                    b = N - 1 - reduced_prev_dim[i][0]
+                    d = N - 1 - idxs_prev_dim[i]
+                    if is_nontrivial_bar(b, d):
+                        pairs_dim.append((b, d))
+                        all_indices |= {b, d}
+
+            for i in range(len(idxs_dim)):
+                if N - 1 - idxs_dim[i] not in all_indices:
+                    if not reduced_dim[i]:
+                        pairs_dim.append((N - 1 - idxs_dim[i], np.inf))
+
+            pairs.append(sorted(pairs_dim))
 
     return pairs
 
