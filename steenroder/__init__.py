@@ -374,6 +374,17 @@ def to_homology_barcode(rel_coho_barcode, N):
     return hom_barcode
 
 
+def check_agreement_with_gudhi(gudhi_barcode, barcode):
+    max_dimension_gudhi = max([pers_info[0] for pers_info in gudhi_barcode])
+    assert max_dimension_gudhi <= len(barcode) - 1
+
+    for dim, barcode_dim in enumerate(barcode):
+        gudhi_barcode_dim = {
+            pers_info[1] for pers_info in gudhi_barcode if pers_info[0] == dim
+            }
+        assert gudhi_barcode_dim == set(barcode_dim)
+
+
 @njit
 def _symm_diff(x, y):
     n = len(x)
