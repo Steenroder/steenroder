@@ -383,8 +383,8 @@ def get_steenrod_barcode(k, steenrod_matrix, spx2idx_idxs_reduced_triangular,
                         
 
 def barcodes(
-        k, filtration, homology=True, filtration_values=None,
-        return_filtration_values=True, maxdim=None
+        k, filtration, homology=False, filtration_values=None,
+        return_filtration_values=False, maxdim=None
         ):
     """Serves as the main function"""
     N = len(filtration)
