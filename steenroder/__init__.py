@@ -304,9 +304,9 @@ def get_steenrod_barcode(k, steenrod_matrix, spx2idx_idxs_reduced_triangular,
     st_barcode = [list()] * k
     for dim in range(k, len(steenrod_matrix)):
         if steenrod_matrix[dim]:
-            births_dim = np.asarray(
-                [N - 1 - pair[0] for pair in barcode[dim - k]], dtype=np.int64
-                )
+            births_dim = \
+                np.asarray([N - 1 - pair[0] for pair in barcode[dim - k]],
+                           dtype=np.int64)
             _, idxs_prev_dim, reduced_prev_dim, _ = \
                 spx2idx_idxs_reduced_triangular[dim - 1]
             st_barcode.append([
