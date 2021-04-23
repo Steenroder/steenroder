@@ -110,7 +110,6 @@ def get_reduced_triangular(filtr_by_dim):
                                                                             pos_idxs_to_clear,
                                                                             idxs_next_dim=idxs_next_dim,
                                                                             tups_next_dim=tups_next_dim)
-        print(pos_idxs_to_clear)
         spx2idx_idxs_reduced_triangular.append((spx2idx_dim,
                                                 idxs_dim[::-1],
                                                 reduced,
