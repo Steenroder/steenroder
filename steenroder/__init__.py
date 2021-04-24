@@ -478,7 +478,7 @@ def check_agreement_with_gudhi(gudhi_barcode, barcode):
         gudhi_barcode_dim = {
             pers_info[1] for pers_info in gudhi_barcode if pers_info[0] == dim
             }
-        assert gudhi_barcode_dim == set(barcode_dim)
+        assert gudhi_barcode_dim == set(barcode_dim), f"Disagreement in degree {dim}"
 
 
 @njit
