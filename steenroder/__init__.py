@@ -32,8 +32,6 @@ def _twist_reduction(coboundary, triangular, pivots_lookup, idxs_next_dim):
     """R = MV"""
     n = len(coboundary)
 
-    coboundary = coboundary[::-1]
-    triangular = triangular[::-1]
     pos_idxs_to_clear = List.empty_list(types.int64)
     for j in range(n):
         highest_one = coboundary[j][0] if coboundary[j] else -1
@@ -70,7 +68,7 @@ def _reduce_single_dim(dim):
         # Initialize reduced matrix as the coboundary matrix
         reduced = List.empty_list(int64_list_typ)
         triangular = List.empty_list(int64_list_typ)
-        for i in range(len(idxs_dim)):
+        for i in range(len(idxs_dim) - 1, -1, -1):
             spx = to_fixed_tuple(tups_dim[i], len_tups_dim)
             spx2idx_dim[spx] = i
             reduced.append([types.int64(x) for x in range(0)])
@@ -80,10 +78,10 @@ def _reduce_single_dim(dim):
             for j in range(len(idxs_next_dim)):
                 spx = to_fixed_tuple(tups_next_dim[j], len_tups_next_dim)
                 for face in _drop_elements(spx):
-                    reduced[spx2idx_dim[face]].append(j)
+                    reduced[-1 - spx2idx_dim[face]].append(j)
 
             for pos_idx in pos_idxs_to_clear:
-                reduced[pos_idx] = [types.int64(x) for x in range(0)]
+                reduced[-1 - pos_idx] = [types.int64(x) for x in range(0)]
 
             pivots_lookup = [-1] * len(idxs_next_dim)
 
