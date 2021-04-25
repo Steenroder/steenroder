@@ -28,12 +28,13 @@ def sort_filtration_by_dim(filtration, maxdim=None):
 
 
 @njit
-def _standard_reduction(coboundary, triangular, pivots_lookup, idxs_next_dim):
+def _twist_reduction(coboundary, triangular, pivots_lookup, idxs_next_dim):
     """R = MV"""
     n = len(coboundary)
 
     coboundary = coboundary[::-1]
     triangular = triangular[::-1]
+    pos_idxs_to_clear = List.empty_list(types.int64)
     for j in range(n):
         highest_one = coboundary[j][0] if coboundary[j] else -1
         pivot_col = pivots_lookup[highest_one]
@@ -46,11 +47,12 @@ def _standard_reduction(coboundary, triangular, pivots_lookup, idxs_next_dim):
             pivot_col = pivots_lookup[highest_one]
         if highest_one != -1:
             pivots_lookup[highest_one] = j
-    
+            pos_idxs_to_clear.append(highest_one)
+
     for j in range(n):
         coboundary[j] = [idxs_next_dim[k] for k in coboundary[j]]
 
-    return coboundary, triangular
+    return coboundary, triangular, pos_idxs_to_clear
 
 
 @lru_cache
@@ -61,7 +63,7 @@ def _reduce_single_dim(dim):
     int64_list_typ = types.List(types.int64)
 
     @njit
-    def _inner_reduce_single_dim(idxs_dim, tups_dim,
+    def _inner_reduce_single_dim(idxs_dim, tups_dim, pos_idxs_to_clear,
                                  idxs_next_dim=None, tups_next_dim=None):
         """R = MV"""
         spx2idx_dim = Dict.empty(tuple_typ_dim, types.int64)
@@ -80,14 +82,17 @@ def _reduce_single_dim(dim):
                 for face in _drop_elements(spx):
                     reduced[spx2idx_dim[face]].append(j)
 
+            for pos_idx in pos_idxs_to_clear:
+                reduced[pos_idx] = [types.int64(x) for x in range(0)]
+
             pivots_lookup = [-1] * len(idxs_next_dim)
 
-            reduced, triangular = _standard_reduction(reduced,
-                                                      triangular,
-                                                      pivots_lookup,
-                                                      idxs_next_dim)
+            reduced, triangular, pos_idxs_to_clear = _twist_reduction(reduced,
+                                                                      triangular,
+                                                                      pivots_lookup,
+                                                                      idxs_next_dim)
 
-        return spx2idx_dim, reduced, triangular
+        return spx2idx_dim, reduced, triangular, pos_idxs_to_clear
 
     return _inner_reduce_single_dim
 
@@ -95,14 +100,16 @@ def _reduce_single_dim(dim):
 def get_reduced_triangular(filtr_by_dim):
     maxdim = len(filtr_by_dim) - 1
     spx2idx_idxs_reduced_triangular = []
+    pos_idxs_to_clear = List.empty_list(types.int64)
     for dim in range(maxdim):
         reduction_dim = _reduce_single_dim(dim)
         idxs_dim, tups_dim = filtr_by_dim[dim]
         idxs_next_dim, tups_next_dim = filtr_by_dim[dim + 1]
-        spx2idx_dim, reduced, triangular = reduction_dim(idxs_dim,
-                                                         tups_dim,
-                                                         idxs_next_dim,
-                                                         tups_next_dim)
+        spx2idx_dim, reduced, triangular, pos_idxs_to_clear = reduction_dim(idxs_dim,
+                                                                            tups_dim,
+                                                                            pos_idxs_to_clear,
+                                                                            idxs_next_dim=idxs_next_dim,
+                                                                            tups_next_dim=tups_next_dim)
         spx2idx_idxs_reduced_triangular.append((spx2idx_dim,
                                                 idxs_dim[::-1],
                                                 reduced,
@@ -110,10 +117,7 @@ def get_reduced_triangular(filtr_by_dim):
 
     reduction_dim = _reduce_single_dim(maxdim)
     idxs_dim, tups_dim = filtr_by_dim[maxdim]
-    spx2idx_dim, reduced, triangular = reduction_dim(idxs_dim,
-                                                     tups_dim,
-                                                     None,
-                                                     None)
+    spx2idx_dim, reduced, triangular, _ = reduction_dim(idxs_dim, tups_dim, pos_idxs_to_clear)
     spx2idx_idxs_reduced_triangular.append((spx2idx_dim,
                                             idxs_dim[::-1],
                                             reduced,
