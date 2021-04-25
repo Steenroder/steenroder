@@ -134,9 +134,8 @@ def get_barcode(N, spx2idx_idxs_reduced_triangular,
         _, idxs_0, reduced_0, _ = spx2idx_idxs_reduced_triangular[0]
         pairs_0 = []
         for i in range(len(idxs_0)):
-            if N - 1 - idxs_0[i] not in all_indices:
-                if not reduced_0[i]:
-                    pairs_0.append((N - 1 - idxs_0[i], np.inf))
+            if not reduced_0[i]:
+                pairs_0.append((N - 1 - idxs_0[i], np.inf))
         pairs.append(sorted(pairs_0))
 
         for dim in range(1, len(spx2idx_idxs_reduced_triangular)):
@@ -163,9 +162,8 @@ def get_barcode(N, spx2idx_idxs_reduced_triangular,
         _, idxs_0, reduced_0, _ = spx2idx_idxs_reduced_triangular[0]
         pairs_0 = []
         for i in range(len(idxs_0)):
-            if N - 1 - idxs_0[i] not in all_indices:
-                if not reduced_0[i]:
-                    pairs_0.append((N - 1 - idxs_0[i], np.inf))
+            if not reduced_0[i]:
+                pairs_0.append((N - 1 - idxs_0[i], np.inf))
         pairs.append(sorted(pairs_0))
 
         for dim in range(1, len(spx2idx_idxs_reduced_triangular)):
@@ -180,7 +178,7 @@ def get_barcode(N, spx2idx_idxs_reduced_triangular,
                     d = N - 1 - idxs_prev_dim[i]
                     if is_nontrivial_bar(b, d):
                         pairs_dim.append((b, d))
-                        all_indices |= {b, d}
+                    all_indices |= {b, d}
 
             for i in range(len(idxs_dim)):
                 if N - 1 - idxs_dim[i] not in all_indices:
@@ -475,10 +473,10 @@ def check_agreement_with_gudhi(gudhi_barcode, barcode):
     assert max_dimension_gudhi <= len(barcode) - 1
 
     for dim, barcode_dim in enumerate(barcode):
-        gudhi_barcode_dim = {
+        gudhi_barcode_dim = sorted([
             pers_info[1] for pers_info in gudhi_barcode if pers_info[0] == dim
-            }
-        assert gudhi_barcode_dim == set(barcode_dim), f"Disagreement in degree {dim}"
+            ])
+        assert gudhi_barcode_dim == sorted(barcode_dim), f"Disagreement in degree {dim}"
 
 
 @njit
