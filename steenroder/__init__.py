@@ -85,10 +85,9 @@ def _reduce_single_dim(dim):
 
             pivots_lookup = [-1] * len(idxs_next_dim)
 
-            reduced, triangular, pos_idxs_to_clear = _twist_reduction(reduced,
-                                                                      triangular,
-                                                                      pivots_lookup,
-                                                                      idxs_next_dim)
+            reduced, triangular, pos_idxs_to_clear = _twist_reduction(
+                reduced, triangular, pivots_lookup, idxs_next_dim
+                )
 
         return spx2idx_dim, reduced, triangular, pos_idxs_to_clear
 
@@ -103,11 +102,13 @@ def get_reduced_triangular(filtr_by_dim):
         reduction_dim = _reduce_single_dim(dim)
         idxs_dim, tups_dim = filtr_by_dim[dim]
         idxs_next_dim, tups_next_dim = filtr_by_dim[dim + 1]
-        spx2idx_dim, reduced, triangular, pos_idxs_to_clear = reduction_dim(idxs_dim,
-                                                                            tups_dim,
-                                                                            pos_idxs_to_clear,
-                                                                            idxs_next_dim=idxs_next_dim,
-                                                                            tups_next_dim=tups_next_dim)
+        spx2idx_dim, reduced, triangular, pos_idxs_to_clear = reduction_dim(
+            idxs_dim,
+            tups_dim,
+            pos_idxs_to_clear,
+            idxs_next_dim=idxs_next_dim,
+            tups_next_dim=tups_next_dim
+            )
         spx2idx_idxs_reduced_triangular.append((spx2idx_dim,
                                                 idxs_dim[::-1],
                                                 reduced,
@@ -115,7 +116,11 @@ def get_reduced_triangular(filtr_by_dim):
 
     reduction_dim = _reduce_single_dim(maxdim)
     idxs_dim, tups_dim = filtr_by_dim[maxdim]
-    spx2idx_dim, reduced, triangular, _ = reduction_dim(idxs_dim, tups_dim, pos_idxs_to_clear)
+    spx2idx_dim, reduced, triangular, _ = reduction_dim(
+        idxs_dim,
+        tups_dim,
+        os_idxs_to_clear
+        )
     spx2idx_idxs_reduced_triangular.append((spx2idx_dim,
                                             idxs_dim[::-1],
                                             reduced,
@@ -478,7 +483,8 @@ def check_agreement_with_gudhi(gudhi_barcode, barcode):
         gudhi_barcode_dim = sorted([
             pers_info[1] for pers_info in gudhi_barcode if pers_info[0] == dim
             ])
-        assert gudhi_barcode_dim == sorted(barcode_dim), f"Disagreement in degree {dim}"
+        assert gudhi_barcode_dim == sorted(barcode_dim), \
+            f"Disagreement in degree {dim}"
 
 
 @njit
