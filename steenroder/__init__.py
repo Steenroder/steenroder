@@ -1,5 +1,6 @@
 from functools import lru_cache
 from itertools import combinations
+import time
 
 import numpy as np
 from numba import njit
@@ -392,17 +393,26 @@ def barcodes(
         return_filtration_values=False, maxdim=None
         ):
     """Serves as the main function"""
+    tic = time.time()
     N = len(filtration)
     filtration_by_dim = sort_filtration_by_dim(filtration, maxdim=maxdim)
     spx2idx_idxs_reduced_triangular = get_reduced_triangular(filtration_by_dim)
     barcode = get_barcode(N, spx2idx_idxs_reduced_triangular,
                           filtration_values=filtration_values)
+    toc = time.time()
+    print(f"Usual barcode computed, time taken: {toc - tic}")
+    tic = time.time()
     coho_reps = get_coho_reps(N, barcode, spx2idx_idxs_reduced_triangular)
     steenrod_matrix = get_steenrod_matrix(k, coho_reps, filtration,
                                           spx2idx_idxs_reduced_triangular)
+    toc = time.time()
+    print(f"Steenrod matrix computed, time taken: {toc - tic}")
+    tic = time.time()
     st_barcode = get_steenrod_barcode(k, steenrod_matrix,
                                       spx2idx_idxs_reduced_triangular, barcode,
                                       N, filtration_values=filtration_values)
+    toc = time.time()
+    print(f"Steenrod barcode computed, time taken: {toc - tic}")
 
     if homology:
         barcode = to_homology_barcode(
