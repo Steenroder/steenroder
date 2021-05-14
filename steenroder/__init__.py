@@ -331,9 +331,13 @@ def _steenrod_barcode_single_dim(steenrod_matrix_dim, idxs_prev_dim,
 def get_steenrod_barcode(k, steenrod_matrix, idxs, reduced, barcode,
                          filtration_values=None):
     def nontrivial_bars(st_barcode_dim):
-        return np.logical_or(st_barcode_dim[:, 0] == -1,
-                             filtration_values[st_barcode_dim[:, 0]] !=
-                             filtration_values[st_barcode_dim[:, 1]])
+        infinite_bars = st_barcode_dim[:, 0] == -1
+        return np.logical_or(
+            infinite_bars,
+            np.logical_and(np.logical_not(infinite_bars),
+                           (filtration_values[st_barcode_dim[:, 0]] !=
+                            filtration_values[st_barcode_dim[:, 1]]))
+            )
 
     st_barcode = [np.empty((0, 2), dtype=np.int64) for _ in range(k)]
     for dim in range(k, len(steenrod_matrix)):
