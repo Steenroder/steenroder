@@ -392,17 +392,17 @@ def barcodes(
         ):
     """Serves as the main function"""
     tic = time.time()
-    N = len(filtration)
     filtration_by_dim = sort_filtration_by_dim(filtration, maxdim=maxdim)
-    spx2idx_idxs_reduced_triangular = get_reduced_triangular(filtration_by_dim)
-    barcode = get_barcode(N, spx2idx_idxs_reduced_triangular,
-                          filtration_values=filtration_values)
+    spx2idx, idxs, reduced, triangular = \
+        get_reduced_triangular(filtration_by_dim)
+    barcode, coho_reps = \
+        get_barcode_and_coho_reps(idxs, reduced, triangular,
+                                  filtration_values=filtration_values)
     toc = time.time()
     print(f"Usual barcode computed, time taken: {toc - tic}")
     tic = time.time()
-    coho_reps = get_coho_reps(N, barcode, spx2idx_idxs_reduced_triangular)
-    steenrod_matrix = get_steenrod_matrix(k, coho_reps, filtration,
-                                          spx2idx_idxs_reduced_triangular)
+    steenrod_matrix = get_steenrod_matrix(k, coho_reps, filtration_by_dim,
+                                          spx2idx)
     toc = time.time()
     print(f"Steenrod matrix computed, time taken: {toc - tic}")
     tic = time.time()
