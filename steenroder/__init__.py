@@ -1,18 +1,18 @@
 import time
 from collections.abc import Sequence
 from functools import lru_cache
-from itertools import combinations
 
+import numba as nb
 import numpy as np
-from numba import njit
-from numba import typed
-from numba import types
 from numba.cpython.unsafe.tuple import tuple_setitem
 from numba.np.unsafe.ndarray import to_fixed_tuple
 
+list_of_int64_typ = nb.types.List(nb.int64)
+int64_2d_array_typ = nb.types.Array(nb.int64, 2, "C")
+
 
 def sort_filtration_by_dim(filtration: Sequence[tuple[int]],
-                           maxdim=None) -> list[list[np.ndarray]]:
+                           maxdim=None) -> list[list[np.ndarray, np.ndarray]]:
     if maxdim is None:
         maxdim = max(map(len, filtration)) - 1
 
@@ -24,18 +24,18 @@ def sort_filtration_by_dim(filtration: Sequence[tuple[int]],
             filtration_by_dim[dim].append([i, spx_tup])
 
     for dim, filtr in enumerate(filtration_by_dim):
-        filtration_by_dim[dim] = list(np.asarray(x, dtype=np.int64)
-                                      for x in zip(*filtr))
+        filtration_by_dim[dim] = [np.asarray(x, dtype=np.int64)
+                                  for x in zip(*filtr)]
 
     return filtration_by_dim
 
 
-@njit
-def _twist_reduction(coboundary, triangular, pivots_lookup, idxs_next_dim):
+@nb.njit
+def _twist_reduction(coboundary, triangular, pivots_lookup):
     """R = MV"""
     n = len(coboundary)
 
-    rel_idxs_to_clear = typed.List.empty_list(types.int64)
+    rel_idxs_to_clear =[]
     for j in range(n - 1, -1, -1):
         highest_one = coboundary[j][0] if coboundary[j] else -1
         pivot_col = pivots_lookup[highest_one]
@@ -50,39 +50,35 @@ def _twist_reduction(coboundary, triangular, pivots_lookup, idxs_next_dim):
             pivots_lookup[highest_one] = j
             rel_idxs_to_clear.append(highest_one)
 
-    for j in range(n):
-        coboundary[j] = [idxs_next_dim[k] for k in coboundary[j]]
-
     return np.asarray(rel_idxs_to_clear, dtype=np.int64)
 
 
 @lru_cache
 def _reduce_single_dim(dim):
     len_tups_dim = dim + 1
-    tuple_typ_dim = types.UniTuple(types.int64, len_tups_dim)
+    tuple_typ_dim = nb.types.UniTuple(nb.int64, len_tups_dim)
     len_tups_next_dim = dim + 2
-    int64_list_typ = types.List(types.int64)
 
-    @njit
+    @nb.njit
     def _inner_reduce_single_dim(idxs_dim, tups_dim, rel_idxs_to_clear,
                                  idxs_next_dim=None, tups_next_dim=None):
         """R = MV"""
-        # Construct sp2idx_dim as a dict simplex: index in the full filtration
-        # Initialize type of reduced_dim (needed for type inference)
-        # Construct triangular_dim
-        spx2idx_dim = typed.Dict.empty(tuple_typ_dim, types.int64)
-        reduced_dim = typed.List.empty_list(int64_list_typ)
-        triangular_dim = typed.List.empty_list(int64_list_typ)
+        # 1) Construct sp2idx_dim as a dict simplex: relative (i.e.
+        # in-dimension) index
+        # 2) Initialize type of reduced_dim (needed for type inference)
+        # 3) Construct triangular_dim, with entries denoting relative (i.e.
+        # in-dimension) indices
+        spx2idx_dim = nb.typed.Dict.empty(tuple_typ_dim, nb.int64)
+        reduced_dim = nb.typed.List.empty_list(list_of_int64_typ)
+        triangular_dim = nb.typed.List.empty_list(list_of_int64_typ)
         for i in range(len(idxs_dim)):
             spx = to_fixed_tuple(tups_dim[i], len_tups_dim)
             spx2idx_dim[spx] = i
-            reduced_dim.append([types.int64(x) for x in range(0)])
-            triangular_dim.append([idxs_dim[i]])
+            reduced_dim.append([nb.int64(x) for x in range(0)])
+            triangular_dim.append([i])
 
         # Populate reduced_dim as the coboundary matrix and apply clearing
-        # WARNING: Column entries are initialized as relative (i.e.
-        # in-dimension) indices, and changed into indices relative to the full
-        # fitration inside the call to _twist_reduction
+        # WARNING: Column entries denote relative (i.e. in-dimension) indices!
         if idxs_next_dim is not None:
             for j in range(len(idxs_next_dim)):
                 spx = to_fixed_tuple(tups_next_dim[j], len_tups_next_dim)
@@ -90,13 +86,12 @@ def _reduce_single_dim(dim):
                     reduced_dim[spx2idx_dim[face]].append(j)
 
             for rel_idx in rel_idxs_to_clear:
-                reduced_dim[rel_idx] = [types.int64(x) for x in range(0)]
+                reduced_dim[rel_idx] = [nb.int64(x) for x in range(0)]
 
             pivots_lookup = np.full(len(idxs_next_dim), -1, dtype=np.int64)
 
-            rel_idxs_to_clear = _twist_reduction(
-                reduced_dim, triangular_dim, pivots_lookup, idxs_next_dim
-                )
+            rel_idxs_to_clear = _twist_reduction(reduced_dim, triangular_dim,
+                                                 pivots_lookup)
 
         return spx2idx_dim, reduced_dim, triangular_dim, rel_idxs_to_clear
 
@@ -104,10 +99,10 @@ def _reduce_single_dim(dim):
 
 
 def get_reduced_triangular(filtration_by_dim: list[list[np.ndarray]]) \
-        -> tuple[tuple[typed.Dict],
+        -> tuple[tuple[nb.typed.Dict],
                  tuple[np.ndarray],
-                 tuple[typed.List],
-                 tuple[typed.List]]:
+                 tuple[nb.typed.List[list]],
+                 tuple[nb.typed.List[list]]]:
     maxdim = len(filtration_by_dim) - 1
     # Initialize relative (i.e. in-dimension) indices to clear, as an empty
     # int array in dim 0
@@ -140,156 +135,157 @@ def get_reduced_triangular(filtration_by_dim: list[list[np.ndarray]]) \
     return tuple(zip(*spx2idx_idxs_reduced_triangular))
 
 
-@njit
-def get_barcode(idxs, reduced, filtration_values=None):
-    pairs = []
+@nb.njit
+def get_barcode_and_coho_reps(
+        idxs: tuple[np.ndarray],
+        reduced: tuple[nb.typed.List[list]],
+        triangular: tuple[nb.typed.List[list]],
+        filtration_values=None
+        ) -> tuple[list[np.ndarray], list[nb.typed.List[list[int]]]]:
+    barcode = []
+    coho_reps = []
 
     if filtration_values is None:
         pairs_0 = []
+        coho_reps_0 = nb.typed.List.empty_list(list_of_int64_typ)
         for i in range(len(idxs[0])):
             if not reduced[0][i]:
-                pairs_0.append((-1, idxs[0][i]))
-        pairs.append(sorted(pairs_0))
+                pairs_0.append([-1, idxs[0][i]])
+                coho_reps_0.append(triangular[0][i])
+        barcode.append(np.asarray(sorted(pairs_0)))
+        coho_reps.append(coho_reps_0)
 
         for dim in range(1, len(idxs)):
             all_birth_indices = set()
             pairs_dim = []
+            coho_reps_dim = nb.typed.List.empty_list(list_of_int64_typ)
             for i in range(len(idxs[dim - 1])):
                 if reduced[dim - 1][i]:
-                    b = reduced[dim - 1][i][0]
+                    b = idxs[dim][reduced[dim - 1][i][0]]
                     d = idxs[dim - 1][i]
-                    pairs_dim.append((d, b))
+                    pairs_dim.append([d, b])
+                    coho_reps_dim.append(reduced[dim - 1][i])
                     all_birth_indices.add(b)
 
             for i in range(len(idxs[dim])):
                 if idxs[dim][i] not in all_birth_indices:
                     if not reduced[dim][i]:
-                        pairs_dim.append((-1, idxs[dim][i]))
+                        pairs_dim.append([-1, idxs[dim][i]])
+                        coho_reps_dim.append(triangular[dim][i])
 
-            pairs.append(sorted(pairs_dim))
+            barcode.append(np.asarray(sorted(pairs_dim)))
+            coho_reps.append(coho_reps_dim)
 
     else:
         pairs_0 = []
+        coho_reps_0 = nb.typed.List.empty_list(list_of_int64_typ)
         for i in range(len(idxs[0])):
             if not reduced[0][i]:
-                pairs_0.append((-1, idxs[0][i]))
-        pairs.append(sorted(pairs_0))
+                pairs_0.append([-1, idxs[0][i]])
+        barcode.append(np.asarray(sorted(pairs_0)))
+        coho_reps.append(coho_reps_0)
 
         for dim in range(1, len(idxs)):
             all_birth_indices = set()
             pairs_dim = []
+            coho_reps_dim = nb.typed.List.empty_list(list_of_int64_typ)
             for i in range(len(idxs[dim - 1])):
                 if reduced[dim - 1][i]:
-                    b = reduced[dim - 1][i][0]
+                    b = idxs[dim][reduced[dim - 1][i][0]]
                     d = idxs[dim - 1][i]
                     if filtration_values[b] != filtration_values[d]:
-                        pairs_dim.append((d, b))
+                        pairs_dim.append([d, b])
+                        coho_reps_dim.append(reduced[dim - 1][i])
                     all_birth_indices.add(b)
 
             for i in range(len(idxs[dim])):
                 if idxs[dim][i] not in all_birth_indices:
                     if not reduced[dim][i]:
-                        pairs_dim.append((-1, idxs[dim][i]))
+                        pairs_dim.append([-1, idxs[dim][i]])
+                        coho_reps_dim.append(triangular[dim][i])
 
-            pairs.append(sorted(pairs_dim))
+            barcode.append(np.asarray(sorted(pairs_dim)))
+            coho_reps.append(coho_reps_dim)
 
-    return pairs
-
-
-def get_coho_reps(N, barcode, spx2idx_idxs_reduced_triangular):
-    coho_reps = []
-
-    _, idxs_0, _, triangular_0 = spx2idx_idxs_reduced_triangular[0]
-    coho_reps_0 = []
-    for pair in barcode[0]:
-        idx = np.flatnonzero(idxs_0 == N - 1 - pair[0])[0]
-        coho_reps_0.append([N - 1 - x for x in triangular_0[idx]])
-    coho_reps.append(coho_reps_0)
-
-    for dim in range(1, len(barcode)):
-        barcode_dim = barcode[dim]
-        _, idxs_dim, _, triangular_dim = spx2idx_idxs_reduced_triangular[dim]
-        _, idxs_prev_dim, reduced_prev_dim, _ = \
-            spx2idx_idxs_reduced_triangular[dim - 1]
-
-        coho_reps_dim = []
-        for pair in barcode_dim:
-            if pair[1] < np.inf:
-                idx = np.flatnonzero(idxs_prev_dim == N - 1 - pair[1])[0]
-                coho_reps_dim.append([N - 1 - x
-                                      for x in reduced_prev_dim[idx]])
-            else:
-                idx = np.flatnonzero(idxs_dim == N - 1 - pair[0])[0]
-                coho_reps_dim.append([N - 1 - x for x in triangular_dim[idx]])
-
-        coho_reps.append(coho_reps_dim)
-
-    return coho_reps
+    return barcode, coho_reps
 
 
-@njit
-def _tuple_in_dict(tup, d):
-    return tup in d
+@lru_cache
+def _populate_steenrod_matrix_single_dim(dim_plus_k):
+    length = dim_plus_k + 1
 
+    @nb.njit
+    def _inner(steenrod_matrix_dim_plus_k, coho_reps_dim, tups_dim,
+               spx2idx_dim_plus_k):
+        def STSQ(cocycle):
+            """..."""
+            answer = set(
+                [to_fixed_tuple(np.empty(length, dtype=np.int64), length)]
+                )
+            answer.pop()
+            for i in range(len(cocycle)):
+                for j in range(i + 1, len(cocycle)):
+                    a, b = set(cocycle[i]), set(cocycle[j])
+                    u = a.union(b)
+                    if len(u) == length:
+                        u_tuple = to_fixed_tuple(np.asarray(sorted(u)), length)
+                        if u_tuple in spx2idx_dim_plus_k:
+                            a_bar, b_bar = a.difference(b), b.difference(a)
+                            u_bar = sorted(a_bar.union(b_bar))
+                            index = {}
+                            for v in a_bar.union(b_bar):
+                                pos = u_tuple.index(v)
+                                pos_bar = u_bar.index(v)
+                                index[v] = (pos + pos_bar) % 2
+                            index_a = set()
+                            index_b = set()
+                            for v in a_bar:
+                                index_a.add(index[v])
+                            for w in b_bar:
+                                index_b.add(index[w])
+                            if (index_a == set([0])
+                                and index_b == set([1])) \
+                                    or (index_a == set([1])
+                                        and index_b == set([0])):
+                                answer ^= {u_tuple}
 
-def STSQ(length, cocycle, filtration):
-    """..."""
-    answer = set()
-    for pair in combinations(cocycle, 2):
-        a, b = set(pair[0]), set(pair[1])
-        u = a.union(b)
-        if len(u) == length:
-            u_tuple = tuple(sorted(u))
-            if _tuple_in_dict(u_tuple, filtration):
-                a_bar, b_bar = a.difference(b), b.difference(a)
-                u_bar = sorted(a_bar.union(b_bar))
-                index = {}
-                for v in a_bar.union(b_bar):
-                    pos = u_tuple.index(v)
-                    pos_bar = u_bar.index(v)
-                    index[v] = (pos + pos_bar) % 2
-                index_a = {index[v] for v in a_bar}
-                index_b = {index[w] for w in b_bar}
-                if (index_a == {0} and index_b == {1}
-                        or index_a == {1} and index_b == {0}):
-                    answer ^= {u_tuple}
+            return answer
 
-    return answer
-
-
-@njit
-def _populate_st_mat(st_mat, cochain, idxs, spx2idx_dim):
-    st_mat.append(sorted([idxs[-1 - spx2idx_dim[spx]] for spx in cochain]))
-
-
-@njit
-def _populate_st_mat_with_empty(st_mat):
-    st_mat.append([types.int64(x) for x in range(0)])
-
-
-def get_steenrod_matrix(k, coho_reps, filtration,
-                        spx2idx_idxs_reduced_triangular):
-    steenrod_matrix = [list()] * k
-    for dim, coho_reps_dim in enumerate(coho_reps[:-1]):
-        length = dim + 1 + k
-        steenrod_matrix.append(typed.List.empty_list(types.List(types.int64)))
         for i, rep in enumerate(coho_reps_dim):
-            cocycle = [filtration[-1 - j] for j in rep]
-            spx2idx_dim_plus_k, idxs_dim_plus_k, _, _ = \
-                spx2idx_idxs_reduced_triangular[dim + k]
-            cochain = STSQ(length, cocycle, spx2idx_dim_plus_k)
-            if cochain:
-                _populate_st_mat(steenrod_matrix[dim + k],
-                                 cochain,
-                                 idxs_dim_plus_k,
-                                 spx2idx_dim_plus_k)
-            else:
-                _populate_st_mat_with_empty(steenrod_matrix[dim + k])
+            cocycle = tups_dim[np.asarray(rep)]
+            cochain = STSQ(cocycle)
+            steenrod_matrix_dim_plus_k.append(
+                sorted([spx2idx_dim_plus_k[spx] for spx in cochain])
+                )
+
+    return _inner
+
+
+def get_steenrod_matrix(k, coho_reps, filtration_by_dim, spx2idx):
+    num_dimensions = len(filtration_by_dim)
+
+    @nb.njit
+    def _initialize_steenrod_matrix():
+        return [nb.typed.List.empty_list(list_of_int64_typ)
+                for _ in range(num_dimensions)]
+
+    steenrod_matrix = _initialize_steenrod_matrix()
+
+    for dim, coho_reps_dim in enumerate(coho_reps[:-k]):
+        dim_plus_k = dim + k
+        tups_dim = filtration_by_dim[dim][1]
+        spx2idx_dim_plus_k = spx2idx[dim + k]
+        steenrod_matrix_dim_plus_k = steenrod_matrix[dim_plus_k]
+        populate_steenrod_matrix_single_dim = \
+            _populate_steenrod_matrix_single_dim(dim_plus_k)
+        populate_steenrod_matrix_single_dim(steenrod_matrix_dim_plus_k,
+                                            coho_reps_dim, tups_dim,
+                                            spx2idx_dim_plus_k)
         
     return steenrod_matrix
 
 
-@njit
+@nb.njit
 def _steenrod_barcode_single_dim(steenrod_matrix_dim, idxs_prev_dim,
                                  reduced_prev_dim, births_dim, N):
     augmented = []
@@ -495,7 +491,7 @@ def check_agreement_with_gudhi(gudhi_barcode, barcode):
             f"Disagreement in degree {dim}"
 
 
-@njit
+@nb.njit
 def _symm_diff(x, y):
     n = len(x)
     m = len(y)
@@ -524,7 +520,7 @@ def _symm_diff(x, y):
     return result
 
 
-@njit
+@nb.njit
 def _drop_elements(tup: tuple):
     for x in range(len(tup)):
         empty = tup[:-1]  # Not empty, but the right size and will be mutated
