@@ -291,15 +291,10 @@ def get_steenrod_matrix(k, coho_reps, filtration_by_dim, spx2idx):
 
 @nb.njit
 def _steenrod_barcode_single_dim(steenrod_matrix_dim, idxs_prev_dim,
-                                 reduced_prev_dim, births_dim, N):
-    augmented = []
-    for i in range(len(reduced_prev_dim) - 1, -1, -1):
-        augmented.append([x for x in reduced_prev_dim[i]])
+                                 reduced_prev_dim, births_dim):
+    augmented = reduced_prev_dim + steenrod_matrix_dim
 
-    for i in range(len(steenrod_matrix_dim)):
-        augmented.append([x for x in steenrod_matrix_dim[i]])
-
-    alive = [True] * len(births_dim)
+    alive = np.ones(len(births_dim), dtype=np.bool_)
     n = len(reduced_prev_dim)
     st_barcode_dim = []
 
@@ -324,64 +319,34 @@ def _steenrod_barcode_single_dim(steenrod_matrix_dim, idxs_prev_dim,
             if alive[ii - n] and (not augmented[ii]):
                 alive[ii - n] = False
                 if idx < births_dim[ii - n]:
-                    st_barcode_dim.append((N - 1 - births_dim[ii - n],
-                                           N - 1 - idx))
+                    st_barcode_dim.append((idx, births_dim[ii - n]))
 
     for i in range(len(alive)):
         if alive[i]:
-            st_barcode_dim.append((N - 1 - births_dim[i], -1))
+            st_barcode_dim.append((-1, births_dim[i]))
 
-    return st_barcode_dim
+    return np.asarray(st_barcode_dim)
 
 
-def get_steenrod_barcode(k, steenrod_matrix, spx2idx_idxs_reduced_triangular,
-                         barcode, N, filtration_values=None):
-    def is_nontrivial_bar(pair):
-        return (pair[1] != -1) and (filtration_values[N - 1 - pair[0]] !=
-                                    filtration_values[N - 1 - pair[1]])
+def get_steenrod_barcode(k, steenrod_matrix, idxs, reduced, barcode,
+                         filtration_values=None):
+    def nontrivial_bars(st_barcode_dim):
+        return np.logical_or(st_barcode_dim[:, 0] == -1,
+                             filtration_values[st_barcode_dim[:, 0]] !=
+                             filtration_values[st_barcode_dim[:, 1]])
 
-    st_barcode = [list()] * k
-    if filtration_values is None:
-        for dim in range(k, len(steenrod_matrix)):
-            if steenrod_matrix[dim]:
-                births_dim = \
-                    np.asarray([N - 1 - pair[0] for pair in barcode[dim - k]],
-                               dtype=np.int64)
-                _, idxs_prev_dim, reduced_prev_dim, _ = \
-                    spx2idx_idxs_reduced_triangular[dim - 1]
-                st_barcode.append([
-                    pair if pair[1] != -1 else (pair[0], np.inf)
-                    for pair in _steenrod_barcode_single_dim(
-                        steenrod_matrix[dim],
-                        idxs_prev_dim,
-                        reduced_prev_dim,
-                        births_dim,
-                        N
-                        )
-                    ])
-            else:
-                st_barcode.append([])
-
-    else:
-        for dim in range(k, len(steenrod_matrix)):
-            if steenrod_matrix[dim]:
-                births_dim = \
-                    np.asarray([N - 1 - pair[0] for pair in barcode[dim - k]],
-                               dtype=np.int64)
-                _, idxs_prev_dim, reduced_prev_dim, _ = \
-                    spx2idx_idxs_reduced_triangular[dim - 1]
-                st_barcode.append([
-                    pair if is_nontrivial_bar(pair) else (pair[0], np.inf)
-                    for pair in _steenrod_barcode_single_dim(
-                        steenrod_matrix[dim],
-                        idxs_prev_dim,
-                        reduced_prev_dim,
-                        births_dim,
-                        N
-                        )
-                    ])
-            else:
-                st_barcode.append([])
+    st_barcode = [np.empty((0, 2), dtype=np.int64) for _ in range(k)]
+    for dim in range(k, len(steenrod_matrix)):
+        births_dim = barcode[dim - k][:, 1]
+        idxs_prev_dim = idxs[dim - 1]
+        reduced_prev_dim = reduced[dim - 1]
+        st_barcode_dim = _steenrod_barcode_single_dim(steenrod_matrix[dim],
+                                                      idxs_prev_dim,
+                                                      reduced_prev_dim,
+                                                      births_dim)
+        if filtration_values is not None:
+            st_barcode_dim = st_barcode_dim[nontrivial_bars(st_barcode_dim)]
+        st_barcode.append(st_barcode_dim)
 
     return st_barcode
 
@@ -406,9 +371,9 @@ def barcodes(
     toc = time.time()
     print(f"Steenrod matrix computed, time taken: {toc - tic}")
     tic = time.time()
-    st_barcode = get_steenrod_barcode(k, steenrod_matrix,
-                                      spx2idx_idxs_reduced_triangular, barcode,
-                                      N, filtration_values=filtration_values)
+    st_barcode = get_steenrod_barcode(k, steenrod_matrix, idxs, reduced,
+                                      barcode,
+                                      filtration_values=filtration_values)
     toc = time.time()
     print(f"Steenrod barcode computed, time taken: {toc - tic}")
 
@@ -526,8 +491,7 @@ def _symm_diff(x, y):
 
 @nb.njit
 def _lexsort_barcode(arr):
-    argsrt = np.argsort(arr[:, 0], kind="mergesort")
-    return argsrt[np.argsort(arr[:, 1][argsrt], kind="mergesort")]
+    return np.argsort(arr[:, 1], kind="mergesort")[::-1]
 
 
 @nb.njit
