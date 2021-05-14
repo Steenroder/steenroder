@@ -292,10 +292,11 @@ def get_steenrod_matrix(k, coho_reps, filtration_by_dim, spx2idx):
 @nb.njit
 def _steenrod_barcode_single_dim(steenrod_matrix_dim, idxs_prev_dim,
                                  reduced_prev_dim, births_dim):
-    augmented = reduced_prev_dim + steenrod_matrix_dim
+    augmented = reduced_prev_dim
+    augmented.extend(steenrod_matrix_dim)
 
     alive = np.ones(len(births_dim), dtype=np.bool_)
-    n = len(reduced_prev_dim)
+    n = len(idxs_prev_dim)
     st_barcode_dim = []
 
     j = 0
