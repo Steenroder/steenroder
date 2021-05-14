@@ -300,7 +300,7 @@ def _steenrod_barcode_single_dim(steenrod_matrix_dim, idxs_prev_dim,
     st_barcode_dim = []
 
     j = 0
-    for i, idx in enumerate(idxs_prev_dim):
+    for i, idx in enumerate(idxs_prev_dim[::-1]):
         if births_dim[j] == idx:
             j += 1
         for ii in range(n, n + j):
