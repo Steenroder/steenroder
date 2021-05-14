@@ -319,11 +319,11 @@ def _steenrod_barcode_single_dim(steenrod_matrix_dim, idxs_prev_dim,
             if alive[ii - n] and (not augmented[ii]):
                 alive[ii - n] = False
                 if idx < births_dim[ii - n]:
-                    st_barcode_dim.append((idx, births_dim[ii - n]))
+                    st_barcode_dim.append([idx, births_dim[ii - n]])
 
     for i in range(len(alive)):
         if alive[i]:
-            st_barcode_dim.append((-1, births_dim[i]))
+            st_barcode_dim.append([-1, births_dim[i]])
 
     return np.asarray(st_barcode_dim)
 
