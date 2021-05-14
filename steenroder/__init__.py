@@ -210,6 +210,12 @@ def get_barcode_and_coho_reps(
     return barcode, coho_reps
 
 
+@nb.njit
+def _initialize_steenrod_matrix(num_dimensions):
+    return [nb.typed.List.empty_list(list_of_int64_typ)
+            for _ in range(num_dimensions)]
+
+
 @lru_cache
 def _populate_steenrod_matrix_single_dim(dim_plus_k):
     length = dim_plus_k + 1
@@ -217,12 +223,14 @@ def _populate_steenrod_matrix_single_dim(dim_plus_k):
     @nb.njit
     def _inner(steenrod_matrix_dim_plus_k, coho_reps_dim, tups_dim,
                spx2idx_dim_plus_k):
-        def STSQ(cocycle):
-            """..."""
-            answer = set(
+        for i, rep in enumerate(coho_reps_dim):
+            cocycle = tups_dim[np.asarray(rep)]
+
+            # STSQ
+            cochain = set(
                 [to_fixed_tuple(np.empty(length, dtype=np.int64), length)]
-                )
-            answer.pop()
+            )
+            cochain.pop()
             for i in range(len(cocycle)):
                 for j in range(i + 1, len(cocycle)):
                     a, b = set(cocycle[i]), set(cocycle[j])
@@ -247,13 +255,8 @@ def _populate_steenrod_matrix_single_dim(dim_plus_k):
                                 and index_b == set([1])) \
                                     or (index_a == set([1])
                                         and index_b == set([0])):
-                                answer ^= {u_tuple}
+                                cochain ^= {u_tuple}
 
-            return answer
-
-        for i, rep in enumerate(coho_reps_dim):
-            cocycle = tups_dim[np.asarray(rep)]
-            cochain = STSQ(cocycle)
             steenrod_matrix_dim_plus_k.append(
                 sorted([spx2idx_dim_plus_k[spx] for spx in cochain])
                 )
@@ -262,14 +265,7 @@ def _populate_steenrod_matrix_single_dim(dim_plus_k):
 
 
 def get_steenrod_matrix(k, coho_reps, filtration_by_dim, spx2idx):
-    num_dimensions = len(filtration_by_dim)
-
-    @nb.njit
-    def _initialize_steenrod_matrix():
-        return [nb.typed.List.empty_list(list_of_int64_typ)
-                for _ in range(num_dimensions)]
-
-    steenrod_matrix = _initialize_steenrod_matrix()
+    steenrod_matrix = _initialize_steenrod_matrix(len(filtration_by_dim))
 
     for dim, coho_reps_dim in enumerate(coho_reps[:-k]):
         dim_plus_k = dim + k
