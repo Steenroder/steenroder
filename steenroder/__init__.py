@@ -147,18 +147,20 @@ def get_barcode_and_coho_reps(
 
     if filtration_values is None:
         pairs_0 = []
-        coho_reps_0 = nb.typed.List.empty_list(list_of_int64_typ)
+        coho_reps_0 = []
         for i in range(len(idxs[0])):
             if not reduced[0][i]:
                 pairs_0.append([-1, idxs[0][i]])
                 coho_reps_0.append(triangular[0][i])
-        barcode.append(np.asarray(sorted(pairs_0)))
-        coho_reps.append(coho_reps_0)
+        pairs_0 = np.asarray(pairs_0)
+        lexsrt = _lexsort_barcode(pairs_0)
+        barcode.append(pairs_0[lexsrt])
+        coho_reps.append(nb.typed.List([coho_reps_0[k] for k in lexsrt]))
 
         for dim in range(1, len(idxs)):
             all_birth_indices = set()
             pairs_dim = []
-            coho_reps_dim = nb.typed.List.empty_list(list_of_int64_typ)
+            coho_reps_dim = []
             for i in range(len(idxs[dim - 1])):
                 if reduced[dim - 1][i]:
                     b = idxs[dim][reduced[dim - 1][i][0]]
@@ -173,22 +175,26 @@ def get_barcode_and_coho_reps(
                         pairs_dim.append([-1, idxs[dim][i]])
                         coho_reps_dim.append(triangular[dim][i])
 
-            barcode.append(np.asarray(sorted(pairs_dim)))
-            coho_reps.append(coho_reps_dim)
+            pairs_dim = np.asarray(pairs_dim)
+            lexsrt = _lexsort_barcode(pairs_dim)
+            barcode.append(pairs_dim[lexsrt])
+            coho_reps.append(nb.typed.List([coho_reps_dim[k] for k in lexsrt]))
 
     else:
         pairs_0 = []
-        coho_reps_0 = nb.typed.List.empty_list(list_of_int64_typ)
+        coho_reps_0 = []
         for i in range(len(idxs[0])):
             if not reduced[0][i]:
                 pairs_0.append([-1, idxs[0][i]])
-        barcode.append(np.asarray(sorted(pairs_0)))
-        coho_reps.append(coho_reps_0)
+        pairs_0 = np.asarray(pairs_0)
+        lexsrt = _lexsort_barcode(pairs_0)
+        barcode.append(pairs_0[lexsrt])
+        coho_reps.append(nb.typed.List([coho_reps_0[k] for k in lexsrt]))
 
         for dim in range(1, len(idxs)):
             all_birth_indices = set()
             pairs_dim = []
-            coho_reps_dim = nb.typed.List.empty_list(list_of_int64_typ)
+            coho_reps_dim = []
             for i in range(len(idxs[dim - 1])):
                 if reduced[dim - 1][i]:
                     b = idxs[dim][reduced[dim - 1][i][0]]
@@ -204,8 +210,10 @@ def get_barcode_and_coho_reps(
                         pairs_dim.append([-1, idxs[dim][i]])
                         coho_reps_dim.append(triangular[dim][i])
 
-            barcode.append(np.asarray(sorted(pairs_dim)))
-            coho_reps.append(coho_reps_dim)
+            pairs_dim = np.asarray(pairs_dim)
+            lexsrt = _lexsort_barcode(pairs_dim)
+            barcode.append(pairs_dim[lexsrt])
+            coho_reps.append(nb.typed.List([coho_reps_dim[k] for k in lexsrt]))
 
     return barcode, coho_reps
 
@@ -228,9 +236,9 @@ def _populate_steenrod_matrix_single_dim(dim_plus_k):
 
             # STSQ
             cochain = set(
-                [to_fixed_tuple(np.empty(length, dtype=np.int64), length)]
-            )
-            cochain.pop()
+                [to_fixed_tuple(np.empty(length, dtype=np.int64), length)
+                 for _ in range(0)]
+                )
             for i in range(len(cocycle)):
                 for j in range(i + 1, len(cocycle)):
                     a, b = set(cocycle[i]), set(cocycle[j])
@@ -514,6 +522,12 @@ def _symm_diff(x, y):
         j += 1
 
     return result
+
+
+@nb.njit
+def _lexsort_barcode(arr):
+    argsrt = np.argsort(arr[:, 0], kind="mergesort")
+    return argsrt[np.argsort(arr[:, 1][argsrt], kind="mergesort")]
 
 
 @nb.njit
