@@ -373,29 +373,33 @@ def get_steenrod_barcode(k, steenrod_matrix, idxs, reduced, barcode,
 
 def barcodes(
         k, filtration, homology=False, filtration_values=None,
-        return_filtration_values=False, maxdim=None
+        return_filtration_values=False, maxdim=None, verbose=False
         ):
     """Serves as the main function"""
-    tic = time.time()
+    if verbose:
+        tic = time.time()
     filtration_by_dim = sort_filtration_by_dim(filtration, maxdim=maxdim)
     spx2idx, idxs, reduced, triangular = \
         get_reduced_triangular(filtration_by_dim)
     barcode, coho_reps = \
         get_barcode_and_coho_reps(idxs, reduced, triangular,
                                   filtration_values=filtration_values)
-    toc = time.time()
-    print(f"Usual barcode computed, time taken: {toc - tic}")
-    tic = time.time()
+    if verbose:
+        toc = time.time()
+        print(f"Usual barcode computed, time taken: {toc - tic}")
+        tic = time.time()
     steenrod_matrix = get_steenrod_matrix(k, coho_reps, filtration_by_dim,
                                           spx2idx)
-    toc = time.time()
-    print(f"Steenrod matrix computed, time taken: {toc - tic}")
-    tic = time.time()
+    if verbose:
+        toc = time.time()
+        print(f"Steenrod matrix computed, time taken: {toc - tic}")
+        tic = time.time()
     st_barcode = get_steenrod_barcode(k, steenrod_matrix, idxs, reduced,
                                       barcode,
                                       filtration_values=filtration_values)
-    toc = time.time()
-    print(f"Steenrod barcode computed, time taken: {toc - tic}")
+    if verbose:
+        toc = time.time()
+        print(f"Steenrod barcode computed, time taken: {toc - tic}")
 
     if homology:
         barcode = to_homology_barcode(
