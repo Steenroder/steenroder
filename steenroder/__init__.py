@@ -330,7 +330,7 @@ def _steenrod_barcode_single_dim(steenrod_matrix_dim, idxs_prev_dim,
         if alive[i]:
             st_barcode_dim.append([-1, births_dim[i]])
 
-    return np.asarray(st_barcode_dim, dtype=np.int64).reshape((-1, 2))
+    return st_barcode_dim
 
 
 def get_steenrod_barcode(k, steenrod_matrix, idxs, reduced, barcode,
@@ -353,6 +353,10 @@ def get_steenrod_barcode(k, steenrod_matrix, idxs, reduced, barcode,
                                                       idxs_prev_dim,
                                                       reduced_prev_dim,
                                                       births_dim)
+        # NB: Conversion to array must happen outside jitted code due to
+        # https://github.com/numba/numba/issues/3579
+        st_barcode_dim = np.asarray(st_barcode_dim,
+                                    dtype=np.int64).reshape((-1, 2))
         if filtration_values is not None:
             st_barcode_dim = st_barcode_dim[nontrivial_bars(st_barcode_dim)]
         st_barcode.append(st_barcode_dim)
