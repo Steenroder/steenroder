@@ -11,8 +11,7 @@ list_of_int64_typ = nb.types.List(nb.int64)
 int64_2d_array_typ = nb.types.Array(nb.int64, 2, "C")
 
 
-def sort_filtration_by_dim(filtration: Sequence[tuple[int]],
-                           maxdim=None) -> list[list[np.ndarray, np.ndarray]]:
+def sort_filtration_by_dim(filtration, maxdim=None):
     if maxdim is None:
         maxdim = max(map(len, filtration)) - 1
 
@@ -98,11 +97,7 @@ def _reduce_single_dim(dim):
     return _inner_reduce_single_dim
 
 
-def get_reduced_triangular(filtration_by_dim: list[list[np.ndarray]]) \
-        -> tuple[tuple[nb.typed.Dict],
-                 tuple[np.ndarray],
-                 tuple[nb.typed.List[list]],
-                 tuple[nb.typed.List[list]]]:
+def get_reduced_triangular(filtration_by_dim):
     maxdim = len(filtration_by_dim) - 1
     # Initialize relative (i.e. in-dimension) indices to clear, as an empty
     # int array in dim 0
@@ -137,11 +132,11 @@ def get_reduced_triangular(filtration_by_dim: list[list[np.ndarray]]) \
 
 @nb.njit
 def get_barcode_and_coho_reps(
-        idxs: tuple[np.ndarray],
-        reduced: tuple[nb.typed.List[list]],
-        triangular: tuple[nb.typed.List[list]],
+        idxs,
+        reduced,
+        triangular,
         filtration_values=None
-        ) -> tuple[list[np.ndarray], list[nb.typed.List[list[int]]]]:
+        ):
     barcode = []
     coho_reps = []
 
@@ -186,6 +181,7 @@ def get_barcode_and_coho_reps(
         for i in range(len(idxs[0])):
             if not reduced[0][i]:
                 pairs_0.append([-1, idxs[0][i]])
+                coho_reps_0.append(triangular[0][i])
         pairs_0 = np.asarray(pairs_0)
         lexsrt = _lexsort_barcode(pairs_0)
         barcode.append(pairs_0[lexsrt])
