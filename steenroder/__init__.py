@@ -229,8 +229,8 @@ def _populate_steenrod_matrix_single_dim(dim_plus_k):
     length = dim_plus_k + 1
 
     @nb.njit
-    def _inner(steenrod_matrix_dim_plus_k, coho_reps_dim, tups_dim,
-               spx2idx_dim_plus_k):
+    def _inner(coho_reps_dim, tups_dim, spx2idx_dim_plus_k):
+        steenrod_matrix_dim_plus_k = nb.typed.List.empty_list(list_of_int64_typ)
         for rep in coho_reps_dim:
             cocycle = tups_dim[np.asarray(rep)]
 
@@ -269,28 +269,30 @@ def _populate_steenrod_matrix_single_dim(dim_plus_k):
                 sorted([spx2idx_dim_plus_k[spx] for spx in cochain])
                 )
 
+        return steenrod_matrix_dim_plus_k
+
     return _inner
 
 
 def get_steenrod_matrix(k, coho_reps, filtration_by_dim, spx2idx):
-    steenrod_matrix = _initialize_steenrod_matrix(len(filtration_by_dim))
+    steenrod_matrix = _initialize_steenrod_matrix(k)
 
     for dim, coho_reps_dim in enumerate(coho_reps[:-k]):
         dim_plus_k = dim + k
         tups_dim = filtration_by_dim[dim][1]
         spx2idx_dim_plus_k = spx2idx[dim + k]
-        steenrod_matrix_dim_plus_k = steenrod_matrix[dim_plus_k]
         populate_steenrod_matrix_single_dim = \
             _populate_steenrod_matrix_single_dim(dim_plus_k)
-        populate_steenrod_matrix_single_dim(steenrod_matrix_dim_plus_k,
-                                            coho_reps_dim, tups_dim,
-                                            spx2idx_dim_plus_k)
+        steenrod_matrix_dim_plus_k = populate_steenrod_matrix_single_dim(
+            coho_reps_dim, tups_dim, spx2idx_dim_plus_k
+            )
+        steenrod_matrix.append(steenrod_matrix_dim_plus_k)
         
     return steenrod_matrix
 
 
 @nb.njit
-def _steenrod_barcode_single_dim(steenrod_matrix_dim, idxs_prev_dim,
+def _steenrod_barcode_single_dim(steenrod_matrix_dim, n_idxs_dim, idxs_prev_dim,
                                  reduced_prev_dim, births_dim):
     # Construct augmented matrix
     augmented = []
@@ -299,32 +301,39 @@ def _steenrod_barcode_single_dim(steenrod_matrix_dim, idxs_prev_dim,
     for i in range(len(steenrod_matrix_dim)):
         augmented.append([nb.int64(x) for x in steenrod_matrix_dim[i]])
 
+    pivots_lookup = np.full(n_idxs_dim, -1, dtype=np.int64)
     alive = np.ones(len(births_dim), dtype=np.bool_)
     n = len(idxs_prev_dim)
     st_barcode_dim = []
 
     j = 0
     for i, idx in enumerate(idxs_prev_dim[::-1]):
+        if augmented[n - 1 - i]:
+            pivots_lookup[augmented[n - 1 - i][0]] = n - 1 - i
         if births_dim[j] == idx:
             j += 1
-        for ii in range(n, n + j):
-            if augmented[ii]:
-                iii = ii
-                while iii >= n - i:
-                    iii -= 1
-                    if not augmented[ii]:
-                        break
-                    elif not augmented[iii]:
-                        continue
-                    elif augmented[iii][0] == augmented[ii][0]:
-                        augmented[ii] = _symm_diff(augmented[iii][1:],
-                                                   augmented[ii][1:])
-                        iii = ii
 
-            if alive[ii - n] and (not augmented[ii]):
+        pivot_column_idxs_from_steenrod = []
+        for ii in range(n, n + j):
+            highest_one = augmented[ii][0] if augmented[ii] else -1
+            pivot_col = pivots_lookup[highest_one]
+            while (highest_one != -1) and (pivot_col != -1):
+                augmented[ii] = _symm_diff(augmented[ii][1:],
+                                           augmented[pivot_col][1:])
+                highest_one = augmented[ii][0] if augmented[ii] else -1
+                pivot_col = pivots_lookup[highest_one]
+            if highest_one != -1:
+                pivots_lookup[highest_one] = ii
+                # Record pivot indices coming from Steenrod part of augmented
+                pivot_column_idxs_from_steenrod.append(highest_one)
+            elif alive[ii - n]:
                 alive[ii - n] = False
                 if idx < births_dim[ii - n]:
                     st_barcode_dim.append([idx, births_dim[ii - n]])
+
+        # Reset pivots_lookup for next iteration
+        for col_idx in pivot_column_idxs_from_steenrod:
+            pivots_lookup[col_idx] = -1
 
     for i in range(len(alive)):
         if alive[i]:
@@ -347,9 +356,11 @@ def get_steenrod_barcode(k, steenrod_matrix, idxs, reduced, barcode,
     st_barcode = [np.empty((0, 2), dtype=np.int64) for _ in range(k)]
     for dim in range(k, len(steenrod_matrix)):
         births_dim = barcode[dim - k][:, 1]
+        idxs_dim = idxs[dim]
         idxs_prev_dim = idxs[dim - 1]
         reduced_prev_dim = reduced[dim - 1]
         st_barcode_dim = _steenrod_barcode_single_dim(steenrod_matrix[dim],
+                                                      len(idxs_dim),
                                                       idxs_prev_dim,
                                                       reduced_prev_dim,
                                                       births_dim)
