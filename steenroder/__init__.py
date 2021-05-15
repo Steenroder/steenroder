@@ -507,7 +507,7 @@ def _symm_diff(x, y):
 
 @nb.njit
 def _lexsort_barcode(arr):
-    return np.argsort(arr[:, 1], kind="mergesort")[::-1]
+    return np.argsort(arr[:, 1])[::-1]
 
 
 @nb.njit
