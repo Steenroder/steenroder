@@ -326,7 +326,7 @@ def _steenrod_barcode_single_dim(steenrod_matrix_dim, idxs_prev_dim,
         if alive[i]:
             st_barcode_dim.append([-1, births_dim[i]])
 
-    return np.asarray(st_barcode_dim)
+    return np.asarray(st_barcode_dim, dtype=np.int64).reshape((-1, 2))
 
 
 def get_steenrod_barcode(k, steenrod_matrix, idxs, reduced, barcode,
