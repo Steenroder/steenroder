@@ -335,13 +335,13 @@ def _steenrod_barcode_single_dim(steenrod_matrix_dim, idxs_prev_dim,
 
 def get_steenrod_barcode(k, steenrod_matrix, idxs, reduced, barcode,
                          filtration_values=None):
-    def nontrivial_bars(st_barcode_dim):
-        infinite_bars = st_barcode_dim[:, 0] == -1
+    def nontrivial_bars(barcode_dim):
+        infinite_bars = barcode_dim[:, 0] == -1
         return np.logical_or(
             infinite_bars,
             np.logical_and(np.logical_not(infinite_bars),
-                           (filtration_values[st_barcode_dim[:, 0]] !=
-                            filtration_values[st_barcode_dim[:, 1]]))
+                           (filtration_values[barcode_dim[:, 0]] !=
+                            filtration_values[barcode_dim[:, 1]]))
             )
 
     st_barcode = [np.empty((0, 2), dtype=np.int64) for _ in range(k)]
@@ -392,24 +392,24 @@ def barcodes(
 
     if homology:
         barcode = to_homology_barcode(
-            barcode, N, filtration_values=filtration_values,
+            barcode, filtration_values=filtration_values,
             return_filtration_values=return_filtration_values
             )
         st_barcode = to_homology_barcode(
-            st_barcode, N, filtration_values=filtration_values,
+            st_barcode, filtration_values=filtration_values,
             return_filtration_values=return_filtration_values
             )
 
         return barcode, st_barcode
 
-    if return_filtration_values and (filtration_values is not None):
-        barcode = to_values_barcode(barcode, N, filtration_values)
-        st_barcode = to_values_barcode(st_barcode, N, filtration_values)
+    elif return_filtration_values and (filtration_values is not None):
+        barcode = to_values_barcode(barcode, filtration_values)
+        st_barcode = to_values_barcode(st_barcode, filtration_values)
 
     return barcode, st_barcode
 
 
-def to_homology_barcode(rel_coho_barcode, N, filtration_values=None,
+def to_homology_barcode(rel_coho_barcode, filtration_values=None,
                         return_filtration_values=True):
     hom_barcode = []
 
@@ -417,44 +417,41 @@ def to_homology_barcode(rel_coho_barcode, N, filtration_values=None,
         for dim, rel_coho_barcode_dim in enumerate(rel_coho_barcode):
             hom_barcode_dim = []
             for pair in rel_coho_barcode_dim:
-                if pair[1] == np.inf:
-                    hom_barcode_dim.append((N - 1 - pair[0], np.inf))
+                if pair[0] == -1:
+                    hom_barcode_dim.append((pair[1], np.inf))
                 else:
-                    hom_barcode[dim - 1].append((N - 1 - pair[1],
-                                                 N - 1 - pair[0]))
+                    hom_barcode[dim - 1].append((pair[0], pair[1]))
             hom_barcode.append(hom_barcode_dim)
 
     else:
         for dim, rel_coho_barcode_dim in enumerate(rel_coho_barcode):
             hom_barcode_dim = []
             for pair in rel_coho_barcode_dim:
-                if pair[1] == np.inf:
+                if pair[0] == -1:
                     hom_barcode_dim.append(
-                        (filtration_values[N - 1 - pair[0]], np.inf)
+                        (filtration_values[pair[1]], np.inf)
                         )
                 else:
                     hom_barcode[dim - 1].append(
-                        (filtration_values[N - 1 - pair[1]],
-                         filtration_values[N - 1 - pair[0]])
+                        (filtration_values[pair[0]], filtration_values[pair[1]])
                         )
             hom_barcode.append(hom_barcode_dim)
 
     return hom_barcode
 
 
-def to_values_barcode(rel_coho_barcode, N, filtration_values):
+def to_values_barcode(rel_coho_barcode, filtration_values):
     values_barcode = []
     for dim, rel_coho_barcode_dim in enumerate(rel_coho_barcode):
         values_barcode_dim = []
         for pair in rel_coho_barcode_dim:
-            if pair[1] == np.inf:
+            if pair[0] == -1:
                 values_barcode_dim.append(
-                    (filtration_values[N - 1 - pair[0]], np.inf)
+                    (-np.inf, filtration_values[pair[1]])
                 )
             else:
-                values_barcode[dim - 1].append(
-                    (filtration_values[N - 1 - pair[0]],
-                     filtration_values[N - 1 - pair[1]])
+                values_barcode[dim].append(
+                    (filtration_values[pair[0]], filtration_values[pair[1]])
                 )
         values_barcode.append(values_barcode_dim)
 
