@@ -1,5 +1,4 @@
 import time
-from collections.abc import Sequence
 from functools import lru_cache
 
 import numba as nb
@@ -131,12 +130,8 @@ def get_reduced_triangular(filtration_by_dim):
 
 
 @nb.njit
-def get_barcode_and_coho_reps(
-        idxs,
-        reduced,
-        triangular,
-        filtration_values=None
-        ):
+def get_barcode_and_coho_reps(idxs, reduced, triangular,
+                              filtration_values=None):
     barcode = []
     coho_reps = []
 
