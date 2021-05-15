@@ -231,7 +231,7 @@ def _populate_steenrod_matrix_single_dim(dim_plus_k):
     @nb.njit
     def _inner(steenrod_matrix_dim_plus_k, coho_reps_dim, tups_dim,
                spx2idx_dim_plus_k):
-        for i, rep in enumerate(coho_reps_dim):
+        for rep in coho_reps_dim:
             cocycle = tups_dim[np.asarray(rep)]
 
             # STSQ
