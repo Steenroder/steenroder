@@ -35,7 +35,7 @@ def _twist_reduction(coboundary, triangular, pivots_lookup):
     """R = MV"""
     n = len(coboundary)
 
-    rel_idxs_to_clear =[]
+    rel_idxs_to_clear = []
     for j in range(n - 1, -1, -1):
         highest_one = coboundary[j][0] if coboundary[j] else -1
         pivot_col = pivots_lookup[highest_one]
