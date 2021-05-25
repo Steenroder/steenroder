@@ -420,6 +420,7 @@ def to_homology_barcode(rel_coho_barcode, filtration_values=None,
     hom_barcode = []
 
     if (not return_filtration_values) or (filtration_values is None):
+        dtype = np.int64
         for dim, rel_coho_barcode_dim in enumerate(rel_coho_barcode):
             hom_barcode_dim = []
             for pair in rel_coho_barcode_dim:
@@ -430,6 +431,7 @@ def to_homology_barcode(rel_coho_barcode, filtration_values=None,
             hom_barcode.append(hom_barcode_dim)
 
     else:
+        dtype = filtration_values.dtype
         for dim, rel_coho_barcode_dim in enumerate(rel_coho_barcode):
             hom_barcode_dim = []
             for pair in rel_coho_barcode_dim:
@@ -443,7 +445,8 @@ def to_homology_barcode(rel_coho_barcode, filtration_values=None,
                         )
             hom_barcode.append(hom_barcode_dim)
 
-    return hom_barcode
+    return [np.array(hom_barcode_dim, dtype=dtype)
+            for hom_barcode_dim in hom_barcode]
 
 
 def to_values_barcode(rel_coho_barcode, filtration_values):
@@ -459,7 +462,9 @@ def to_values_barcode(rel_coho_barcode, filtration_values):
                 values_barcode_dim.append(
                     (filtration_values[pair[0]], filtration_values[pair[1]])
                 )
-        values_barcode.append(values_barcode_dim)
+        values_barcode.append(
+            np.array(values_barcode_dim, dtype=filtration_values.dtype)
+            )
 
     return values_barcode
 
