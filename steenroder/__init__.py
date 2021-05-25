@@ -456,7 +456,7 @@ def to_values_barcode(rel_coho_barcode, filtration_values):
                     (-np.inf, filtration_values[pair[1]])
                 )
             else:
-                values_barcode[dim].append(
+                values_barcode_dim.append(
                     (filtration_values[pair[0]], filtration_values[pair[1]])
                 )
         values_barcode.append(values_barcode_dim)
