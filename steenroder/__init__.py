@@ -437,7 +437,7 @@ def to_homology_barcode(rel_coho_barcode, filtration_values=None,
             for pair in rel_coho_barcode_dim:
                 if pair[0] == -1:
                     hom_barcode_dim.append(
-                        (filtration_values[pair[1]], np.inf)
+                        (filtration_values[pair[1]], -1)
                         )
                 else:
                     hom_barcode[dim - 1].append(
