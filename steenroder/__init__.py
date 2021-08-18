@@ -219,11 +219,14 @@ def _initialize_steenrod_matrix(num_dimensions):
 def _populate_steenrod_matrix_single_dim(dim_plus_k):
     length = dim_plus_k + 1
 
-    @nb.njit
+    @nb.njit(parallel=True)
     def _inner(coho_reps_dim, tups_dim, spx2idx_dim_plus_k):
-        steenrod_matrix_dim_plus_k = nb.typed.List.empty_list(list_of_int64_typ)
-        for rep in coho_reps_dim:
+        steenrod_matrix_dim_plus_k = nb.typed.List([[nb.int64(0) for _ in range(0)]
+                                                    for _ in range(len(coho_reps_dim))])
+        for coho_reps_dim_idx in nb.prange(len(coho_reps_dim)):
+            rep = coho_reps_dim[coho_reps_dim_idx]
             cocycle = tups_dim[np.asarray(rep)]
+            print(len(cocycle))
 
             # STSQ
             cochain = set(
@@ -256,9 +259,7 @@ def _populate_steenrod_matrix_single_dim(dim_plus_k):
                                         and index_b == set([0])):
                                 cochain ^= {u_tuple}
 
-            steenrod_matrix_dim_plus_k.append(
-                sorted([spx2idx_dim_plus_k[spx] for spx in cochain])
-                )
+            steenrod_matrix_dim_plus_k[coho_reps_dim_idx] = sorted([spx2idx_dim_plus_k[spx] for spx in cochain])
 
         return steenrod_matrix_dim_plus_k
 
