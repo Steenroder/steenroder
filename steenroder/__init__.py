@@ -226,7 +226,6 @@ def _populate_steenrod_matrix_single_dim(dim_plus_k):
         for coho_reps_dim_idx in nb.prange(len(coho_reps_dim)):
             rep = coho_reps_dim[coho_reps_dim_idx]
             cocycle = tups_dim[np.asarray(rep)]
-            print(len(cocycle))
 
             # STSQ
             cochain = set(
