@@ -425,19 +425,19 @@ def to_homology_barcode(rel_coho_barcode, filtration_values=None,
             hom_barcode_dim = []
             for pair in rel_coho_barcode_dim:
                 if pair[0] == -1:
-                    hom_barcode_dim.append((pair[1], np.inf))
+                    hom_barcode_dim.append((pair[1], -1))
                 else:
                     hom_barcode[dim - 1].append((pair[0], pair[1]))
             hom_barcode.append(hom_barcode_dim)
 
     else:
-        dtype = filtration_values.dtype
+        dtype = np.float64
         for dim, rel_coho_barcode_dim in enumerate(rel_coho_barcode):
             hom_barcode_dim = []
             for pair in rel_coho_barcode_dim:
                 if pair[0] == -1:
                     hom_barcode_dim.append(
-                        (filtration_values[pair[1]], -1)
+                        (filtration_values[pair[1]], np.inf)
                         )
                 else:
                     hom_barcode[dim - 1].append(
