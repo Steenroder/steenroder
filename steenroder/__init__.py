@@ -1,5 +1,6 @@
 import time
 from functools import lru_cache
+import psutil
 
 import numba as nb
 import numpy as np
@@ -8,6 +9,7 @@ from numba.np.unsafe.ndarray import to_fixed_tuple
 
 list_of_int64_typ = nb.types.List(nb.int64)
 int64_2d_array_typ = nb.types.Array(nb.int64, 2, "C")
+n_physical_cores = psutil.cpu_count(logical=False)
 
 
 def sort_filtration_by_dim(filtration, maxdim=None):
@@ -223,42 +225,44 @@ def _populate_steenrod_matrix_single_dim(dim_plus_k):
     def _inner(coho_reps_dim, tups_dim, spx2idx_dim_plus_k):
         steenrod_matrix_dim_plus_k = nb.typed.List([[nb.int64(0) for _ in range(0)]
                                                     for _ in range(len(coho_reps_dim))])
-        for coho_reps_dim_idx in nb.prange(len(coho_reps_dim)):
-            rep = coho_reps_dim[coho_reps_dim_idx]
-            cocycle = tups_dim[np.asarray(rep)]
 
-            # STSQ
-            cochain = set(
-                [to_fixed_tuple(np.empty(length, dtype=np.int64), length)
-                 for _ in range(0)]
-                )
-            for i in range(len(cocycle)):
-                for j in range(i + 1, len(cocycle)):
-                    a, b = set(cocycle[i]), set(cocycle[j])
-                    u = a.union(b)
-                    if len(u) == length:
-                        u_tuple = to_fixed_tuple(np.asarray(sorted(u)), length)
-                        if u_tuple in spx2idx_dim_plus_k:
-                            a_bar, b_bar = a.difference(b), b.difference(a)
-                            u_bar = sorted(a_bar.union(b_bar))
-                            index = {}
-                            for v in a_bar.union(b_bar):
-                                pos = u_tuple.index(v)
-                                pos_bar = u_bar.index(v)
-                                index[v] = (pos + pos_bar) % 2
-                            index_a = set()
-                            index_b = set()
-                            for v in a_bar:
-                                index_a.add(index[v])
-                            for w in b_bar:
-                                index_b.add(index[w])
-                            if (index_a == set([0])
-                                and index_b == set([1])) \
-                                    or (index_a == set([1])
-                                        and index_b == set([0])):
-                                cochain ^= {u_tuple}
+        for thread_idx in nb.prange(n_physical_cores):
+            for coho_reps_dim_idx in range(thread_idx, len(coho_reps_dim), n_physical_cores):
+                rep = coho_reps_dim[coho_reps_dim_idx]
+                cocycle = tups_dim[np.asarray(rep)]
 
-            steenrod_matrix_dim_plus_k[coho_reps_dim_idx] = sorted([spx2idx_dim_plus_k[spx] for spx in cochain])
+                # STSQ
+                cochain = set(
+                    [to_fixed_tuple(np.empty(length, dtype=np.int64), length)
+                     for _ in range(0)]
+                    )
+                for i in range(len(cocycle)):
+                    for j in range(i + 1, len(cocycle)):
+                        a, b = set(cocycle[i]), set(cocycle[j])
+                        u = a.union(b)
+                        if len(u) == length:
+                            u_tuple = to_fixed_tuple(np.asarray(sorted(u)), length)
+                            if u_tuple in spx2idx_dim_plus_k:
+                                a_bar, b_bar = a.difference(b), b.difference(a)
+                                u_bar = sorted(a_bar.union(b_bar))
+                                index = {}
+                                for v in a_bar.union(b_bar):
+                                    pos = u_tuple.index(v)
+                                    pos_bar = u_bar.index(v)
+                                    index[v] = (pos + pos_bar) % 2
+                                index_a = set()
+                                index_b = set()
+                                for v in a_bar:
+                                    index_a.add(index[v])
+                                for w in b_bar:
+                                    index_b.add(index[w])
+                                if (index_a == set([0])
+                                    and index_b == set([1])) \
+                                        or (index_a == set([1])
+                                            and index_b == set([0])):
+                                    cochain ^= {u_tuple}
+
+                steenrod_matrix_dim_plus_k[coho_reps_dim_idx] = sorted([spx2idx_dim_plus_k[spx] for spx in cochain])
 
         return steenrod_matrix_dim_plus_k
 
