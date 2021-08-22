@@ -222,12 +222,15 @@ def _populate_steenrod_matrix_single_dim(dim_plus_k):
     length = dim_plus_k + 1
 
     @nb.njit(parallel=True)
-    def _inner(coho_reps_dim, tups_dim, spx2idx_dim_plus_k):
+    def _inner(coho_reps_dim, tups_dim, spx2idx_dim_plus_k, n_jobs=-1):
         steenrod_matrix_dim_plus_k = nb.typed.List([[nb.int64(0) for _ in range(0)]
                                                     for _ in coho_reps_dim])
+        
+        if n_jobs == -1:
+            n_jobs = n_physical_cores
 
-        for thread_idx in nb.prange(n_physical_cores):
-            for coho_reps_dim_idx in range(thread_idx, len(coho_reps_dim), n_physical_cores):
+        for thread_idx in nb.prange(n_jobs):
+            for coho_reps_dim_idx in range(thread_idx, len(coho_reps_dim), n_jobs):
                 rep = coho_reps_dim[coho_reps_dim_idx]
                 cocycle = tups_dim[np.asarray(rep)]
 
@@ -269,7 +272,7 @@ def _populate_steenrod_matrix_single_dim(dim_plus_k):
     return _inner
 
 
-def get_steenrod_matrix(k, coho_reps, filtration_by_dim, spx2idx):
+def get_steenrod_matrix(k, coho_reps, filtration_by_dim, spx2idx, n_jobs=-1):
     steenrod_matrix = _initialize_steenrod_matrix(k)
 
     for dim, coho_reps_dim in enumerate(coho_reps[:-k]):
@@ -279,7 +282,7 @@ def get_steenrod_matrix(k, coho_reps, filtration_by_dim, spx2idx):
         populate_steenrod_matrix_single_dim = \
             _populate_steenrod_matrix_single_dim(dim_plus_k)
         steenrod_matrix_dim_plus_k = populate_steenrod_matrix_single_dim(
-            coho_reps_dim, tups_dim, spx2idx_dim_plus_k
+            coho_reps_dim, tups_dim, spx2idx_dim_plus_k, n_jobs=n_jobs
             )
         steenrod_matrix.append(steenrod_matrix_dim_plus_k)
         
@@ -372,7 +375,8 @@ def get_steenrod_barcode(k, steenrod_matrix, idxs, reduced, barcode,
 
 def barcodes(
         k, filtration, homology=False, filtration_values=None,
-        return_filtration_values=False, maxdim=None, verbose=False
+        return_filtration_values=False, maxdim=None, verbose=False,
+        n_jobs=1
         ):
     """Serves as the main function"""
     if verbose:
@@ -388,7 +392,7 @@ def barcodes(
         print(f"Usual barcode computed, time taken: {toc - tic}")
         tic = time.time()
     steenrod_matrix = get_steenrod_matrix(k, coho_reps, filtration_by_dim,
-                                          spx2idx)
+                                          spx2idx, n_jobs=n_jobs)
     if verbose:
         toc = time.time()
         print(f"Steenrod matrix computed, time taken: {toc - tic}")
