@@ -224,7 +224,7 @@ def _populate_steenrod_matrix_single_dim(dim_plus_k):
     @nb.njit(parallel=True)
     def _inner(coho_reps_dim, tups_dim, spx2idx_dim_plus_k):
         steenrod_matrix_dim_plus_k = nb.typed.List([[nb.int64(0) for _ in range(0)]
-                                                    for _ in range(len(coho_reps_dim))])
+                                                    for _ in coho_reps_dim])
 
         for thread_idx in nb.prange(n_physical_cores):
             for coho_reps_dim_idx in range(thread_idx, len(coho_reps_dim), n_physical_cores):
