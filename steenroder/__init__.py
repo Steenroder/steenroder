@@ -9,7 +9,8 @@ from numba.np.unsafe.ndarray import to_fixed_tuple
 
 list_of_int64_typ = nb.types.List(nb.int64)
 int64_2d_array_typ = nb.types.Array(nb.int64, 2, "C")
-n_physical_cores = psutil.cpu_count(logical=False)
+
+N_PHYSICAL_CORES = psutil.cpu_count(logical=False)
 
 
 def sort_filtration_by_dim(filtration, maxdim=None):
@@ -227,7 +228,7 @@ def _populate_steenrod_matrix_single_dim(dim_plus_k):
                                                     for _ in coho_reps_dim])
         
         if n_jobs == -1:
-            n_jobs = n_physical_cores
+            n_jobs = N_PHYSICAL_CORES
 
         for thread_idx in nb.prange(n_jobs):
             for coho_reps_dim_idx in range(thread_idx, len(coho_reps_dim), n_jobs):
