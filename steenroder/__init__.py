@@ -365,10 +365,11 @@ def get_steenrod_barcode(k, steenrod_matrix, idxs, reduced, barcode,
                                                       births_dim)
         # NB: Conversion to array must happen outside jitted code due to
         # https://github.com/numba/numba/issues/3579
-        st_barcode_dim = np.asarray(st_barcode_dim,
-                                    dtype=np.int64).reshape((-1, 2))
+        st_barcode_dim = \
+            np.asarray(st_barcode_dim, dtype=np.int64).reshape((-1, 2))
         if filtration_values is not None:
-            st_barcode_dim = st_barcode_dim[nontrivial_bars(st_barcode_dim)]
+            nontrivial_mask = nontrivial_bars(st_barcode_dim)
+            st_barcode_dim = st_barcode_dim[nontrivial_mask]
         st_barcode.append(st_barcode_dim)
 
     return st_barcode
@@ -437,10 +438,10 @@ def to_homology_barcode(rel_coho_barcode, filtration_values=None,
                     hom_barcode_dim.append((pair[1], -1))
                 else:
                     hom_barcode[dim - 1].append((pair[0], pair[1]))
-            hom_barcode.append(hom_barcode_dim)
+            hom_barcode.append(hom_barcode_dim.reshape(-1, 2))
 
     else:
-        dtype = np.float64
+        dtype = filtration_values.dtype
         for dim, rel_coho_barcode_dim in enumerate(rel_coho_barcode):
             hom_barcode_dim = []
             for pair in rel_coho_barcode_dim:
@@ -452,17 +453,17 @@ def to_homology_barcode(rel_coho_barcode, filtration_values=None,
                     hom_barcode[dim - 1].append(
                         (filtration_values[pair[0]], filtration_values[pair[1]])
                         )
-            hom_barcode.append(hom_barcode_dim)
+            hom_barcode.append(hom_barcode_dim.reshape(-1, 2))
 
     return [np.array(hom_barcode_dim, dtype=dtype)
             for hom_barcode_dim in hom_barcode]
 
 
-def to_values_barcode(rel_coho_barcode, filtration_values):
+def to_values_barcode(barcode, filtration_values):
     values_barcode = []
-    for dim, rel_coho_barcode_dim in enumerate(rel_coho_barcode):
+    for dim, barcode_dim in enumerate(barcode):
         values_barcode_dim = []
-        for pair in rel_coho_barcode_dim:
+        for pair in barcode_dim:
             if pair[0] == -1:
                 values_barcode_dim.append(
                     (-np.inf, filtration_values[pair[1]])
@@ -472,7 +473,8 @@ def to_values_barcode(rel_coho_barcode, filtration_values):
                     (filtration_values[pair[0]], filtration_values[pair[1]])
                 )
         values_barcode.append(
-            np.array(values_barcode_dim, dtype=filtration_values.dtype)
+            np.array(values_barcode_dim,
+                     dtype=filtration_values.dtype).reshape(-1, 2)
             )
 
     return values_barcode
