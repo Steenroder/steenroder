@@ -1,7 +1,0 @@
-setup.py
-steenroder/__init__.py
-steenroder.egg-info/PKG-INFO
-steenroder.egg-info/SOURCES.txt
-steenroder.egg-info/dependency_links.txt
-steenroder.egg-info/not-zip-safe
-steenroder.egg-info/top_level.txt
