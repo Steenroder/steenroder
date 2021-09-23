@@ -438,8 +438,7 @@ def to_homology_barcode(rel_coho_barcode, filtration_values=None,
                     hom_barcode_dim.append((pair[1], -1))
                 else:
                     hom_barcode[dim - 1].append((pair[0], pair[1]))
-            hom_barcode.append(hom_barcode_dim.reshape(-1, 2))
-
+            hom_barcode.append(hom_barcode_dim)
     else:
         dtype = filtration_values.dtype
         for dim, rel_coho_barcode_dim in enumerate(rel_coho_barcode):
@@ -453,9 +452,9 @@ def to_homology_barcode(rel_coho_barcode, filtration_values=None,
                     hom_barcode[dim - 1].append(
                         (filtration_values[pair[0]], filtration_values[pair[1]])
                         )
-            hom_barcode.append(hom_barcode_dim.reshape(-1, 2))
+            hom_barcode.append(hom_barcode_dim)
 
-    return [np.array(hom_barcode_dim, dtype=dtype)
+    return [np.array(hom_barcode_dim, dtype=dtype).reshape(-1, 2)
             for hom_barcode_dim in hom_barcode]
 
 
