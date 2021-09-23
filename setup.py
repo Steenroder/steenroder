@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name="steenroder",
-      version='0.2',
+      version="0.1.0",
       description="Persistence Steenrod modules: the even prime",
       url="http://github.com/Steenroder/steenroder",
       author="Anibal M. Medina-Mardones and Umberto Lupo",
