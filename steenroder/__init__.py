@@ -93,37 +93,57 @@ def _reduce_single_dim(dim):
 
             rel_idxs_to_clear = _twist_reduction(reduced_dim, triangular_dim,
                                                  pivots_lookup)
+        else:
+            pivots_lookup = np.empty(0, dtype=np.int64)
 
-        return spx2idx_dim, reduced_dim, triangular_dim, rel_idxs_to_clear
+        return (spx2idx_dim, reduced_dim, triangular_dim,
+                rel_idxs_to_clear, pivots_lookup)
 
     return _inner_reduce_single_dim
 
 
+@nb.njit
+def _fix_triangular_after_clearing(triangular, reduced_prev_dim,
+                                   rel_idxs_to_clear, pivots_lookup_prev_dim):
+    for rel_idx in rel_idxs_to_clear:
+        triangular[rel_idx] = reduced_prev_dim[pivots_lookup_prev_dim[rel_idx]]
+
+
 def get_reduced_triangular(filtration_by_dim):
     maxdim = len(filtration_by_dim) - 1
+    spx2idx_idxs_reduced_triangular = []
     # Initialize relative (i.e. in-dimension) indices to clear, as an empty
     # int array in dim 0
     rel_idxs_to_clear = np.empty(0, dtype=np.int64)
-    spx2idx_idxs_reduced_triangular = []
+    reduced_prev_dim = nb.typed.List.empty_list(list_of_int64_typ)
+    pivots_lookup_prev_dim = np.empty(0, dtype=np.int64)
     for dim in range(maxdim):
         reduction_dim = _reduce_single_dim(dim)
         idxs_dim, tups_dim = filtration_by_dim[dim]
         idxs_next_dim, tups_next_dim = filtration_by_dim[dim + 1]
-        spx2idx_dim, reduced_dim, triangular_dim, rel_idxs_to_clear = \
+        (spx2idx_dim, reduced_dim, triangular_dim,
+         rel_idxs_to_clear_next_dim, pivots_lookup) = \
             reduction_dim(idxs_dim,
                           tups_dim,
                           rel_idxs_to_clear,
                           idxs_next_dim=idxs_next_dim,
                           tups_next_dim=tups_next_dim)
+        _fix_triangular_after_clearing(triangular_dim, reduced_prev_dim,
+                                       rel_idxs_to_clear, pivots_lookup_prev_dim)
         spx2idx_idxs_reduced_triangular.append((spx2idx_dim,
                                                 idxs_dim,
                                                 reduced_dim,
                                                 triangular_dim))
+        rel_idxs_to_clear = rel_idxs_to_clear_next_dim
+        reduced_prev_dim = reduced_dim
+        pivots_lookup_prev_dim = pivots_lookup
 
     reduction_dim = _reduce_single_dim(maxdim)
     idxs_dim, tups_dim = filtration_by_dim[maxdim]
-    spx2idx_dim, reduced_dim, triangular_dim, _ = \
+    spx2idx_dim, reduced_dim, triangular_dim, _, _ = \
         reduction_dim(idxs_dim, tups_dim, rel_idxs_to_clear)
+    _fix_triangular_after_clearing(triangular_dim, reduced_prev_dim,
+                                   rel_idxs_to_clear, pivots_lookup_prev_dim)
     spx2idx_idxs_reduced_triangular.append((spx2idx_dim,
                                             idxs_dim,
                                             reduced_dim,
@@ -266,7 +286,8 @@ def _populate_steenrod_matrix_single_dim(dim_plus_k):
                                             and index_b == set([0])):
                                     cochain ^= {u_tuple}
 
-                steenrod_matrix_dim_plus_k[coho_reps_dim_idx] = sorted([spx2idx_dim_plus_k[spx] for spx in cochain])
+                steenrod_matrix_dim_plus_k[coho_reps_dim_idx] = \
+                    sorted([spx2idx_dim_plus_k[spx] for spx in cochain])
 
         return steenrod_matrix_dim_plus_k
 
