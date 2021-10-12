@@ -397,7 +397,7 @@ def get_steenrod_barcode(k, steenrod_matrix, idxs, reduced, barcode,
 
 
 def barcodes(
-        k, filtration, homology=False, filtration_values=None,
+        k, filtration, absolute=False, filtration_values=None,
         return_filtration_values=False, maxdim=None, verbose=False,
         n_jobs=1
         ):
@@ -427,12 +427,12 @@ def barcodes(
         toc = time.time()
         print(f"Steenrod barcode computed, time taken: {toc - tic}")
 
-    if homology:
-        barcode = to_homology_barcode(
+    if absolute:
+        barcode = to_absolute_barcode(
             barcode, filtration_values=filtration_values,
             return_filtration_values=return_filtration_values
             )
-        st_barcode = to_homology_barcode(
+        st_barcode = to_absolute_barcode(
             st_barcode, filtration_values=filtration_values,
             return_filtration_values=return_filtration_values
             )
@@ -446,15 +446,15 @@ def barcodes(
     return barcode, st_barcode
 
 
-def to_homology_barcode(rel_coho_barcode, filtration_values=None,
+def to_absolute_barcode(rel_barcode, filtration_values=None,
                         return_filtration_values=True):
     hom_barcode = []
 
     if (not return_filtration_values) or (filtration_values is None):
         dtype = np.int64
-        for dim, rel_coho_barcode_dim in enumerate(rel_coho_barcode):
+        for dim, rel_barcode_dim in enumerate(rel_barcode):
             hom_barcode_dim = []
-            for pair in rel_coho_barcode_dim:
+            for pair in rel_barcode_dim:
                 if pair[0] == -1:
                     hom_barcode_dim.append((pair[1], -1))
                 else:
@@ -462,9 +462,9 @@ def to_homology_barcode(rel_coho_barcode, filtration_values=None,
             hom_barcode.append(hom_barcode_dim)
     else:
         dtype = filtration_values.dtype
-        for dim, rel_coho_barcode_dim in enumerate(rel_coho_barcode):
+        for dim, rel_barcode_dim in enumerate(rel_barcode):
             hom_barcode_dim = []
-            for pair in rel_coho_barcode_dim:
+            for pair in rel_barcode_dim:
                 if pair[0] == -1:
                     hom_barcode_dim.append(
                         (filtration_values[pair[1]], np.inf)
