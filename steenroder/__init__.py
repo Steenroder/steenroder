@@ -188,7 +188,10 @@ def get_barcode_and_coho_reps(idxs, reduced, triangular,
                         pairs_dim.append([-1, idxs[dim][i]])
                         coho_reps_dim.append(triangular[dim][i])
 
-            pairs_dim = np.asarray(pairs_dim)
+            if not len(pairs_dim):
+                pairs_dim = np.empty((0, 2), dtype=np.int64)
+            else:
+                pairs_dim = np.asarray(pairs_dim)
             lexsrt = _lexsort_barcode(pairs_dim)
             barcode.append(pairs_dim[lexsrt])
             coho_reps.append(nb.typed.List([coho_reps_dim[k] for k in lexsrt]))
@@ -224,7 +227,10 @@ def get_barcode_and_coho_reps(idxs, reduced, triangular,
                         pairs_dim.append([-1, idxs[dim][i]])
                         coho_reps_dim.append(triangular[dim][i])
 
-            pairs_dim = np.asarray(pairs_dim)
+            if not len(pairs_dim):
+                pairs_dim = np.empty((0, 2), dtype=np.int64)
+            else:
+                pairs_dim = np.asarray(pairs_dim)
             lexsrt = _lexsort_barcode(pairs_dim)
             barcode.append(pairs_dim[lexsrt])
             coho_reps.append(nb.typed.List([coho_reps_dim[k] for k in lexsrt]))
