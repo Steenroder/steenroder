@@ -10,10 +10,34 @@ from numba.np.unsafe.ndarray import to_fixed_tuple
 list_of_int64_typ = nb.types.List(nb.int64)
 int64_2d_array_typ = nb.types.Array(nb.int64, 2, "C")
 
+# Determine the number of available physical cores
 N_PHYSICAL_CORES = psutil.cpu_count(logical=False)
 
 
 def sort_filtration_by_dim(filtration, maxdim=None):
+    """Organize an input simplex-wise filtration by dimension.
+
+    Parameters
+    ----------
+    filtration : sequence of list-like of int
+        Represents a simplex-wise filtration. Entry ``i`` is a list/tuple/set
+        containing the integer indices of the vertices defining the ``i``th
+        simplex in the filtration.
+
+    maxdim : int or None, optional, default: None
+        Maximum simplex dimension to be included. ``None`` means that all
+        simplices are included.
+
+    Returns
+    -------
+    filtration_by_dim : list of list of ndarray
+        For each dimension ``d``, a list of 2 aligned int arrays: the first is
+        a 1D array containing the (ordered) positional indices of all
+        ``d``-dimensional simplices in `filtration`; the second is a 2D array
+        whose ``i``-th row is the (sorted) collection of vertices defining the
+        ``i``-th ``d``-dimensional simplex.
+
+    """
     if maxdim is None:
         maxdim = max(map(len, filtration)) - 1
 
@@ -33,7 +57,8 @@ def sort_filtration_by_dim(filtration, maxdim=None):
 
 @nb.njit
 def _twist_reduction(coboundary, triangular, pivots_lookup):
-    """R = MV"""
+    """Core of the persistent relative cohomology reduction algorithm using the
+    clearing optimization."""
     n = len(coboundary)
 
     rel_idxs_to_clear = []
@@ -105,11 +130,52 @@ def _reduce_single_dim(dim):
 @nb.njit
 def _fix_triangular_after_clearing(triangular, reduced_prev_dim,
                                    rel_idxs_to_clear, pivots_lookup_prev_dim):
+    """Massage the V matrix to maintain the R = DV decomposition after clearing,
+    as described in https://arxiv.org/abs/1908.02518, Sec. 3.2."""
     for rel_idx in rel_idxs_to_clear:
         triangular[rel_idx] = reduced_prev_dim[pivots_lookup_prev_dim[rel_idx]]
 
 
 def get_reduced_triangular(filtration_by_dim):
+    """Find a full-rank upper-triangular matrix V such that R = DV is reduced,
+    where D is the anti-transpose of the filtration boundary matrix. Return both
+    R and V.
+
+    Parameters
+    ----------
+    filtration_by_dim : list of list of ndarray
+        For each dimension ``d``, a list of 2 aligned int arrays: the first is
+        a 1D array containing the (ordered) positional indices of all
+        ``d``-dimensional simplices in `filtration`; the second is a 2D array
+        whose ``i``-th row is the (sorted) collection of vertices defining the
+        ``i``-th ``d``-dimensional simplex.
+
+    Returns
+    -------
+    spx2idx : tuple of ``numba.typed.Dict``
+        One dictionary per simplex dimension. The dimension-``d`` dictionary has
+        the filtration ``d``-simplices (tuples of ints) as keys; the
+        corresponding values are the positional indices of those simplices
+        relative to the ``d``-dimensional portion of the filtration.
+
+    idxs : tuple of ndarray
+        For each dimension ``d``, this is the same as
+        ``filtration_by_dim[d][0]`` and is returned for convenience.
+
+    reduced : tuple of ``numba.typed.List``
+        One list of int per simplex dimension. ``reduced[d]`` is the
+        ``d``-dimensional part of the "R" matrix in R = DV. In the computation,
+        ``reduced[d][i]`` is initialized as the coboundary of the ``i``th input
+        simplex in ``filtration_by_dim[d][1]``, i.e. as the sorted list of
+        positional indices (relative to the ``(d+1)``-dimensional portion of the
+        filtration) of that simplex's cofacets.
+
+    triangular : tuple of ``numba.typed.List``
+        On list of int per simplex dimension. ``triangular[d]`` is the
+        ``d``-dimensional part of the "V" matrix in R = DV. In the computation,
+        ``triangular[d][i]`` is initialized as the singleton list ``[i]``.
+
+    """
     maxdim = len(filtration_by_dim) - 1
     spx2idx_idxs_reduced_triangular = []
     # Initialize relative (i.e. in-dimension) indices to clear, as an empty
@@ -128,8 +194,10 @@ def get_reduced_triangular(filtration_by_dim):
                           rel_idxs_to_clear,
                           idxs_next_dim=idxs_next_dim,
                           tups_next_dim=tups_next_dim)
-        _fix_triangular_after_clearing(triangular_dim, reduced_prev_dim,
-                                       rel_idxs_to_clear, pivots_lookup_prev_dim)
+        _fix_triangular_after_clearing(triangular_dim,
+                                       reduced_prev_dim,
+                                       rel_idxs_to_clear,
+                                       pivots_lookup_prev_dim)
         spx2idx_idxs_reduced_triangular.append((spx2idx_dim,
                                                 idxs_dim,
                                                 reduced_dim,
@@ -142,8 +210,10 @@ def get_reduced_triangular(filtration_by_dim):
     idxs_dim, tups_dim = filtration_by_dim[maxdim]
     spx2idx_dim, reduced_dim, triangular_dim, _, _ = \
         reduction_dim(idxs_dim, tups_dim, rel_idxs_to_clear)
-    _fix_triangular_after_clearing(triangular_dim, reduced_prev_dim,
-                                   rel_idxs_to_clear, pivots_lookup_prev_dim)
+    _fix_triangular_after_clearing(triangular_dim,
+                                   reduced_prev_dim,
+                                   rel_idxs_to_clear,
+                                   pivots_lookup_prev_dim)
     spx2idx_idxs_reduced_triangular.append((spx2idx_dim,
                                             idxs_dim,
                                             reduced_dim,
@@ -155,6 +225,48 @@ def get_reduced_triangular(filtration_by_dim):
 @nb.njit
 def get_barcode_and_coho_reps(idxs, reduced, triangular,
                               filtration_values=None):
+    """Extract the ordinary persistent relative cohomology barcode as well as
+    one persistent relative cohomology representative per bar.
+
+    Parameters
+    ----------
+    idxs : tuple of ndarray
+        For each dimension ``d``, a 1D int array containing the (ordered)
+        positional indices of all ``d``-dimensional simplices in the filtration.
+
+    reduced : tuple of ``numba.typed.List``
+        One list of int per simplex dimension, representing the
+        ``d``-dimensional part of the "R" matrix in R = DV. In the same format
+        as returned by `get_reduced_triangular`.
+
+    triangular : tuple of ``numba.typed.List``
+        One list of int per simplex dimension, representing the
+        ``d``-dimensional part of the "V" matrix in R = DV. In the same format
+        as returned by `get_reduced_triangular`.
+
+    filtration_values : ndarray or None, optional, default: None
+        Optionally, a single 1D array of filtration values for each simplex in
+        the filtration and in all dimensions contained in `idxs`, `reduced` and
+        `triangular`. Bars with equal birth and death filtration values are
+        discarded.
+
+    Returns
+    -------
+    barcode : list of ndarray
+        For each dimension ``d``, a 2D int array of shape ``(n_bars, 2)``
+        containing the birth (entry 1) and death (entry 0) indices of persistent
+        relative homology classes in degree ``d``. See `filtration_values`.
+        Essential bars are represented by pairs with death equal to ``-1``. Bars
+        are sorted in order of decreasing birth indices.
+
+    coho_reps : list of ``numba.typed.List``
+        For each dimension ``d``, a list of representatives of persistent
+        relative cohomology classes in degree ``d``. Each such representative is
+        represented as a list of positional indices relative to the
+        ``d``-dimensional portion of the filtration. ``coho_reps[d][j]``
+        corresponds to ``barcode[d][j]``.
+
+    """
     barcode = []
     coho_reps = []
 
@@ -250,14 +362,15 @@ def _populate_steenrod_matrix_single_dim(dim_plus_k):
 
     @nb.njit(parallel=True)
     def _inner(coho_reps_dim, tups_dim, spx2idx_dim_plus_k, n_jobs=-1):
-        steenrod_matrix_dim_plus_k = nb.typed.List([[nb.int64(0) for _ in range(0)]
-                                                    for _ in coho_reps_dim])
+        steenrod_matrix_dim_plus_k = \
+            nb.typed.List([[nb.int64(0) for _ in range(0)]
+                           for _ in coho_reps_dim])
         
         if n_jobs == -1:
             n_jobs = N_PHYSICAL_CORES
 
-        for thread_idx in nb.prange(n_jobs):
-            for coho_reps_dim_idx in range(thread_idx, len(coho_reps_dim), n_jobs):
+        for job_idx in nb.prange(n_jobs):
+            for coho_reps_dim_idx in range(job_idx, len(coho_reps_dim), n_jobs):
                 rep = coho_reps_dim[coho_reps_dim_idx]
                 cocycle = tups_dim[np.asarray(rep)]
 
@@ -271,7 +384,8 @@ def _populate_steenrod_matrix_single_dim(dim_plus_k):
                         a, b = set(cocycle[i]), set(cocycle[j])
                         u = a.union(b)
                         if len(u) == length:
-                            u_tuple = to_fixed_tuple(np.asarray(sorted(u)), length)
+                            u_tuple = to_fixed_tuple(np.asarray(sorted(u)),
+                                                     length)
                             if u_tuple in spx2idx_dim_plus_k:
                                 a_bar, b_bar = a.difference(b), b.difference(a)
                                 u_bar = sorted(a_bar.union(b_bar))
@@ -301,6 +415,43 @@ def _populate_steenrod_matrix_single_dim(dim_plus_k):
 
 
 def get_steenrod_matrix(k, coho_reps, filtration_by_dim, spx2idx, n_jobs=-1):
+    """Compute the Steenrod matrices in each dimension.
+
+    Parameters
+    ----------
+    k : int
+        Positive integer defining the cohomology operation Sq^k to be performed.
+
+    coho_reps : list of ``numba.typed.List``
+        For each dimension ``d``, a list of representatives of persistent
+        relative cohomology classes in degree ``d``. In the same format as
+        returned by `get_barcode_and_coho_reps`.
+
+    filtration_by_dim : list of list of ndarray
+        For each dimension ``d``, a list of 2 aligned int arrays: the first is
+        a 1D array containing the (ordered) positional indices of all
+        ``d``-dimensional simplices in `filtration`; the second is a 2D array
+        whose ``i``-th row is the (sorted) collection of vertices defining the
+        ``i``-th ``d``-dimensional simplex.
+
+    spx2idx : tuple of ``numba.typed.Dict``
+        One dictionary per simplex dimension. The dimension-``d`` dictionary has
+        the filtration ``d``-simplices (tuples of ints) as keys; the
+        corresponding values are the positional indices of those simplices
+        relative to the ``d``-dimensional portion of the filtration.
+
+    n_jobs : int, optional, default: ``-1``
+        [Experimental] Controls the number of threads to be used during parallel
+        computation of the Steenrod squares. ``-1`` means using all available
+        physical cores.
+
+    Returns
+    -------
+    steenrod_matrix : list of ``numba.typed.List``
+        One list per simplex dimension. ``steenrod_matrix[d][j]`` is the result
+        of computing the Steenrod square of ``coho_reps[d][j]``.
+
+    """
     steenrod_matrix = _initialize_steenrod_matrix(k)
 
     for dim, coho_reps_dim in enumerate(coho_reps[:-k]):
@@ -370,6 +521,51 @@ def _steenrod_barcode_single_dim(steenrod_matrix_dim, n_idxs_dim, idxs_prev_dim,
 
 def get_steenrod_barcode(k, steenrod_matrix, idxs, reduced, barcode,
                          filtration_values=None):
+    """Compute the (relative) Steenrod barcodes.
+
+    Parameters
+    ----------
+    k : int
+        Positive integer defining the cohomology operation Sq^k to be performed.
+
+    steenrod_matrix : list of ``numba.typed.List``
+        One list per simplex dimension. ``steenrod_matrix[d][j]`` is the result
+        of computing the Steenrod square of the ``j``th latest (by birth)
+        persistent relative cohomology representative in degree ``d``` (and this
+        representative must represent bar ``barcode[d][j]``). See
+        `get_steenrod_matrix`.
+
+    idxs : tuple of ndarray
+        For each dimension ``d``, a 1D int array containing the (ordered)
+        positional indices of all ``d``-dimensional simplices in the filtration.
+
+    reduced : tuple of ``numba.typed.List``
+        One list of int per simplex dimension, representing the
+        ``d``-dimensional part of the "R" matrix in R = DV. In the same format
+        as returned by `get_reduced_triangular`.
+
+    barcode : list of ndarray
+        For each dimension ``d``, a 2D int array of shape ``(n_bars, 2)``
+        containing the birth (entry 1) and death (entry 0) indices of persistent
+        relative homology classes in degree ``d``. Essential bars must be
+        represented by pairs with death equal to ``-1``. Bars must be sorted in
+        order of decreasing birth indices.
+
+    filtration_values : ndarray or None, optional, default: None
+        Optionally, a single 1D array of filtration values for each simplex in
+        the filtration and in all dimensions contained in `idxs` and `reduced`.
+        Steenrod bars with equal birth and death filtration values are
+        discarded.
+
+    Returns
+    -------
+    st_barcode : list of ndarray
+        The (relative) Sq^k-barcode. For each dimension ``d``, a 2D int array
+        of shape ``(n_bars, 2)`` containing the birth (entry 1) and death (entry
+        0) indices of Steenrod bars. Essential Steenrod bars are represented by
+        pairs with death equal to ``-1``.
+
+    """
     def nontrivial_bars(barcode_dim):
         infinite_bars = barcode_dim[:, 0] == -1
         return np.logical_or(
@@ -407,7 +603,68 @@ def barcodes(
         return_filtration_values=False, maxdim=None, verbose=False,
         n_jobs=1
         ):
-    """Serves as the main function"""
+    """Given a filtration, compute ordinary persistent (relative or absolute)
+    (co)homology barcodes and relative Steenrod barcodes.
+
+    Parameters
+    ----------
+    k : int
+        Positive integer defining the cohomology operation Sq^k to be performed.
+
+    filtration : sequence of list-like of int
+        Represents a simplex-wise filtration. Entry ``i`` is a list/tuple/set
+        containing the integer indices of the vertices defining the ``i``th
+        simplex in the filtration.
+
+    absolute : bool, optional, default: ``False``
+        If ``True``, return the ordinary persistent absolute homology barcode,
+        and move inessential relative Steenrod bars to one degree lower while
+        keeping essential bars in their degree. If ``False``, return the
+        ordinary persistent relative cohomology barcode and relative Steenrod
+        barcode.
+
+    filtration_values : ndarray or None, optional, default: None
+        Optionally, a single 1D array of filtration values for each simplex in
+        the filtration. Ordinary and Steenrod bars with equal birth and death
+        filtration values are discarded by the computation.
+
+    return_filtration_values : bool, optional, default: ``False``
+        If ``True``, birth and deaths will be expressed as filtration values
+        instead of filtration indices. Ignored if `filtration_values` is
+        ``None``.
+
+    maxdim : int or None, optional, default: None
+        Maximum simplex dimension to be included. ``None`` means that all
+        simplices are included.
+
+    verbose : bool, optional, default: ``False``
+        Whether to print timings for the intermediate steps in the computation.
+
+    n_jobs : int, optional, default: ``1``
+        [Experimental] Controls the number of threads to be used during parallel
+        computation of the Steenrod squares. ``-1`` means using all available
+        physical cores.
+
+    Returns
+    -------
+    barcode : list of ndarray
+        For each dimension ``d``, a 2D int array of shape ``(n_bars, 2)``
+        containing the births and deaths of persistent relative homology classes
+        in degree ``d``. If `absolute` is ``False``, the birth of a bar is in
+        entry 1 and the death in entry 0; otherwise, the positions are reversed.
+        Births and death are expressed either as global filtration indices or as
+        filtration values depending on `filtration_values` and
+        `return_filtration_values`. If they are expressed as indices, essential
+        bars have death equal to ``-1``; otherwise, essential bars have death
+        equal to ``numpy.inf``.
+
+    st_barcode : list of ndarray
+        The (relative) Sq^k-barcode. For each dimension ``d``, a 2D int array
+        of shape ``(n_bars, 2)`` containing the birth (entry 1) and death (entry
+        0) indices of Steenrod bars. The same conventions as for `barcode` are
+        used for birth and death values.
+
+    """
     if verbose:
         tic = time.time()
     filtration_by_dim = sort_filtration_by_dim(filtration, maxdim=maxdim)
@@ -434,11 +691,11 @@ def barcodes(
         print(f"Steenrod barcode computed, time taken: {toc - tic}")
 
     if absolute:
-        barcode = to_absolute_barcode(
+        barcode = _to_absolute_barcode(
             barcode, filtration_values=filtration_values,
             return_filtration_values=return_filtration_values
             )
-        st_barcode = to_absolute_barcode(
+        st_barcode = _to_absolute_barcode(
             st_barcode, filtration_values=filtration_values,
             return_filtration_values=return_filtration_values
             )
@@ -446,46 +703,46 @@ def barcodes(
         return barcode, st_barcode
 
     elif return_filtration_values and (filtration_values is not None):
-        barcode = to_values_barcode(barcode, filtration_values)
-        st_barcode = to_values_barcode(st_barcode, filtration_values)
+        barcode = _to_values_barcode(barcode, filtration_values)
+        st_barcode = _to_values_barcode(st_barcode, filtration_values)
 
     return barcode, st_barcode
 
 
-def to_absolute_barcode(rel_barcode, filtration_values=None,
-                        return_filtration_values=True):
-    hom_barcode = []
+def _to_absolute_barcode(rel_barcode, filtration_values=None,
+                         return_filtration_values=True):
+    abs_barcode = []
 
     if (not return_filtration_values) or (filtration_values is None):
         dtype = np.int64
         for dim, rel_barcode_dim in enumerate(rel_barcode):
-            hom_barcode_dim = []
+            abs_barcode_dim = []
             for pair in rel_barcode_dim:
                 if pair[0] == -1:
-                    hom_barcode_dim.append((pair[1], -1))
+                    abs_barcode_dim.append((pair[1], -1))
                 else:
-                    hom_barcode[dim - 1].append((pair[0], pair[1]))
-            hom_barcode.append(hom_barcode_dim)
+                    abs_barcode[dim - 1].append((pair[0], pair[1]))
+            abs_barcode.append(abs_barcode_dim)
     else:
         dtype = filtration_values.dtype
         for dim, rel_barcode_dim in enumerate(rel_barcode):
-            hom_barcode_dim = []
+            abs_barcode_dim = []
             for pair in rel_barcode_dim:
                 if pair[0] == -1:
-                    hom_barcode_dim.append(
+                    abs_barcode_dim.append(
                         (filtration_values[pair[1]], np.inf)
                         )
                 else:
-                    hom_barcode[dim - 1].append(
+                    abs_barcode[dim - 1].append(
                         (filtration_values[pair[0]], filtration_values[pair[1]])
                         )
-            hom_barcode.append(hom_barcode_dim)
+            abs_barcode.append(abs_barcode_dim)
 
-    return [np.array(hom_barcode_dim, dtype=dtype).reshape(-1, 2)
-            for hom_barcode_dim in hom_barcode]
+    return [np.array(abs_barcode_dim, dtype=dtype).reshape(-1, 2)
+            for abs_barcode_dim in abs_barcode]
 
 
-def to_values_barcode(barcode, filtration_values):
+def _to_values_barcode(barcode, filtration_values):
     values_barcode = []
     for dim, barcode_dim in enumerate(barcode):
         values_barcode_dim = []
