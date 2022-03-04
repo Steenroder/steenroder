@@ -365,7 +365,7 @@ def _populate_steenrod_matrix_single_dim(dim_plus_k):
         steenrod_matrix_dim_plus_k = \
             nb.typed.List([[nb.int64(0) for _ in range(0)]
                            for _ in coho_reps_dim])
-        
+
         if n_jobs == -1:
             n_jobs = N_PHYSICAL_CORES
 
@@ -378,7 +378,7 @@ def _populate_steenrod_matrix_single_dim(dim_plus_k):
                 cochain = set(
                     [to_fixed_tuple(np.empty(length, dtype=np.int64), length)
                      for _ in range(0)]
-                    )
+                )
                 for i in range(len(cocycle)):
                     for j in range(i + 1, len(cocycle)):
                         a, b = set(cocycle[i]), set(cocycle[j])
@@ -462,9 +462,9 @@ def get_steenrod_matrix(k, coho_reps, filtration_by_dim, spx2idx, n_jobs=-1):
             _populate_steenrod_matrix_single_dim(dim_plus_k)
         steenrod_matrix_dim_plus_k = populate_steenrod_matrix_single_dim(
             coho_reps_dim, tups_dim, spx2idx_dim_plus_k, n_jobs=n_jobs
-            )
+        )
         steenrod_matrix.append(steenrod_matrix_dim_plus_k)
-        
+
     return steenrod_matrix
 
 
@@ -573,7 +573,7 @@ def get_steenrod_barcode(k, steenrod_matrix, idxs, reduced, barcode,
             np.logical_and(np.logical_not(infinite_bars),
                            (filtration_values[barcode_dim[:, 0]] !=
                             filtration_values[barcode_dim[:, 1]]))
-            )
+        )
 
     st_barcode = [np.empty((0, 2), dtype=np.int64) for _ in range(k)]
     for dim in range(k, len(steenrod_matrix)):
@@ -602,7 +602,7 @@ def barcodes(
         k, filtration, absolute=False, filtration_values=None,
         return_filtration_values=False, maxdim=None, verbose=False,
         n_jobs=1
-        ):
+):
     """Given a filtration, compute ordinary persistent (relative or absolute)
     (co)homology barcodes and relative Steenrod barcodes.
 
@@ -673,6 +673,13 @@ def barcodes(
     barcode, coho_reps = \
         get_barcode_and_coho_reps(idxs, reduced, triangular,
                                   filtration_values=filtration_values)
+
+    if k == 0:  # Sq^0 is the identity
+        return barcode, barcode
+
+    if k < 0 or k > maxdim:  # Sq^k is the zero map
+        return barcode, list()
+
     if verbose:
         toc = time.time()
         print(f"Usual barcode computed, time taken: {toc - tic}")
@@ -694,11 +701,11 @@ def barcodes(
         barcode = _to_absolute_barcode(
             barcode, filtration_values=filtration_values,
             return_filtration_values=return_filtration_values
-            )
+        )
         st_barcode = _to_absolute_barcode(
             st_barcode, filtration_values=filtration_values,
             return_filtration_values=return_filtration_values
-            )
+        )
 
         return barcode, st_barcode
 
@@ -731,11 +738,11 @@ def _to_absolute_barcode(rel_barcode, filtration_values=None,
                 if pair[0] == -1:
                     abs_barcode_dim.append(
                         (filtration_values[pair[1]], np.inf)
-                        )
+                    )
                 else:
                     abs_barcode[dim - 1].append(
                         (filtration_values[pair[0]], filtration_values[pair[1]])
-                        )
+                    )
             abs_barcode.append(abs_barcode_dim)
 
     return [np.array(abs_barcode_dim, dtype=dtype).reshape(-1, 2)
@@ -758,7 +765,7 @@ def _to_values_barcode(barcode, filtration_values):
         values_barcode.append(
             np.array(values_barcode_dim,
                      dtype=filtration_values.dtype).reshape(-1, 2)
-            )
+        )
 
     return values_barcode
 
@@ -770,7 +777,7 @@ def check_agreement_with_gudhi(gudhi_barcode, barcode):
     for dim, barcode_dim in enumerate(barcode):
         gudhi_barcode_dim = sorted([
             pers_info[1] for pers_info in gudhi_barcode if pers_info[0] == dim
-            ])
+        ])
         assert gudhi_barcode_dim == sorted(barcode_dim), \
             f"Disagreement in degree {dim}"
 
