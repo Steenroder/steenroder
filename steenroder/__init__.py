@@ -677,7 +677,7 @@ def barcodes(
     if k == 0:  # Sq^0 is the identity
         return barcode, barcode
 
-    if k < 0 or k > maxdim:  # Sq^k is the zero map
+    if k < 0:  # Sq^k is the zero map
         return barcode, list()
 
     if verbose:
