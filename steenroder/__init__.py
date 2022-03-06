@@ -649,7 +649,7 @@ def barcodes(
     -------
     barcode : list of ndarray
         For each dimension ``d``, a 2D int array of shape ``(n_bars, 2)``
-        containing the births and deaths of persistent relative homology classes
+        containing the births and deaths of persistent relative cohomology classes
         in degree ``d``. If `absolute` is ``False``, the birth of a bar is in
         entry 1 and the death in entry 0; otherwise, the positions are reversed.
         Births and death are expressed either as global filtration indices or as
