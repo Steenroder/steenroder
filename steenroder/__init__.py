@@ -495,7 +495,6 @@ def _steenrod_barcode_single_dim(steenrod_matrix_dim, n_idxs_dim, idxs_prev_dim,
 
         pivot_column_idxs_from_steenrod = []
         for ii in range(n_cols_red, n_cols_red + j):
-            print("ii = ", ii)
             highest_one = augmented[ii][0] if augmented[ii] else -1
             pivot_col = pivots_lookup[highest_one]
             while (highest_one != -1) and (pivot_col != -1):
