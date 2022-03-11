@@ -1,7 +1,7 @@
 *.pyc
 .ipynb_checkpoints
 *DS_Store*
-*.pkl
+.pkl
 __pycache__
 .idea
 steenroder.egg-info
