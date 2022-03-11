@@ -484,12 +484,12 @@ def _steenrod_barcode_single_dim(steenrod_matrix_dim, n_idxs_dim, idxs_prev_dim,
     st_barcode_dim = []
 
     j = 0
-    for i in range(n_cols_red):
-        idx = idxs_prev_dim[n_cols_red - i - 1]
-        if augmented[n_cols_red - 1 - i]:
-            pivots_lookup[augmented[n_cols_red - 1 - i][0]] = n_cols_red - 1 - i
+    for i in np.arange(n_cols_red)[::-1]:
+        idx = idxs_prev_dim[i]
+        if augmented[i]:
+            pivots_lookup[augmented[i][0]] = i
         is_idx_geq = idx >= births_dim[j]
-        is_next_idx_less = (idxs_prev_dim[n_cols_red - i - 2] < births_dim[j]) if i < (len(idxs_prev_dim) - 1) else True
+        is_next_idx_less = (idxs_prev_dim[i - 1] < births_dim[j]) if i else True
         if is_idx_geq and is_next_idx_less:
             j += 1
 
