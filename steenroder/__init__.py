@@ -480,18 +480,22 @@ def _steenrod_barcode_single_dim(steenrod_matrix_dim, n_idxs_dim, idxs_prev_dim,
 
     pivots_lookup = np.full(n_idxs_dim, -1, dtype=np.int64)
     alive = np.ones(len(births_dim), dtype=np.bool_)
-    n = len(idxs_prev_dim)
+    n_cols_red = len(reduced_prev_dim)
     st_barcode_dim = []
 
     j = 0
-    for i, idx in enumerate(idxs_prev_dim[::-1]):
-        if augmented[n - 1 - i]:
-            pivots_lookup[augmented[n - 1 - i][0]] = n - 1 - i
-        if births_dim[j] == idx:
+    for i in range(n_cols_red):
+        idx = idxs_prev_dim[n_cols_red - i - 1]
+        if augmented[n_cols_red - 1 - i]:
+            pivots_lookup[augmented[n_cols_red - 1 - i][0]] = n_cols_red - 1 - i
+        is_idx_geq = idx >= births_dim[j]
+        is_next_idx_less = (idxs_prev_dim[n_cols_red - i - 2] < births_dim[j]) if i < (len(idxs_prev_dim) - 1) else True
+        if is_idx_geq and is_next_idx_less:
             j += 1
 
         pivot_column_idxs_from_steenrod = []
-        for ii in range(n, n + j):
+        for ii in range(n_cols_red, n_cols_red + j):
+            print("ii = ", ii)
             highest_one = augmented[ii][0] if augmented[ii] else -1
             pivot_col = pivots_lookup[highest_one]
             while (highest_one != -1) and (pivot_col != -1):
@@ -503,10 +507,10 @@ def _steenrod_barcode_single_dim(steenrod_matrix_dim, n_idxs_dim, idxs_prev_dim,
                 pivots_lookup[highest_one] = ii
                 # Record pivot indices coming from Steenrod part of augmented
                 pivot_column_idxs_from_steenrod.append(highest_one)
-            elif alive[ii - n]:
-                alive[ii - n] = False
-                if idx < births_dim[ii - n]:
-                    st_barcode_dim.append([idx, births_dim[ii - n]])
+            elif alive[ii - n_cols_red]:
+                alive[ii - n_cols_red] = False
+                if idx < births_dim[ii - n_cols_red]:
+                    st_barcode_dim.append([idx, births_dim[ii - n_cols_red]])
 
         # Reset pivots_lookup for next iteration
         for col_idx in pivot_column_idxs_from_steenrod:
