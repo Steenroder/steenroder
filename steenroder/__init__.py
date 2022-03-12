@@ -478,9 +478,11 @@ def _steenrod_barcode_single_dim(steenrod_matrix_dim, n_idxs_dim, idxs_prev_dim,
     for i in range(len(steenrod_matrix_dim)):
         augmented.append([nb.int64(x) for x in steenrod_matrix_dim[i]])
 
+    n_cols_red = len(reduced_prev_dim)
+    n_cols_st = len(steenrod_matrix_dim)
+
     pivots_lookup = np.full(n_idxs_dim, -1, dtype=np.int64)
     alive = np.ones(len(births_dim), dtype=np.bool_)
-    n_cols_red = len(reduced_prev_dim)
     st_barcode_dim = []
 
     j = 0
@@ -489,9 +491,12 @@ def _steenrod_barcode_single_dim(steenrod_matrix_dim, n_idxs_dim, idxs_prev_dim,
         if augmented[i]:
             pivots_lookup[augmented[i][0]] = i
         is_idx_geq = idx >= births_dim[j]
-        is_next_idx_less = (idxs_prev_dim[i - 1] < births_dim[j]) if i else True
-        if is_idx_geq and is_next_idx_less:
-            j += 1
+        if is_idx_geq:
+            if i:
+                if idxs_prev_dim[i - 1] < births_dim[j]:
+                    j += 1
+            else:
+                j = n_cols_st
 
         pivot_column_idxs_from_steenrod = []
         for ii in range(n_cols_red, n_cols_red + j):
