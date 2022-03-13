@@ -542,7 +542,7 @@ def get_steenrod_barcode(k, steenrod_matrix, idxs, reduced, barcode,
     steenrod_matrix : list of ``numba.typed.List``
         One list per simplex dimension. ``steenrod_matrix[d][j]`` is the result
         of computing the Steenrod square of the ``j``th latest (by birth)
-        persistent relative cohomology representative in degree ``d``` (and this
+        persistent relative cohomology representative in degree ``d`` (and this
         representative must represent bar ``barcode[d][j]``). See
         `get_steenrod_matrix`.
 
