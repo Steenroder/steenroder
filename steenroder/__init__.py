@@ -496,11 +496,10 @@ def _steenrod_barcode_single_dim(steenrod_matrix_dim, n_idxs_dim, idxs_prev_dim,
         if is_idx_geq:
             if i:
                 next_idx = idxs_prev_dim[i - 1]
-                n_cols_st_to_add = 0
-                while next_idx < births_dim_minus_k[n_cols_st_curr +
-                                                    n_cols_st_to_add]:
-                    n_cols_st_to_add += 1
-                n_cols_st_curr += n_cols_st_to_add
+                for jj in range(n_cols_st_curr, n_cols_st):
+                    if next_idx >= births_dim_minus_k[jj]:
+                        break
+                    n_cols_st_curr += 1
             else:
                 n_cols_st_curr = n_cols_st
 
