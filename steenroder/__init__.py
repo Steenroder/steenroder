@@ -470,7 +470,7 @@ def get_steenrod_matrix(k, coho_reps, filtration_by_dim, spx2idx, n_jobs=-1):
 
 @nb.njit
 def _steenrod_barcode_single_dim(steenrod_matrix_dim, n_idxs_dim, idxs_prev_dim,
-                                 reduced_prev_dim, births_dim):
+                                 reduced_prev_dim, births_dim_minus_k):
     # Construct augmented matrix
     augmented = []
     for i in range(len(reduced_prev_dim)):
@@ -478,20 +478,36 @@ def _steenrod_barcode_single_dim(steenrod_matrix_dim, n_idxs_dim, idxs_prev_dim,
     for i in range(len(steenrod_matrix_dim)):
         augmented.append([nb.int64(x) for x in steenrod_matrix_dim[i]])
 
+    n_cols_red = len(reduced_prev_dim)
+    n_cols_st = len(steenrod_matrix_dim)
+    n_births_dim_minus_k = len(births_dim_minus_k)
+
     pivots_lookup = np.full(n_idxs_dim, -1, dtype=np.int64)
-    alive = np.ones(len(births_dim), dtype=np.bool_)
-    n = len(idxs_prev_dim)
+    alive = np.ones(n_births_dim_minus_k, dtype=np.bool_)
     st_barcode_dim = []
 
-    j = 0
-    for i, idx in enumerate(idxs_prev_dim[::-1]):
-        if augmented[n - 1 - i]:
-            pivots_lookup[augmented[n - 1 - i][0]] = n - 1 - i
-        if births_dim[j] == idx:
-            j += 1
+    for n_cols_st_curr, birth in enumerate(births_dim_minus_k):
+        if idxs_prev_dim[-1] >= birth:
+            break
+    for i in np.arange(n_cols_red)[::-1]:
+        idx = idxs_prev_dim[i]
+        next_birth = births_dim_minus_k[n_cols_st_curr]
+        is_idx_geq = idx >= next_birth
+        if is_idx_geq:
+            if i:
+                next_idx = idxs_prev_dim[i - 1]
+                for jj in range(n_cols_st_curr, n_cols_st):
+                    if next_idx >= births_dim_minus_k[jj]:
+                        break
+                    n_cols_st_curr += 1
+            else:
+                n_cols_st_curr = n_cols_st
 
-        pivot_column_idxs_from_steenrod = []
-        for ii in range(n, n + j):
+        if augmented[i]:
+            pivots_lookup[augmented[i][0]] = i
+
+        pivot_col_idxs_from_st = []
+        for ii in range(n_cols_red, n_cols_red + n_cols_st_curr):
             highest_one = augmented[ii][0] if augmented[ii] else -1
             pivot_col = pivots_lookup[highest_one]
             while (highest_one != -1) and (pivot_col != -1):
@@ -502,19 +518,20 @@ def _steenrod_barcode_single_dim(steenrod_matrix_dim, n_idxs_dim, idxs_prev_dim,
             if highest_one != -1:
                 pivots_lookup[highest_one] = ii
                 # Record pivot indices coming from Steenrod part of augmented
-                pivot_column_idxs_from_steenrod.append(highest_one)
-            elif alive[ii - n]:
-                alive[ii - n] = False
-                if idx < births_dim[ii - n]:
-                    st_barcode_dim.append([idx, births_dim[ii - n]])
+                pivot_col_idxs_from_st.append(highest_one)
+            elif alive[ii - n_cols_red]:
+                alive[ii - n_cols_red] = False
+                birth = births_dim_minus_k[ii - n_cols_red]
+                if idx < birth:
+                    st_barcode_dim.append([idx, birth])
 
         # Reset pivots_lookup for next iteration
-        for col_idx in pivot_column_idxs_from_steenrod:
+        for col_idx in pivot_col_idxs_from_st:
             pivots_lookup[col_idx] = -1
 
-    for i in range(len(alive)):
+    for i in range(n_births_dim_minus_k):
         if alive[i]:
-            st_barcode_dim.append([-1, births_dim[i]])
+            st_barcode_dim.append([-1, births_dim_minus_k[i]])
 
     return st_barcode_dim
 
@@ -531,7 +548,7 @@ def get_steenrod_barcode(k, steenrod_matrix, idxs, reduced, barcode,
     steenrod_matrix : list of ``numba.typed.List``
         One list per simplex dimension. ``steenrod_matrix[d][j]`` is the result
         of computing the Steenrod square of the ``j``th latest (by birth)
-        persistent relative cohomology representative in degree ``d``` (and this
+        persistent relative cohomology representative in degree ``d`` (and this
         representative must represent bar ``barcode[d][j]``). See
         `get_steenrod_matrix`.
 
@@ -577,7 +594,7 @@ def get_steenrod_barcode(k, steenrod_matrix, idxs, reduced, barcode,
 
     st_barcode = [np.empty((0, 2), dtype=np.int64) for _ in range(k)]
     for dim in range(k, len(steenrod_matrix)):
-        births_dim = barcode[dim - k][:, 1]
+        births_dim_minus_k = barcode[dim - k][:, 1]
         idxs_dim = idxs[dim]
         idxs_prev_dim = idxs[dim - 1]
         reduced_prev_dim = reduced[dim - 1]
@@ -585,7 +602,7 @@ def get_steenrod_barcode(k, steenrod_matrix, idxs, reduced, barcode,
                                                       len(idxs_dim),
                                                       idxs_prev_dim,
                                                       reduced_prev_dim,
-                                                      births_dim)
+                                                      births_dim_minus_k)
         # NB: Conversion to array must happen outside jitted code due to
         # https://github.com/numba/numba/issues/3579
         st_barcode_dim = \
