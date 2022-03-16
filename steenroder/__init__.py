@@ -7,6 +7,8 @@ import numpy as np
 from numba.cpython.unsafe.tuple import tuple_setitem
 from numba.np.unsafe.ndarray import to_fixed_tuple
 
+import gudhi
+
 list_of_int64_typ = nb.types.List(nb.int64)
 int64_2d_array_typ = nb.types.Array(nb.int64, 2, "C")
 
@@ -699,20 +701,20 @@ def barcodes(
 
     if verbose:
         toc = time.time()
-        print(f"Usual barcode computed, time taken: {toc - tic}")
+        print(f"Usual barcode computed, time taken: {(toc - tic):.3f} s")
         tic = time.time()
     steenrod_matrix = get_steenrod_matrix(k, coho_reps, filtration_by_dim,
                                           spx2idx, n_jobs=n_jobs)
     if verbose:
         toc = time.time()
-        print(f"Steenrod matrix computed, time taken: {toc - tic}")
+        print(f"Steenrod matrix computed, time taken: {(toc - tic):.3f} s")
         tic = time.time()
     st_barcode = get_steenrod_barcode(k, steenrod_matrix, idxs, reduced,
                                       barcode,
                                       filtration_values=filtration_values)
     if verbose:
         toc = time.time()
-        print(f"Steenrod barcode computed, time taken: {toc - tic}")
+        print(f"Steenrod barcode computed, time taken: {(toc - tic):.3f} s")
 
     if absolute:
         barcode = _to_absolute_barcode(
@@ -787,18 +789,6 @@ def _to_values_barcode(barcode, filtration_values):
     return values_barcode
 
 
-def check_agreement_with_gudhi(gudhi_barcode, barcode):
-    max_dimension_gudhi = max([pers_info[0] for pers_info in gudhi_barcode])
-    assert max_dimension_gudhi <= len(barcode) - 1
-
-    for dim, barcode_dim in enumerate(barcode):
-        gudhi_barcode_dim = sorted([
-            pers_info[1] for pers_info in gudhi_barcode if pers_info[0] == dim
-        ])
-        assert gudhi_barcode_dim == sorted(barcode_dim), \
-            f"Disagreement in degree {dim}"
-
-
 @nb.njit
 def _symm_diff(x, y):
     n = len(x)
@@ -843,3 +833,62 @@ def _drop_elements(tup: tuple):
                 empty = tuple_setitem(empty, idx, tup[i])
                 idx += 1
         yield empty
+
+
+def rips_barcodes(X, max_edge_length=np.inf, distance_matrix=False,
+                  k=1, max_simplex_dimension=2, absolute=False, verbose=False):
+    spx_tree_kwargs = {
+        "distance_matrix" if distance_matrix else "points": X,
+        "max_edge_length": max_edge_length
+    }
+    spx_tree = gudhi.RipsComplex(**spx_tree_kwargs).\
+        create_simplex_tree(max_dimension=1)
+
+    len_filtration = None
+    if verbose:
+        for i, _ in enumerate(spx_tree.get_filtration()):
+            pass
+        len_filtration = i + 1
+        print(f"Filtration with {len_filtration} simplices up to dimension 1 "
+              "initially")
+
+        print("Running Edge Collapse...")
+
+    it = 0
+    while True:
+        spx_tree.collapse_edges()
+
+        for i, _ in enumerate(spx_tree.get_filtration()):
+            pass
+
+        if i + 1 == len_filtration:
+            break
+        else:
+            len_filtration = i + 1
+            it += 1
+            if verbose:
+                print(f"  EC iteration {it}: {len_filtration} simplices up to "
+                      "dimension 1")
+
+    # Construct the Rips filtration and run Steenroder
+    spx_tree.expansion(max_simplex_dimension)
+    if verbose:
+        for i, _ in enumerate(spx_tree.get_filtration()):
+            pass
+        print(f"There are {i} simplices up to dimension "
+              f"{max_simplex_dimension} after EC.")
+
+    filtration, filtration_values = \
+        zip(*((tuple(t[0]), t[1]) for t in spx_tree.get_filtration()))
+    filtration_values = np.asarray(filtration_values, dtype=np.float32)
+
+    barcode, st_barcode = barcodes(
+        k,
+        filtration,
+        filtration_values=filtration_values,
+        absolute=absolute,
+        return_filtration_values=True,
+        verbose=verbose
+    )
+
+    return barcode, st_barcode
