@@ -451,7 +451,7 @@ def get_steenrod_matrix(k, coho_reps, filtration_by_dim, spx2idx, n_jobs=-1):
     -------
     steenrod_matrix : list of ``numba.typed.List``
         One list per simplex dimension. ``steenrod_matrix[d][j]`` is the result
-        of computing the Steenrod square of ``coho_reps[d][j]``.
+        of computing the Steenrod square of ``coho_reps[d - k][j]``.
 
     """
     steenrod_matrix = _initialize_steenrod_matrix(k)
@@ -668,11 +668,11 @@ def barcodes(
     -------
     barcode : list of ndarray
         For each dimension ``d``, a 2D int array of shape ``(n_bars, 2)``
-        containing the births and deaths of persistent relative cohomology classes
-        in degree ``d``. If `absolute` is ``False``, the birth of a bar is in
-        entry 1 and the death in entry 0; otherwise, the positions are reversed.
-        Births and death are expressed either as global filtration indices or as
-        filtration values depending on `filtration_values` and
+        containing the births and deaths of persistent relative cohomology
+        classes in degree ``d``. If `absolute` is ``False``, the birth of a bar
+        is in entry 1 and the death in entry 0; otherwise, the positions are
+        reversed. Births and death are expressed either as global filtration
+        indices or as filtration values depending on `filtration_values` and
         `return_filtration_values`. If they are expressed as indices, essential
         bars have death equal to ``-1``; otherwise, essential bars have death
         equal to ``numpy.inf``.
