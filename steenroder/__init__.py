@@ -667,8 +667,8 @@ def barcodes(
     Returns
     -------
     barcode : list of ndarray
-        For each dimension ``d``, a 2D int array of shape ``(n_bars, 2)``
-        containing the births and deaths of persistent relative cohomology
+        For each dimension ``d``, a 2D int or float array of shape ``(n_bars,
+        2)`` containing the births and deaths of persistent relative cohomology
         classes in degree ``d``. If `absolute` is ``False``, the birth of a bar
         is in entry 1 and the death in entry 0; otherwise, the positions are
         reversed. Births and death are expressed either as global filtration
@@ -678,10 +678,10 @@ def barcodes(
         equal to ``numpy.inf``.
 
     st_barcode : list of ndarray
-        The (relative) Sq^k-barcode. For each dimension ``d``, a 2D int array
-        of shape ``(n_bars, 2)`` containing the birth (entry 1) and death (entry
-        0) indices of Steenrod bars. The same conventions as for `barcode` are
-        used for birth and death values.
+        The (relative) Sq^k-barcode. For each dimension ``d``, a 2D int or float
+        array of shape ``(n_bars, 2)`` containing the birth (entry 1) and death
+        (entry 0) indices of Steenrod bars. The same conventions as for
+        `barcode` are used for birth and death values.
 
     """
     if verbose:
