@@ -836,7 +836,8 @@ def _drop_elements(tup: tuple):
 
 
 def rips_barcodes(X, max_edge_length=np.inf, distance_matrix=False,
-                  k=1, max_simplex_dimension=2, absolute=False, verbose=False):
+                  k=1, max_simplex_dimension=2, absolute=False, n_jobs=1,
+                  verbose=False):
     spx_tree_kwargs = {
         "distance_matrix" if distance_matrix else "points": X,
         "max_edge_length": max_edge_length
@@ -888,6 +889,7 @@ def rips_barcodes(X, max_edge_length=np.inf, distance_matrix=False,
         filtration_values=filtration_values,
         absolute=absolute,
         return_filtration_values=True,
+        n_jobs=n_jobs,
         verbose=verbose
     )
 
