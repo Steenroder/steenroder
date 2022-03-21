@@ -619,11 +619,10 @@ def get_steenrod_barcode(k, steenrod_matrix, idxs, reduced, barcode,
 
 def barcodes(
         k, filtration, absolute=False, filtration_values=None,
-        return_filtration_values=False, maxdim=None, verbose=False,
-        n_jobs=1
+        return_filtration_values=False, maxdim=None, n_jobs=1, verbose=False
 ):
     """Given a filtration, compute ordinary persistent (relative or absolute)
-    (co)homology barcodes and relative Steenrod barcodes.
+    cohomology barcodes and relative Steenrod barcodes.
 
     Parameters
     ----------
@@ -656,13 +655,13 @@ def barcodes(
         Maximum simplex dimension to be included. ``None`` means that all
         simplices are included.
 
-    verbose : bool, optional, default: ``False``
-        Whether to print timings for the intermediate steps in the computation.
-
     n_jobs : int, optional, default: ``1``
         [Experimental] Controls the number of threads to be used during parallel
         computation of the Steenrod squares. ``-1`` means using all available
         physical cores.
+
+    verbose : bool, optional, default: ``False``
+        Whether to print timings for the intermediate steps in the computation.
 
     Returns
     -------
