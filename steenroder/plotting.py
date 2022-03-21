@@ -36,7 +36,7 @@ def plot_diagrams(barcode, st_barcode, k=None, kind=None, plotly_params=None):
 
     Parameters
     ----------
-    bc : list of ndarray
+    barcode : list of ndarray
         The persistence barcode to plot. For each dimension ``d``, a 2D array
         with 2 columns, containing birth-death pairs in degree ``d``, to be used
         as coordinates in the two-dimensional plot.
