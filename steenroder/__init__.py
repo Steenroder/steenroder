@@ -837,6 +837,63 @@ def _drop_elements(tup: tuple):
 def rips_barcodes(X, max_edge_length=np.inf, distance_matrix=False,
                   k=1, max_simplex_dimension=2, absolute=False, n_jobs=1,
                   verbose=False):
+    """Construct a Rips filtration and compute ordinary persistent (relative or
+    absolute) cohomology barcodes and relative Steenrod barcodes.
+
+    Parameters
+    ----------
+    X : ndarray of shape (n_samples, n_features) or (n_samples, n_samples)
+        Input point cloud (if `distance_matrix` is ``False``) or distance matrix
+        (if `distance_matrix` is ``True``).
+
+    max_edge_length : float, optional, default: ``np.inf``
+        Vietoris–Rips filtration threshold.
+
+    distance_matrix : bool, optional, default: ``False``
+        Whether the input `X` is a distance matrix or a point cloud.
+
+    k : int
+        Positive integer defining the cohomology operation Sq^k to be performed.
+
+    max_simplex_dimension : int, optional, default: ``2``
+        Maximum simplex dimension to be included in the Rips filtration.
+
+    absolute : bool, optional, default: ``False``
+        If ``True``, return the ordinary persistent absolute homology barcode,
+        and move inessential relative Steenrod bars to one degree lower while
+        keeping essential bars in their degree. If ``False``, return the
+        ordinary persistent relative cohomology barcode and relative Steenrod
+        barcode.
+
+    n_jobs : int, optional, default: ``1``
+        [Experimental] Controls the number of threads to be used during parallel
+        computation of the Steenrod squares. ``-1`` means using all available
+        physical cores.
+
+    verbose : bool, optional, default: ``False``
+        Whether to print information about the intermediate steps in the
+        computation.
+
+    Returns
+    -------
+    barcode : list of ndarray
+        For each dimension ``d``, a 2D int or float array of shape ``(n_bars,
+        2)`` containing the births and deaths of persistent relative cohomology
+        classes in degree ``d``. If `absolute` is ``False``, the birth of a bar
+        is in entry 1 and the death in entry 0; otherwise, the positions are
+        reversed. Births and death are expressed either as global filtration
+        indices or as filtration values depending on `filtration_values` and
+        `return_filtration_values`. If they are expressed as indices, essential
+        bars have death equal to ``-1``; otherwise, essential bars have death
+        equal to ``numpy.inf``.
+
+    st_barcode : list of ndarray
+        The (relative) Sq^k-barcode. For each dimension ``d``, a 2D int or float
+        array of shape ``(n_bars, 2)`` containing the birth (entry 1) and death
+        (entry 0) indices of Steenrod bars. The same conventions as for
+        `barcode` are used for birth and death values.
+
+    """
     spx_tree_kwargs = {
         "distance_matrix" if distance_matrix else "points": X,
         "max_edge_length": max_edge_length
