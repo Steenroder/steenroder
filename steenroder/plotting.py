@@ -30,7 +30,8 @@ def _compute_bounds(barcode):
     return min_val_display, max_val_display, posinfinity_val, neginfinity_val
 
 
-def plot_diagrams(barcode, st_barcode, k=None, kind=None, plotly_params=None):
+def plot_diagrams(barcode, st_barcode, k=None, kind=None, tex=False,
+                  plotly_params=None):
     """Plot a regular persistence barcode and a Steenrod barcode as diagrams on
     a common birth-death plane.
 
@@ -54,6 +55,10 @@ def plot_diagrams(barcode, st_barcode, k=None, kind=None, plotly_params=None):
         Whether the barcodes to be plotted come from absolute or relative
         cohomology barcodes.
 
+    tex :  bool, optional, default: ``False``
+        (Experimental!) Whether to display a version of the legend rendered with
+        LaTeX and MathJax.
+
     plotly_params : dict or None, optional, default: ``None``
         Custom parameters to configure the plotly figure. Allowed keys are
         ``"traces"`` and ``"layout"``, and the corresponding values should be
@@ -67,17 +72,27 @@ def plot_diagrams(barcode, st_barcode, k=None, kind=None, plotly_params=None):
         Figure representing the persistence diagram and Steenrod diagram.
 
     """
+    def _connect_st_label(st_label, h_label, tex):
+        if tex:
+            st_h_label = r"$" + st_label + r" \cap " + h_label + r"$"
+            h_label = r"$" + h_label + r"$"
+        else:
+            st_h_label = st_label + " in " + h_label
+            h_label = h_label
+
+        return h_label, st_h_label
+
     if k is not None:
-        st_label = r"\mathrm{img}" + rf"(Sq^{{{k}}})"
+        st_label = r"\mathrm{img}" + rf"(Sq^{{{k}}})" if tex else f"im(Sq^{k})"
     else:
-        st_label = r"\mathrm{img}(Sq^{k})"
+        st_label = r"\mathrm{img}(Sq^{k})" if tex else "im(Sq^k)"
     kind = kind.lower()
     if kind == "a":
-        h_subscript = r"_{A}"
+        h_subscript = r"_{A}" if tex else "(abs)"
     elif kind == "r":
-        h_subscript = r"_{R}"
+        h_subscript = r"_{R}" if tex else "(rel)"
     else:
-        h_subscript = r""
+        h_subscript = r"" if tex else ""
     homology_dimensions = range(max(len(barcode), len(st_barcode)))
 
     min_val_display, max_val_display, posinfinity_val, neginfinity_val = \
@@ -94,12 +109,11 @@ def plot_diagrams(barcode, st_barcode, k=None, kind=None, plotly_params=None):
         ))
 
     for i, dim in enumerate(homology_dimensions):
-        h_label = rf"\mathcal{{H}}^{{{dim}}}" + h_subscript
-        for label, symbol, ms, bc in (
-                [r"$" + st_label + r" \cap " + h_label + r"$", "diamond", 10,
-                 st_barcode],
-                [r"$" + h_label + r"$", "circle", 8, barcode]
-        ):
+        h_label = (rf"\mathcal{{H}}^{{{dim}}}" if tex else f"H^{dim}") + \
+                  h_subscript
+        h_label, st_h_label = _connect_st_label(st_label, h_label, tex)
+        for label, symbol, ms, bc in ([st_h_label, "diamond", 10, st_barcode],
+                                      [h_label, "circle", 8, barcode]):
             subbc = bc[dim].copy()
             unique, inverse, counts = np.unique(
                 subbc, axis=0, return_inverse=True, return_counts=True
