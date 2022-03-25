@@ -88,10 +88,13 @@ def plot_diagrams(barcode, st_barcode, k=None, kind=None, tex=False,
         st_label = r"\mathrm{img}(Sq^{k})" if tex else "im(Sq^k)"
     kind = kind.lower()
     if kind == "a":
-        h_subscript = r"_{A}" if tex else "(abs)"
+        legend_title = "Absolute Cohomology"
+        h_subscript = r"_{A}" if tex else ""
     elif kind == "r":
-        h_subscript = r"_{R}" if tex else "(rel)"
+        legend_title = "Relative Cohomology"
+        h_subscript = r"_{R}" if tex else ""
     else:
+        legend_title = "Cohomology"
         h_subscript = r"" if tex else ""
     homology_dimensions = range(max(len(barcode), len(st_barcode)))
 
@@ -178,6 +181,7 @@ def plot_diagrams(barcode, st_barcode, k=None, kind=None, tex=False,
             "y": 0.01,
             "x": 0.6,
         },
+        legend_title=legend_title if not tex else None,
         font_family="Serif",
         font_size=14
     )
