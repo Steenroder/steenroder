@@ -17,7 +17,7 @@ with open('requirements.txt') as f:
 
 DISTNAME = 'steenroder'
 DESCRIPTION = 'Computation of persistence Steenrod barcodes '
-with codecs.open('README.rst', encoding='utf-8-sig') as f:
+with codecs.open('README.md', encoding='utf-8-sig') as f:
     LONG_DESCRIPTION = f.read()
 LONG_DESCRIPTION_TYPE = 'text/x-rst'
 MAINTAINER = 'Anibal Medina Mardones, Umberto Lupo'
@@ -36,10 +36,9 @@ CLASSIFIERS = ['Intended Audience :: Science/Research',
                'Operating System :: POSIX',
                'Operating System :: Unix',
                'Operating System :: MacOS',
-               'Programming Language :: Python :: 3.6',
-               'Programming Language :: Python :: 3.7',
                'Programming Language :: Python :: 3.8',
-               'Programming Language :: Python :: 3.9']
+               'Programming Language :: Python :: 3.9',
+               'Programming Language :: Python :: 3.10']
 KEYWORDS = 'topological data analysis, persistent ' + \
     'homology, persistence steenrod modules, persistence ' + \
     'steenrod barcodes'

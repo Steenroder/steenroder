@@ -24,9 +24,12 @@ Please visit https://steenroder.github.io/steenroder/ and navigate to the versio
 
 The latest stable version of ``steenroder`` requires:
 
-- Python (>= 3.6)
-- NumPy (>= 1.19.1)
-
+- python (>= 3.8)
+- numpy (>= 1.19.1)
+- numba (>= ?)
+- psutils (>= ?)
+- gudhi (>= ?)
+- plotly (>= ?)
 
 To run the examples, jupyter is required.
 
