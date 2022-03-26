@@ -9,7 +9,7 @@ For a complete presentation of these invariants please consult [Persistence Stee
 
 ## License
 
-``steenroder`` is distributed under the MIT `license https://github.com/Steenroder/steenroder/LICENSE.
+``steenroder`` is distributed under the [MIT license](https://github.com/Steenroder/steenroder/LICENSE).
 
 
 ## Documentation
