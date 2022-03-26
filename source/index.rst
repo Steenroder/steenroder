@@ -1,11 +1,18 @@
-Welcome to steenroder!
-==================================
+Welcome to steenroder's API reference!
+=====================================
 
 
+:mod:`steenroder`: Computation of persistence Steenrod barcodes
+===============================================================
 
-Indices and tables
-==================
+.. automodule:: steenroder
+   :no-members:
+   :no-inherited-members:
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+.. currentmodule:: steenroder
+
+.. autosummary::
+   :toctree: generated/
+   :template: function.rst
+
+   plot_diagrams
