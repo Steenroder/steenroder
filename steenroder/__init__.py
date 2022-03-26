@@ -1,3 +1,5 @@
+from ._version import __version__
+
 import time
 from functools import lru_cache
 import psutil
