@@ -9,6 +9,11 @@ Welcome to steenroder's API reference!
    :no-members:
    :no-inherited-members:
 
+
+
+
+Visualization
+-------------
 .. currentmodule:: steenroder
 
 .. autosummary::
