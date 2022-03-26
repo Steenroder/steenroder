@@ -1,3 +1,5 @@
 numpy
 numba
 psutil
+gudhi
+plotly
