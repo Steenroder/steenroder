@@ -1,5 +1,5 @@
 Welcome to steenroder's API reference!
-=====================================
+======================================
 
 
 :mod:`steenroder`: Computation of persistence Steenrod barcodes

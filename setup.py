@@ -49,7 +49,6 @@ EXTRAS_REQUIRE = {
                 'pytest-cov',
                 'flake8'],
       'docs': ['sphinx',
-               'sphinx-issues',
                'sphinx_rtd_theme',
                'numpydoc'],
       'notebooks': []

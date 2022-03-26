@@ -44,10 +44,6 @@ extensions = [
     'sphinx.ext.githubpages',
     'sphinx.ext.autosummary',
     'numpydoc',
-    'sphinx.ext.doctest',
-    'sphinx.ext.intersphinx',
-    'sphinx.ext.imgconverter',
-    'sphinx_issues',
 ]
 
 # this is needed for some reason...
@@ -108,7 +104,7 @@ pygments_style = 'sphinx'
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'nature'
+html_theme = 'sphinx_rtd_theme'
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
