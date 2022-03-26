@@ -47,8 +47,7 @@ upgrading ``pip`` to a recent version as the above may fail on very old versions
 
 We welcome new contributors of all experience levels. The Steenroder
 community goals are to be helpful, welcoming, and effective. To learn more about
-making a contribution to ``steenroder``, please consult `the relevant page
-https://github.com/Steenroder/steenroder/CONTRIBUTING.md.
+making a contribution to ``steenroder``, please consult the [relevant page](https://github.com/Steenroder/steenroder/CONTRIBUTING.md).
 
 ### Testing
 

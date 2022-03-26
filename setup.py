@@ -15,6 +15,10 @@ with open(version_file) as f:
 with open('requirements.txt') as f:
     requirements = f.read().splitlines()
 
+with open('docs/requirements.txt') as f:
+    doc_requirements = f.read().splitlines()
+
+
 DISTNAME = 'steenroder'
 DESCRIPTION = 'Computation of persistence Steenrod barcodes '
 with codecs.open('README.md', encoding='utf-8-sig') as f:
@@ -47,9 +51,7 @@ EXTRAS_REQUIRE = {
       'tests': ['pytest',
                 'pytest-cov',
                 'flake8'],
-      'docs': ['sphinx',
-               'sphinx_rtd_theme',
-               'numpydoc'],
+      'docs': doc_requirements,
       'notebooks': []
 }
 
