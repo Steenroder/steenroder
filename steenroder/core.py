@@ -591,7 +591,7 @@ def barcodes(
 
     filtration : sequence of list-like of int
         Represents a simplex-wise filtration. Entry ``i`` is a list/tuple/set
-        containing the integer indices of the vertices defining the ``i``th
+        containing the integer indices of the vertices defining the ``i``-th
         simplex in the filtration.
 
     absolute : bool, optional, default: ``False``

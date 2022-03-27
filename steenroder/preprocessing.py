@@ -59,7 +59,7 @@ def sort_filtration_by_dim(filtration, maxdim=None):
     ----------
     filtration : sequence of list-like of int
         Represents a simplex-wise filtration. Entry ``i`` is a list/tuple/set
-        containing the integer indices of the vertices defining the ``i``th
+        containing the integer indices of the vertices defining the ``i`` th
         simplex in the filtration.
 
     maxdim : int or None, optional, default: None
