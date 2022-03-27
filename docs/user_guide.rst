@@ -9,7 +9,7 @@ User Guide
 Tutorials
 ---------
 
-.. _link: _notebooks/squares.ipynb
+   _notebooks/squares
 
 
 Examples
