@@ -1,0 +1,14 @@
+﻿:mod:`steenroder`.sort_filtration_by_dim
+=====================================================
+
+.. currentmodule:: steenroder
+
+.. autofunction:: sort_filtration_by_dim
+
+..
+    Exclude sphinx-gallery generated examples since we use binder for now
+    include:: steenroder.sort_filtration_by_dim.examples
+
+.. raw:: html
+
+    <div class="clearer"></div>

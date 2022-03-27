@@ -1,13 +1,13 @@
-import time
-from functools import lru_cache
+import gudhi
 import psutil
-
+import time
 import numba as nb
 import numpy as np
+from functools import lru_cache
 from numba.cpython.unsafe.tuple import tuple_setitem
 from numba.np.unsafe.ndarray import to_fixed_tuple
 
-import gudhi
+from .preprocessing import sort_filtration_by_dim
 
 
 list_of_int64_typ = nb.types.List(nb.int64)
@@ -15,47 +15,6 @@ int64_2d_array_typ = nb.types.Array(nb.int64, 2, "C")
 
 # Determine the number of available physical cores
 N_PHYSICAL_CORES = psutil.cpu_count(logical=False)
-
-
-def sort_filtration_by_dim(filtration, maxdim=None):
-    """Organize an input simplex-wise filtration by dimension.
-
-    Parameters
-    ----------
-    filtration : sequence of list-like of int
-        Represents a simplex-wise filtration. Entry ``i`` is a list/tuple/set
-        containing the integer indices of the vertices defining the ``i``th
-        simplex in the filtration.
-
-    maxdim : int or None, optional, default: None
-        Maximum simplex dimension to be included. ``None`` means that all
-        simplices are included.
-
-    Returns
-    -------
-    filtration_by_dim : list of list of ndarray
-        For each dimension ``d``, a list of 2 aligned int arrays: the first is
-        a 1D array containing the (ordered) positional indices of all
-        ``d``-dimensional simplices in `filtration`; the second is a 2D array
-        whose ``i``-th row is the (sorted) collection of vertices defining the
-        ``i``-th ``d``-dimensional simplex.
-
-    """
-    if maxdim is None:
-        maxdim = max(map(len, filtration)) - 1
-
-    filtration_by_dim = [[] for _ in range(maxdim + 1)]
-    for i, spx in enumerate(filtration):
-        spx_tup = tuple(sorted(spx))
-        dim = len(spx_tup) - 1
-        if dim <= maxdim:
-            filtration_by_dim[dim].append([i, spx_tup])
-
-    for dim, filtr in enumerate(filtration_by_dim):
-        filtration_by_dim[dim] = [np.asarray(x, dtype=np.int64)
-                                  for x in zip(*filtr)]
-
-    return filtration_by_dim
 
 
 @nb.njit

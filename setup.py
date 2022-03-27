@@ -52,7 +52,6 @@ EXTRAS_REQUIRE = {
                 'pytest-cov',
                 'flake8'],
       'docs': doc_requirements,
-      'notebooks': []
 }
 
 setup(name=DISTNAME,

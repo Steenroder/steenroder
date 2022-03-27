@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>steenroder.preprocessing &mdash; steenroder 0.1.0 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> steenroder
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api_reference.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">steenroder</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>steenroder.preprocessing</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for steenroder.preprocessing</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">combinations</span><span class="p">,</span> <span class="n">chain</span>
+<span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="n">shuffle</span>
+<span class="kn">from</span> <span class="nn">gudhi</span> <span class="kn">import</span> <span class="n">SimplexTree</span>
+
+
+<div class="viewcode-block" id="make_simplices"><a class="viewcode-back" href="../../generated/steenroder.make_simplices.html#steenroder.make_simplices">[docs]</a><span class="k">def</span> <span class="nf">make_simplices</span><span class="p">(</span><span class="n">top_faces</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;It returns the simplices in a complex given its top dimensional</span>
+<span class="sd">    simplices only.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    top_faces : list of tuple of int</span>
+<span class="sd">        Represents the top faces of a simplicial complex.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    simplices : list of tuple of int</span>
+<span class="sd">        Represent all simplices in the minimal complex with the given top</span>
+<span class="sd">        dimensional simplices.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dim</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">top_faces</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="n">simplices</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">top_face</span> <span class="ow">in</span> <span class="n">top_faces</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dim</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">simplices</span> <span class="o">|=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">s</span><span class="p">))</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">combinations</span><span class="p">(</span><span class="n">top_face</span><span class="p">,</span> <span class="n">d</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">simplices</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="make_filtration"><a class="viewcode-back" href="../../generated/steenroder.make_filtration.html#steenroder.make_filtration">[docs]</a><span class="k">def</span> <span class="nf">make_filtration</span><span class="p">(</span><span class="n">simplices</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;It returns an ordering of the simplices of a simplicial complex defining a</span>
+<span class="sd">    filtration of it.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    simplices : list of tuple of int</span>
+<span class="sd">        Represents the simplices of a simplicial complex.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    filtration : list of tuple of int</span>
+<span class="sd">        Represents a filtration for the given simplicial complex.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">st</span> <span class="o">=</span> <span class="n">SimplexTree</span><span class="p">()</span>
+    <span class="n">shuffle</span><span class="p">(</span><span class="n">simplices</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">spx</span> <span class="ow">in</span> <span class="n">simplices</span><span class="p">:</span>
+        <span class="n">st</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">spx</span><span class="p">)</span>
+    <span class="n">st</span><span class="o">.</span><span class="n">make_filtration_non_decreasing</span><span class="p">()</span>
+    <span class="n">filtration</span> <span class="o">=</span> <span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">pair</span> <span class="ow">in</span> <span class="n">st</span><span class="o">.</span><span class="n">get_filtration</span><span class="p">()]</span>
+    <span class="k">return</span> <span class="n">filtration</span></div>
+
+
+<div class="viewcode-block" id="sort_filtration_by_dim"><a class="viewcode-back" href="../../generated/steenroder.sort_filtration_by_dim.html#steenroder.sort_filtration_by_dim">[docs]</a><span class="k">def</span> <span class="nf">sort_filtration_by_dim</span><span class="p">(</span><span class="n">filtration</span><span class="p">,</span> <span class="n">maxdim</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Organize an input simplex-wise filtration by dimension.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filtration : sequence of list-like of int</span>
+<span class="sd">        Represents a simplex-wise filtration. Entry ``i`` is a list/tuple/set</span>
+<span class="sd">        containing the integer indices of the vertices defining the ``i``th</span>
+<span class="sd">        simplex in the filtration.</span>
+
+<span class="sd">    maxdim : int or None, optional, default: None</span>
+<span class="sd">        Maximum simplex dimension to be included. ``None`` means that all</span>
+<span class="sd">        simplices are included.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    filtration_by_dim : list of list of ndarray</span>
+<span class="sd">        For each dimension ``d``, a list of 2 aligned int arrays: the first is</span>
+<span class="sd">        a 1D array containing the (ordered) positional indices of all</span>
+<span class="sd">        ``d``-dimensional simplices in `filtration`; the second is a 2D array</span>
+<span class="sd">        whose ``i``-th row is the (sorted) collection of vertices defining the</span>
+<span class="sd">        ``i``-th ``d``-dimensional simplex.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">maxdim</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">maxdim</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">len</span><span class="p">,</span> <span class="n">filtration</span><span class="p">))</span> <span class="o">-</span> <span class="mi">1</span>
+
+    <span class="n">filtration_by_dim</span> <span class="o">=</span> <span class="p">[[]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">maxdim</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">spx</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">filtration</span><span class="p">):</span>
+        <span class="n">spx_tup</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">spx</span><span class="p">))</span>
+        <span class="n">dim</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">spx_tup</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">dim</span> <span class="o">&lt;=</span> <span class="n">maxdim</span><span class="p">:</span>
+            <span class="n">filtration_by_dim</span><span class="p">[</span><span class="n">dim</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">i</span><span class="p">,</span> <span class="n">spx_tup</span><span class="p">])</span>
+
+    <span class="k">for</span> <span class="n">dim</span><span class="p">,</span> <span class="n">filtr</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">filtration_by_dim</span><span class="p">):</span>
+        <span class="n">filtration_by_dim</span><span class="p">[</span><span class="n">dim</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+                                  <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">filtr</span><span class="p">)]</span>
+
+    <span class="k">return</span> <span class="n">filtration_by_dim</span></div>
+
+
+<div class="viewcode-block" id="cone"><a class="viewcode-back" href="../../generated/steenroder.cone.html#steenroder.cone">[docs]</a><span class="k">def</span> <span class="nf">cone</span><span class="p">(</span><span class="n">simplices</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns a filtration of the cone of a given simplicial complex.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    simplices : list of tuple of int</span>
+<span class="sd">        Represents the simplices of a simplicial complex.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    cone : list of tuple of int</span>
+<span class="sd">        Represents a filtration of the cone of the given simplicial complex.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">vertices</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">simplices</span><span class="p">))</span>
+    <span class="n">v</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">vertices</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="n">new_simplices</span> <span class="o">=</span> <span class="n">simplices</span> <span class="o">+</span> <span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="n">v</span><span class="p">])</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">simplices</span><span class="p">]</span> <span class="o">+</span> <span class="p">[(</span><span class="n">v</span><span class="p">,)]</span>
+    <span class="n">cone</span> <span class="o">=</span> <span class="n">make_filtration</span><span class="p">(</span><span class="n">new_simplices</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">cone</span></div>
+
+
+<div class="viewcode-block" id="suspension"><a class="viewcode-back" href="../../generated/steenroder.suspension.html#steenroder.suspension">[docs]</a><span class="k">def</span> <span class="nf">suspension</span><span class="p">(</span><span class="n">simplices</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns a filtration of the suspension of a given simplicial complex.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    simplices : list of tuple of int</span>
+<span class="sd">        Represents the simplices of a simplicial complex.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    suspension : list of tuple of int</span>
+<span class="sd">        Represents a filtration of the suspension of the given simplicial complex.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">vertices</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">simplices</span><span class="p">))</span>
+    <span class="n">v</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">vertices</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="n">vertices</span><span class="p">)</span> <span class="o">+</span> <span class="mi">2</span>
+    <span class="n">new_simplices</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">simplices</span><span class="p">)</span>
+    <span class="n">new_simplices</span> <span class="o">+=</span> <span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="n">v</span><span class="p">])</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">simplices</span><span class="p">]</span> <span class="o">+</span> <span class="p">[(</span><span class="n">v</span><span class="p">,)]</span> <span class="o">+</span>\
+                     <span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="n">w</span><span class="p">])</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">simplices</span><span class="p">]</span> <span class="o">+</span> <span class="p">[(</span><span class="n">w</span><span class="p">,)]</span>
+    <span class="n">suspension</span> <span class="o">=</span> <span class="n">make_filtration</span><span class="p">(</span><span class="n">new_simplices</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">suspension</span></div>
+
+
+<div class="viewcode-block" id="sphere"><a class="viewcode-back" href="../../generated/steenroder.sphere.html#steenroder.sphere">[docs]</a><span class="k">def</span> <span class="nf">sphere</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns a filtration of the n-sphere.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    n : int</span>
+<span class="sd">        The dimension of the sphere.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    sphere : list of tuple of int</span>
+<span class="sd">        Represents a filtration of the n-sphere.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">top_faces</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">combinations</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n</span> <span class="o">+</span> <span class="mi">3</span><span class="p">),</span> <span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span>
+    <span class="n">simplices</span> <span class="o">=</span> <span class="n">make_simplices</span><span class="p">(</span><span class="n">top_faces</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">make_filtration</span><span class="p">(</span><span class="n">simplices</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="wedge"><a class="viewcode-back" href="../../generated/steenroder.wedge.html#steenroder.wedge">[docs]</a><span class="k">def</span> <span class="nf">wedge</span><span class="p">(</span><span class="n">simplices_1</span><span class="p">,</span> <span class="n">simplices_2</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns a filtration wedge of two simplicial complexes.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    simplices_1 : list of tuple of int</span>
+<span class="sd">        Represents the first simplicial complex.</span>
+
+<span class="sd">    simplices_2 : list of tuple of int</span>
+<span class="sd">        Represents the second simplicial complex.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    wedge : list of tuple of int</span>
+<span class="sd">        Represents a filtration of the wedge of the given simplicial complexes.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">vertices_1</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">simplices_1</span><span class="p">))</span>
+    <span class="n">v</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">vertices_1</span><span class="p">)</span>
+    <span class="n">simplices</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">simplices_1</span><span class="p">)</span>
+    <span class="n">simplices</span><span class="o">.</span><span class="n">remove</span><span class="p">((</span><span class="n">v</span><span class="p">,))</span>
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">simplices_2</span><span class="p">:</span>
+        <span class="n">simplices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">i</span><span class="p">:</span> <span class="n">i</span> <span class="o">+</span> <span class="n">v</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">s</span><span class="p">)))</span>
+    <span class="n">wedge</span> <span class="o">=</span> <span class="n">make_filtration</span><span class="p">(</span><span class="n">simplices</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">wedge</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Steenroder.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

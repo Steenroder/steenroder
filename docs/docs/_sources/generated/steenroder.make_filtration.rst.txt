@@ -1,0 +1,14 @@
+﻿:mod:`steenroder`.make_filtration
+==============================================
+
+.. currentmodule:: steenroder
+
+.. autofunction:: make_filtration
+
+..
+    Exclude sphinx-gallery generated examples since we use binder for now
+    include:: steenroder.make_filtration.examples
+
+.. raw:: html
+
+    <div class="clearer"></div>

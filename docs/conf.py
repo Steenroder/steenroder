@@ -40,14 +40,13 @@ release = __version__
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    'nbsphinx',
     'sphinx.ext.githubpages',
     'sphinx.ext.autosummary',
-    'numpydoc',
+    'sphinx.ext.viewcode',
+    'sphinx.ext.mathjax',
+    'sphinx.ext.napoleon',
 ]
-
-# this is needed for some reason...
-# see https://github.com/numpy/numpydoc/issues/69
-numpydoc_class_members_toctree = False
 
 # For maths, use mathjax by default and svg if NO_MATHJAX env variable is set
 # (useful for viewing the doc offline)
@@ -79,8 +78,7 @@ master_doc = 'index'
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = [
-]
+exclude_patterns = ['_build', '**.ipynb_checkpoints']
 
 # If true, '()' will be appended to :func: etc. cross-reference text.
 add_function_parentheses = False

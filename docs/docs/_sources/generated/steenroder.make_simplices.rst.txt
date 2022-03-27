@@ -1,0 +1,14 @@
+﻿:mod:`steenroder`.make_simplices
+=============================================
+
+.. currentmodule:: steenroder
+
+.. autofunction:: make_simplices
+
+..
+    Exclude sphinx-gallery generated examples since we use binder for now
+    include:: steenroder.make_simplices.examples
+
+.. raw:: html
+
+    <div class="clearer"></div>

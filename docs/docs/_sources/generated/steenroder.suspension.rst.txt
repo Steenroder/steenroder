@@ -1,0 +1,14 @@
+﻿:mod:`steenroder`.suspension
+=========================================
+
+.. currentmodule:: steenroder
+
+.. autofunction:: suspension
+
+..
+    Exclude sphinx-gallery generated examples since we use binder for now
+    include:: steenroder.suspension.examples
+
+.. raw:: html
+
+    <div class="clearer"></div>
