@@ -49,8 +49,6 @@ Installation
 
 The simplest way to install ``steenroder`` is using ``pip`` ::
 
-::
-
    python -m pip install -U steenroder
 
 If necessary, this will also automatically install all the above
