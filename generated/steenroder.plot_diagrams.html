@@ -14,10 +14,11 @@
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="prev" title="Welcome to steenroder’s API reference!" href="../index.html" /> 
+    <link rel="prev" title="steenroder.wedge" href="steenroder.wedge.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -35,8 +36,18 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.plot_diagrams</a></li>
+              <p><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../user_guide.html">User Guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api_reference.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../api_reference.html#core">Core</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api_reference.html#preprocessing">Preprocessing</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../api_reference.html#visualization">Visualization</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.plot_diagrams</a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 
         </div>
@@ -53,6 +64,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../api_reference.html">API Reference</a> &raquo;</li>
       <li><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.plot_diagrams</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/generated/steenroder.plot_diagrams.rst.txt" rel="nofollow"> View page source</a>
@@ -63,46 +75,64 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="steenroder-plot-diagrams">
-<h1><a class="reference internal" href="../index.html#module-steenroder" title="steenroder"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code></a>.plot_diagrams<a class="headerlink" href="#steenroder-plot-diagrams" title="Permalink to this headline">¶</a></h1>
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="steenroder-plot-diagrams">
+<h1><a class="reference internal" href="../api_reference.html#module-steenroder" title="steenroder"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code></a>.plot_diagrams<a class="headerlink" href="#steenroder-plot-diagrams" title="Permalink to this headline">¶</a></h1>
 <dl class="py function">
 <dt id="steenroder.plot_diagrams">
-<code class="sig-prename descclassname">steenroder.</code><code class="sig-name descname">plot_diagrams</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">barcode</span></em>, <em class="sig-param"><span class="n">st_barcode</span></em>, <em class="sig-param"><span class="n">k</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">kind</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">tex</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">plotly_params</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#steenroder.plot_diagrams" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">steenroder.</code><code class="sig-name descname">plot_diagrams</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">barcode</span></em>, <em class="sig-param"><span class="n">st_barcode</span></em>, <em class="sig-param"><span class="n">k</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">kind</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">tex</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">plotly_params</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/steenroder/plotting.html#plot_diagrams"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#steenroder.plot_diagrams" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot a regular persistence barcode and a Steenrod barcode as diagrams on
 a common birth-death plane.</p>
-<dl class="field-list">
+<dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><dl>
-<dt><strong>barcode</strong><span class="classifier">list of ndarray</span></dt><dd><p>The persistence barcode to plot. For each dimension <code class="docutils literal notranslate"><span class="pre">d</span></code>, a 2D array
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>barcode</strong> (<em>list of ndarray</em>) – The persistence barcode to plot. For each dimension <code class="docutils literal notranslate"><span class="pre">d</span></code>, a 2D array
 with 2 columns, containing birth-death pairs in degree <code class="docutils literal notranslate"><span class="pre">d</span></code>, to be used
-as coordinates in the two-dimensional plot.</p>
-</dd>
-<dt><strong>st_barcode</strong><span class="classifier">list of ndarray</span></dt><dd><p>The (relative) Sq^k-barcode to plot. For each dimension <code class="docutils literal notranslate"><span class="pre">d</span></code>, a 2D
+as coordinates in the two-dimensional plot.</p></li>
+<li><p><strong>st_barcode</strong> (<em>list of ndarray</em>) – The (relative) Sq^k-barcode to plot. For each dimension <code class="docutils literal notranslate"><span class="pre">d</span></code>, a 2D
 array with 2 columns, containing the birth-death pairs of Steenrod bars
-in degree <code class="docutils literal notranslate"><span class="pre">d</span></code>, to be used as coordinates in the two-dimensional plot.</p>
-</dd>
-<dt><strong>k</strong><span class="classifier">int or None, optional, default: <code class="docutils literal notranslate"><span class="pre">None</span></code></span></dt><dd><p>Positive integer defining the cohomology operation Sq^k that was
-performed to obtain <cite>st_barcode</cite>. Only used for labelling.</p>
-</dd>
-<dt><strong>kind</strong><span class="classifier"><code class="docutils literal notranslate"><span class="pre">&quot;R&quot;</span></code> | <code class="docutils literal notranslate"><span class="pre">&quot;A&quot;</span></code> or None, optional, default: <code class="docutils literal notranslate"><span class="pre">None</span></code></span></dt><dd><p>Whether the barcodes to be plotted come from absolute or relative
-cohomology barcodes.</p>
-</dd>
-<dt><strong>tex</strong><span class="classifier">bool, optional, default: <code class="docutils literal notranslate"><span class="pre">False</span></code></span></dt><dd><p>(Experimental!) Whether to display a version of the legend rendered with
-LaTeX and MathJax.</p>
-</dd>
-<dt><strong>plotly_params</strong><span class="classifier">dict or None, optional, default: <code class="docutils literal notranslate"><span class="pre">None</span></code></span></dt><dd><p>Custom parameters to configure the plotly figure. Allowed keys are
+in degree <code class="docutils literal notranslate"><span class="pre">d</span></code>, to be used as coordinates in the two-dimensional plot.</p></li>
+<li><p><strong>k</strong> (int or None, optional, default: <code class="docutils literal notranslate"><span class="pre">None</span></code>) – Positive integer defining the cohomology operation Sq^k that was
+performed to obtain <cite>st_barcode</cite>. Only used for labelling.</p></li>
+<li><p><strong>kind</strong> (<code class="docutils literal notranslate"><span class="pre">&quot;R&quot;</span></code> | <code class="docutils literal notranslate"><span class="pre">&quot;A&quot;</span></code> or None, optional, default: <code class="docutils literal notranslate"><span class="pre">None</span></code>) – Whether the barcodes to be plotted come from absolute or relative
+cohomology barcodes.</p></li>
+<li><p><strong>tex</strong> (bool, optional, default: <code class="docutils literal notranslate"><span class="pre">False</span></code>) – (Experimental!) Whether to display a version of the legend rendered with
+LaTeX and MathJax.</p></li>
+<li><p><strong>plotly_params</strong> (dict or None, optional, default: <code class="docutils literal notranslate"><span class="pre">None</span></code>) – Custom parameters to configure the plotly figure. Allowed keys are
 <code class="docutils literal notranslate"><span class="pre">&quot;traces&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">&quot;layout&quot;</span></code>, and the corresponding values should be
 dictionaries containing keyword arguments as would be fed to the
 <code class="xref py py-meth docutils literal notranslate"><span class="pre">update_traces</span></code> and <code class="xref py py-meth docutils literal notranslate"><span class="pre">update_layout</span></code> methods of
-<code class="xref py py-class docutils literal notranslate"><span class="pre">plotly.graph_objects.Figure</span></code>.</p>
-</dd>
-</dl>
+<code class="xref py py-class docutils literal notranslate"><span class="pre">plotly.graph_objects.Figure</span></code>.</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><dl>
-<dt><strong>fig</strong><span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">plotly.graph_objects.Figure</span></code> object</span></dt><dd><p>Figure representing the persistence diagram and Steenrod diagram.</p>
+<dd class="field-even"><p><strong>fig</strong> – Figure representing the persistence diagram and Steenrod diagram.</p>
 </dd>
-</dl>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">plotly.graph_objects.Figure</span></code> object</p>
 </dd>
 </dl>
 </dd></dl>
@@ -113,7 +143,7 @@ dictionaries containing keyword arguments as would be fed to the
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../index.html" class="btn btn-neutral float-left" title="Welcome to steenroder’s API reference!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="steenroder.wedge.html" class="btn btn-neutral float-left" title="steenroder.wedge" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
   <hr/>

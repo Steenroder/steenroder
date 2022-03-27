@@ -1,23 +1,17 @@
-Welcome to steenroder's API reference!
+Welcome to steenroder's documentation!
 ======================================
 
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
 
-:mod:`steenroder`: Computation of persistence Steenrod barcodes
-===============================================================
-
-.. automodule:: steenroder
-   :no-members:
-   :no-inherited-members:
-
+   user_guide
+   api_reference
 
 
+Indices and tables
+==================
 
-Visualization
--------------
-.. currentmodule:: steenroder
-
-.. autosummary::
-   :toctree: generated/
-   :template: function.rst
-
-   plot_diagrams
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`

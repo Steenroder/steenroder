@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>API Reference &mdash; steenroder 0.1.0 documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="steenroder.get_reduced_triangular" href="generated/steenroder.get_reduced_triangular.html" />
+    <link rel="prev" title="User Guide" href="user_guide.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> steenroder
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="user_guide.html">User Guide</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#core">Core</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/steenroder.get_reduced_triangular.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.get_reduced_triangular</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/steenroder.get_barcode_and_coho_reps.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.get_barcode_and_coho_reps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/steenroder.get_steenrod_matrix.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.get_steenrod_matrix</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/steenroder.get_steenrod_barcode.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.get_steenrod_barcode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/steenroder.barcodes.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.barcodes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/steenroder.rips_barcodes.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.rips_barcodes</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#preprocessing">Preprocessing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/steenroder.make_simplices.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.make_simplices</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/steenroder.make_filtration.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.make_filtration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/steenroder.sort_filtration_by_dim.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.sort_filtration_by_dim</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/steenroder.cone.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.cone</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/steenroder.suspension.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.suspension</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/steenroder.sphere.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.sphere</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/steenroder.wedge.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.wedge</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#visualization">Visualization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/steenroder.plot_diagrams.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.plot_diagrams</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">steenroder</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>API Reference</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/api_reference.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="api-reference">
+<h1>API Reference<a class="headerlink" href="#api-reference" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+</div>
+<span class="target" id="module-steenroder"></span><section id="core">
+<h2>Core<a class="headerlink" href="#core" title="Permalink to this headline">¶</a></h2>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/steenroder.get_reduced_triangular.html#steenroder.get_reduced_triangular" title="steenroder.get_reduced_triangular"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_reduced_triangular</span></code></a>(filtration_by_dim)</p></td>
+<td><p>Find a full-rank upper-triangular matrix V such that R = DV is reduced, where D is the anti-transpose of the filtration boundary matrix.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/steenroder.get_barcode_and_coho_reps.html#steenroder.get_barcode_and_coho_reps" title="steenroder.get_barcode_and_coho_reps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_barcode_and_coho_reps</span></code></a>(idxs, reduced, …)</p></td>
+<td><p>Extract the ordinary persistent relative cohomology barcode as well as one persistent relative cohomology representative per bar.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/steenroder.get_steenrod_matrix.html#steenroder.get_steenrod_matrix" title="steenroder.get_steenrod_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_steenrod_matrix</span></code></a>(k, coho_reps, …[, n_jobs])</p></td>
+<td><p>Compute the Steenrod matrices in each dimension.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/steenroder.get_steenrod_barcode.html#steenroder.get_steenrod_barcode" title="steenroder.get_steenrod_barcode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_steenrod_barcode</span></code></a>(k, steenrod_matrix, …)</p></td>
+<td><p>Compute the (relative) Steenrod barcodes.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/steenroder.barcodes.html#steenroder.barcodes" title="steenroder.barcodes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">barcodes</span></code></a>(k, filtration[, absolute, …])</p></td>
+<td><p>Given a filtration, compute ordinary persistent (relative or absolute) cohomology barcodes and relative Steenrod barcodes.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/steenroder.rips_barcodes.html#steenroder.rips_barcodes" title="steenroder.rips_barcodes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rips_barcodes</span></code></a>(X[, max_edge_length, …])</p></td>
+<td><p>Construct a Rips filtration and compute ordinary persistent (relative or absolute) cohomology barcodes and relative Steenrod barcodes.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="preprocessing">
+<h2>Preprocessing<a class="headerlink" href="#preprocessing" title="Permalink to this headline">¶</a></h2>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/steenroder.make_simplices.html#steenroder.make_simplices" title="steenroder.make_simplices"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_simplices</span></code></a>(top_faces)</p></td>
+<td><p>It returns the simplices in a complex given its top dimensional simplices only.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/steenroder.make_filtration.html#steenroder.make_filtration" title="steenroder.make_filtration"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_filtration</span></code></a>(simplices)</p></td>
+<td><p>It returns an ordering of the simplices of a simplicial complex defining a filtration of it.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/steenroder.sort_filtration_by_dim.html#steenroder.sort_filtration_by_dim" title="steenroder.sort_filtration_by_dim"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sort_filtration_by_dim</span></code></a>(filtration[, maxdim])</p></td>
+<td><p>Organize an input simplex-wise filtration by dimension.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/steenroder.cone.html#steenroder.cone" title="steenroder.cone"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cone</span></code></a>(simplices)</p></td>
+<td><p>Returns a filtration of the cone of a given simplicial complex.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/steenroder.suspension.html#steenroder.suspension" title="steenroder.suspension"><code class="xref py py-obj docutils literal notranslate"><span class="pre">suspension</span></code></a>(simplices)</p></td>
+<td><p>Returns a filtration of the suspension of a given simplicial complex.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/steenroder.sphere.html#steenroder.sphere" title="steenroder.sphere"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sphere</span></code></a>(n)</p></td>
+<td><p>Returns a filtration of the n-sphere.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/steenroder.wedge.html#steenroder.wedge" title="steenroder.wedge"><code class="xref py py-obj docutils literal notranslate"><span class="pre">wedge</span></code></a>(simplices_1, simplices_2)</p></td>
+<td><p>Returns a filtration wedge of two simplicial complexes.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="visualization">
+<h2>Visualization<a class="headerlink" href="#visualization" title="Permalink to this headline">¶</a></h2>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/steenroder.plot_diagrams.html#steenroder.plot_diagrams" title="steenroder.plot_diagrams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_diagrams</span></code></a>(barcode, st_barcode[, k, …])</p></td>
+<td><p>Plot a regular persistence barcode and a Steenrod barcode as diagrams on a common birth-death plane.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="user_guide.html" class="btn btn-neutral float-left" title="User Guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="generated/steenroder.get_reduced_triangular.html" class="btn btn-neutral float-right" title="steenroder.get_reduced_triangular" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Steenroder.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>steenroder.get_reduced_triangular &mdash; steenroder 0.1.0 documentation</title><link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="steenroder.get_barcode_and_coho_reps" href="steenroder.get_barcode_and_coho_reps.html" />
+    <link rel="prev" title="API Reference" href="../api_reference.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> steenroder
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../user_guide.html">User Guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api_reference.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../api_reference.html#core">Core</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.get_reduced_triangular</a></li>
+<li class="toctree-l3"><a class="reference internal" href="steenroder.get_barcode_and_coho_reps.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.get_barcode_and_coho_reps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="steenroder.get_steenrod_matrix.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.get_steenrod_matrix</a></li>
+<li class="toctree-l3"><a class="reference internal" href="steenroder.get_steenrod_barcode.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.get_steenrod_barcode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="steenroder.barcodes.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.barcodes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="steenroder.rips_barcodes.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.rips_barcodes</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api_reference.html#preprocessing">Preprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api_reference.html#visualization">Visualization</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">steenroder</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../api_reference.html">API Reference</a> &raquo;</li>
+      <li><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.get_reduced_triangular</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/generated/steenroder.get_reduced_triangular.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="steenroder-get-reduced-triangular">
+<h1><a class="reference internal" href="../api_reference.html#module-steenroder" title="steenroder"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code></a>.get_reduced_triangular<a class="headerlink" href="#steenroder-get-reduced-triangular" title="Permalink to this headline">¶</a></h1>
+<dl class="py function">
+<dt id="steenroder.get_reduced_triangular">
+<code class="sig-prename descclassname">steenroder.</code><code class="sig-name descname">get_reduced_triangular</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filtration_by_dim</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/steenroder/core.html#get_reduced_triangular"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#steenroder.get_reduced_triangular" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find a full-rank upper-triangular matrix V such that R = DV is reduced,
+where D is the anti-transpose of the filtration boundary matrix. Return both
+R and V.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filtration_by_dim</strong> (<em>list of list of ndarray</em>) – For each dimension <code class="docutils literal notranslate"><span class="pre">d</span></code>, a list of 2 aligned int arrays: the first is
+a 1D array containing the (ordered) positional indices of all
+<code class="docutils literal notranslate"><span class="pre">d</span></code>-dimensional simplices in <cite>filtration</cite>; the second is a 2D array
+whose <code class="docutils literal notranslate"><span class="pre">i</span></code>-th row is the (sorted) collection of vertices defining the
+<code class="docutils literal notranslate"><span class="pre">i</span></code>-th <code class="docutils literal notranslate"><span class="pre">d</span></code>-dimensional simplex.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>spx2idx</strong> (tuple of <code class="docutils literal notranslate"><span class="pre">numba.typed.Dict</span></code>) – One dictionary per simplex dimension. The dimension-<code class="docutils literal notranslate"><span class="pre">d</span></code> dictionary has
+the filtration <code class="docutils literal notranslate"><span class="pre">d</span></code>-simplices (tuples of ints) as keys; the
+corresponding values are the positional indices of those simplices
+relative to the <code class="docutils literal notranslate"><span class="pre">d</span></code>-dimensional portion of the filtration.</p></li>
+<li><p><strong>idxs</strong> (<em>tuple of ndarray</em>) – For each dimension <code class="docutils literal notranslate"><span class="pre">d</span></code>, this is the same as
+<code class="docutils literal notranslate"><span class="pre">filtration_by_dim[d][0]</span></code> and is returned for convenience.</p></li>
+<li><p><strong>reduced</strong> (tuple of <code class="docutils literal notranslate"><span class="pre">numba.typed.List</span></code>) – One list of int per simplex dimension. <code class="docutils literal notranslate"><span class="pre">reduced[d]</span></code> is the
+<code class="docutils literal notranslate"><span class="pre">d</span></code>-dimensional part of the “R” matrix in R = DV. In the computation,
+<code class="docutils literal notranslate"><span class="pre">reduced[d][i]</span></code> is initialized as the coboundary of the <code class="docutils literal notranslate"><span class="pre">i``th</span> <span class="pre">input</span>
+<span class="pre">simplex</span> <span class="pre">in</span> <span class="pre">``filtration_by_dim[d][1]</span></code>, i.e. as the sorted list of
+positional indices (relative to the <code class="docutils literal notranslate"><span class="pre">(d+1)</span></code>-dimensional portion of the
+filtration) of that simplex’s cofacets.</p></li>
+<li><p><strong>triangular</strong> (tuple of <code class="docutils literal notranslate"><span class="pre">numba.typed.List</span></code>) – On list of int per simplex dimension. <code class="docutils literal notranslate"><span class="pre">triangular[d]</span></code> is the
+<code class="docutils literal notranslate"><span class="pre">d</span></code>-dimensional part of the “V” matrix in R = DV. In the computation,
+<code class="docutils literal notranslate"><span class="pre">triangular[d][i]</span></code> is initialized as the singleton list <code class="docutils literal notranslate"><span class="pre">[i]</span></code>.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<div class="clearer"></div></section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../api_reference.html" class="btn btn-neutral float-left" title="API Reference" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="steenroder.get_barcode_and_coho_reps.html" class="btn btn-neutral float-right" title="steenroder.get_barcode_and_coho_reps" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Steenroder.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
