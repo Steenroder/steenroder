@@ -21,7 +21,7 @@ with open('docs/requirements.txt') as f:
 
 DISTNAME = 'steenroder'
 DESCRIPTION = 'Computation of persistence Steenrod barcodes '
-with codecs.open('README.md', encoding='utf-8-sig') as f:
+with codecs.open('README.rst', encoding='utf-8-sig') as f:
     LONG_DESCRIPTION = f.read()
 LONG_DESCRIPTION_TYPE = 'text/x-rst'
 MAINTAINER = 'Anibal Medina Mardones, Umberto Lupo'
