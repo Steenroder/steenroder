@@ -33,7 +33,7 @@ Dependencies
 
 The latest stable version of ``steenroder`` requires:
 
--  python (>= 3.7)
+-  python (>= 3.8)
 -  numpy (>= 1.19.1)
 -  numba (>= 0.53.0)
 -  psutils (>= 5.8.0)
