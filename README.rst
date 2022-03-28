@@ -33,12 +33,12 @@ Dependencies
 
 The latest stable version of ``steenroder`` requires:
 
--  python (>= 3.8)
+-  python (>= 3.7)
 -  numpy (>= 1.19.1)
--  numba (>= ?)
--  psutils (>= ?)
--  gudhi (>= ?)
--  plotly (>= ?)
+-  numba (>= 0.53.0)
+-  psutils (>= 5.8.0)
+-  gudhi (>= 3.5.0)
+-  plotly (>= 5.3.1)
 
 To run the examples, jupyter is required.
 
