@@ -5,8 +5,7 @@ from gudhi import SimplexTree
 
 
 def make_simplices(top_faces):
-    """It returns the simplices in a complex given its top dimensional
-    simplices only.
+    """Return all simplices of a complex given its top ones.
 
     Parameters
     ----------
@@ -29,8 +28,7 @@ def make_simplices(top_faces):
 
 
 def make_filtration(simplices):
-    """It returns an ordering of the simplices of a simplicial complex defining a
-    filtration of it.
+    """Return a filtration of a given complex.
 
     Parameters
     ----------
@@ -53,7 +51,7 @@ def make_filtration(simplices):
 
 
 def sort_filtration_by_dim(filtration, maxdim=None):
-    """Organize an input simplex-wise filtration by dimension.
+    """Organize an input filtration by dimension.
 
     Parameters
     ----------
@@ -94,7 +92,7 @@ def sort_filtration_by_dim(filtration, maxdim=None):
 
 
 def cone(simplices):
-    """Returns a filtration of the cone of a given simplicial complex.
+    """Return a filtration of the cone of a complex.
 
     Parameters
     ----------
@@ -115,7 +113,7 @@ def cone(simplices):
 
 
 def suspension(simplices):
-    """Returns a filtration of the suspension of a given simplicial complex.
+    """Return a filtration of the suspension of a complex.
 
     Parameters
     ----------
@@ -138,7 +136,7 @@ def suspension(simplices):
 
 
 def sphere(n):
-    """Returns a filtration of the n-sphere.
+    """Return a filtration of the n-sphere.
 
     Parameters
     ----------
@@ -157,7 +155,7 @@ def sphere(n):
 
 
 def wedge(simplices_1, simplices_2):
-    """Returns a filtration wedge of two simplicial complexes.
+    """Return a filtration of the wedge of two complexes.
 
     Parameters
     ----------
