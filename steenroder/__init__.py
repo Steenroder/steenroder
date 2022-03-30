@@ -1,10 +1,10 @@
 from ._version import __version__
 
 from .core import (
-    get_reduced_triangular,
-    get_barcode_and_coho_reps,
-    get_steenrod_matrix,
-    get_steenrod_barcode,
+    compute_reduced_triangular,
+    compute_barcode_and_coho_reps,
+    compute_steenrod_matrix,
+    compute_steenrod_barcode,
     barcodes,
     rips_barcodes,
 )
@@ -21,10 +21,10 @@ from .plotting import plot_diagrams
 
 
 __all__ = [
-    "get_reduced_triangular",
-    "get_barcode_and_coho_reps",
-    "get_steenrod_matrix",
-    "get_steenrod_barcode",
+    "compute_reduced_triangular",
+    "compute_barcode_and_coho_reps",
+    "compute_steenrod_matrix",
+    "compute_steenrod_barcode",
     "barcodes",
     "rips_barcodes",
     "make_simplices",

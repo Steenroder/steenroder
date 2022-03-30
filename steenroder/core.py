@@ -98,10 +98,11 @@ def _fix_triangular_after_clearing(triangular, reduced_prev_dim,
         triangular[rel_idx] = reduced_prev_dim[pivots_lookup_prev_dim[rel_idx]]
 
 
-def get_reduced_triangular(filtration_by_dim):
-    """Find a full-rank upper-triangular matrix V such that R = DV is reduced,
-    where D is the anti-transpose of the filtration boundary matrix. Return both
-    R and V.
+def compute_reduced_triangular(filtration_by_dim):
+    """Compute the matrices R and V in the decomposition R = DV.
+
+    Explicitly, D is the coboundary matrix of the filtration, R is a reduced
+    matrix, and V is a full-rank upper-triangular one.
 
     Parameters
     ----------
@@ -185,10 +186,9 @@ def get_reduced_triangular(filtration_by_dim):
 
 
 @nb.njit
-def get_barcode_and_coho_reps(idxs, reduced, triangular,
+def compute_barcode_and_coho_reps(idxs, reduced, triangular,
                               filtration_values=None):
-    """Extract the ordinary persistent relative cohomology barcode as well as
-    one persistent relative cohomology representative per bar.
+    """Compute the barcode of relative cohomology and cocycle representatives.
 
     Parameters
     ----------
@@ -199,12 +199,12 @@ def get_barcode_and_coho_reps(idxs, reduced, triangular,
     reduced : tuple of ``numba.typed.List``
         One list of int per simplex dimension, representing the
         ``d``-dimensional part of the "R" matrix in R = DV. In the same format
-        as returned by `get_reduced_triangular`.
+        as returned by `compute_reduced_triangular`.
 
     triangular : tuple of ``numba.typed.List``
         One list of int per simplex dimension, representing the
         ``d``-dimensional part of the "V" matrix in R = DV. In the same format
-        as returned by `get_reduced_triangular`.
+        as returned by `compute_reduced_triangular`.
 
     filtration_values : ndarray or None, optional, default: None
         Optionally, a single 1D array of filtration values for each simplex in
@@ -376,8 +376,8 @@ def _populate_steenrod_matrix_single_dim(dim_plus_k):
     return _inner
 
 
-def get_steenrod_matrix(k, coho_reps, filtration_by_dim, spx2idx, n_jobs=-1):
-    """Compute the Steenrod matrices in each dimension.
+def compute_steenrod_matrix(k, coho_reps, filtration_by_dim, spx2idx, n_jobs=-1):
+    """Compute the k-th Steenrod matrices in each dimension.
 
     Parameters
     ----------
@@ -387,7 +387,7 @@ def get_steenrod_matrix(k, coho_reps, filtration_by_dim, spx2idx, n_jobs=-1):
     coho_reps : list of ``numba.typed.List``
         For each dimension ``d``, a list of representatives of persistent
         relative cohomology classes in degree ``d``. In the same format as
-        returned by `get_barcode_and_coho_reps`.
+        returned by `compute_barcode_and_coho_reps`.
 
     filtration_by_dim : list of list of ndarray
         For each dimension ``d``, a list of 2 aligned int arrays: the first is
@@ -498,9 +498,9 @@ def _steenrod_barcode_single_dim(steenrod_matrix_dim, n_idxs_dim, idxs_prev_dim,
     return st_barcode_dim
 
 
-def get_steenrod_barcode(k, steenrod_matrix, idxs, reduced, barcode,
+def compute_steenrod_barcode(k, steenrod_matrix, idxs, reduced, barcode,
                          filtration_values=None):
-    """Compute the (relative) Steenrod barcodes.
+    """Compute the Sq^k-barcode of relative cohomology.
 
     Parameters
     ----------
@@ -512,7 +512,7 @@ def get_steenrod_barcode(k, steenrod_matrix, idxs, reduced, barcode,
         of computing the Steenrod square of the ``j``th latest (by birth)
         persistent relative cohomology representative in degree ``d`` (and this
         representative must represent bar ``barcode[d][j]``). See
-        `get_steenrod_matrix`.
+        `compute_steenrod_matrix`.
 
     idxs : tuple of ndarray
         For each dimension ``d``, a 1D int array containing the (ordered)
@@ -521,7 +521,7 @@ def get_steenrod_barcode(k, steenrod_matrix, idxs, reduced, barcode,
     reduced : tuple of ``numba.typed.List``
         One list of int per simplex dimension, representing the
         ``d``-dimensional part of the "R" matrix in R = DV. In the same format
-        as returned by `get_reduced_triangular`.
+        as returned by `compute_reduced_triangular`.
 
     barcode : list of ndarray
         For each dimension ``d``, a 2D int array of shape ``(n_bars, 2)``
@@ -647,9 +647,9 @@ def barcodes(
         tic = time.time()
     filtration_by_dim = sort_filtration_by_dim(filtration, maxdim=maxdim)
     spx2idx, idxs, reduced, triangular = \
-        get_reduced_triangular(filtration_by_dim)
+        compute_reduced_triangular(filtration_by_dim)
     barcode, coho_reps = \
-        get_barcode_and_coho_reps(idxs, reduced, triangular,
+        compute_barcode_and_coho_reps(idxs, reduced, triangular,
                                   filtration_values=filtration_values)
 
     if k == 0:  # Sq^0 is the identity
@@ -662,13 +662,13 @@ def barcodes(
         toc = time.time()
         print(f"Usual barcode computed, time taken: {(toc - tic):.3f} s")
         tic = time.time()
-    steenrod_matrix = get_steenrod_matrix(k, coho_reps, filtration_by_dim,
+    steenrod_matrix = compute_steenrod_matrix(k, coho_reps, filtration_by_dim,
                                           spx2idx, n_jobs=n_jobs)
     if verbose:
         toc = time.time()
         print(f"Steenrod matrix computed, time taken: {(toc - tic):.3f} s")
         tic = time.time()
-    st_barcode = get_steenrod_barcode(k, steenrod_matrix, idxs, reduced,
+    st_barcode = compute_steenrod_barcode(k, steenrod_matrix, idxs, reduced,
                                       barcode,
                                       filtration_values=filtration_values)
     if verbose:
