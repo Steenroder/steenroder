@@ -446,7 +446,7 @@ def _steenrod_barcode_single_dim(steenrod_matrix_dim, n_idxs_dim, idxs_prev_dim,
 
     pivots_lookup = np.full(n_idxs_dim, -1, dtype=np.int64)
     alive = np.ones(n_births_dim_minus_k, dtype=np.bool_)
-    st_barcode_dim = []
+    steenrod_barcode_dim = []
 
     for n_cols_st_curr, birth in enumerate(births_dim_minus_k):
         if idxs_prev_dim[-1] >= birth:
@@ -485,7 +485,7 @@ def _steenrod_barcode_single_dim(steenrod_matrix_dim, n_idxs_dim, idxs_prev_dim,
                 alive[ii - n_cols_red] = False
                 birth = births_dim_minus_k[ii - n_cols_red]
                 if idx < birth:
-                    st_barcode_dim.append([idx, birth])
+                    steenrod_barcode_dim.append([idx, birth])
 
         # Reset pivots_lookup for next iteration
         for col_idx in pivot_col_idxs_from_st:
@@ -493,9 +493,9 @@ def _steenrod_barcode_single_dim(steenrod_matrix_dim, n_idxs_dim, idxs_prev_dim,
 
     for i in range(n_births_dim_minus_k):
         if alive[i]:
-            st_barcode_dim.append([-1, births_dim_minus_k[i]])
+            steenrod_barcode_dim.append([-1, births_dim_minus_k[i]])
 
-    return st_barcode_dim
+    return steenrod_barcode_dim
 
 
 def compute_steenrod_barcode(k, steenrod_matrix, idxs, reduced, barcode,
@@ -538,7 +538,7 @@ def compute_steenrod_barcode(k, steenrod_matrix, idxs, reduced, barcode,
 
     Returns
     -------
-    st_barcode : list of ndarray
+    steenrod_barcode : list of ndarray
         The (relative) Sq^k-barcode. For each dimension ``d``, a 2D int array
         of shape ``(n_bars, 2)`` containing the birth (entry 1) and death (entry
         0) indices of Steenrod bars. Essential Steenrod bars are represented by
@@ -554,27 +554,27 @@ def compute_steenrod_barcode(k, steenrod_matrix, idxs, reduced, barcode,
                             filtration_values[barcode_dim[:, 1]]))
         )
 
-    st_barcode = [np.empty((0, 2), dtype=np.int64) for _ in range(k)]
+    steenrod_barcode = [np.empty((0, 2), dtype=np.int64) for _ in range(k)]
     for dim in range(k, len(steenrod_matrix)):
         births_dim_minus_k = barcode[dim - k][:, 1]
         idxs_dim = idxs[dim]
         idxs_prev_dim = idxs[dim - 1]
         reduced_prev_dim = reduced[dim - 1]
-        st_barcode_dim = _steenrod_barcode_single_dim(steenrod_matrix[dim],
+        steenrod_barcode_dim = _steenrod_barcode_single_dim(steenrod_matrix[dim],
                                                       len(idxs_dim),
                                                       idxs_prev_dim,
                                                       reduced_prev_dim,
                                                       births_dim_minus_k)
         # NB: Conversion to array must happen outside jitted code due to
         # https://github.com/numba/numba/issues/3579
-        st_barcode_dim = \
-            np.asarray(st_barcode_dim, dtype=np.int64).reshape((-1, 2))
+        steenrod_barcode_dim = \
+            np.asarray(steenrod_barcode_dim, dtype=np.int64).reshape((-1, 2))
         if filtration_values is not None:
-            nontrivial_mask = nontrivial_bars(st_barcode_dim)
-            st_barcode_dim = st_barcode_dim[nontrivial_mask]
-        st_barcode.append(st_barcode_dim)
+            nontrivial_mask = nontrivial_bars(steenrod_barcode_dim)
+            steenrod_barcode_dim = steenrod_barcode_dim[nontrivial_mask]
+        steenrod_barcode.append(steenrod_barcode_dim)
 
-    return st_barcode
+    return steenrod_barcode
 
 
 def barcodes(
@@ -636,7 +636,7 @@ def barcodes(
         bars have death equal to ``-1``; otherwise, essential bars have death
         equal to ``numpy.inf``.
 
-    st_barcode : list of ndarray
+    steenrod_barcode : list of ndarray
         The (relative) Sq^k-barcode. For each dimension ``d``, a 2D int or float
         array of shape ``(n_bars, 2)`` containing the birth (entry 1) and death
         (entry 0) indices of Steenrod bars. The same conventions as for
@@ -668,7 +668,7 @@ def barcodes(
         toc = time.time()
         print(f"Steenrod matrix computed, time taken: {(toc - tic):.3f} s")
         tic = time.time()
-    st_barcode = compute_steenrod_barcode(k, steenrod_matrix, idxs, reduced,
+    steenrod_barcode = compute_steenrod_barcode(k, steenrod_matrix, idxs, reduced,
                                       barcode,
                                       filtration_values=filtration_values)
     if verbose:
@@ -680,18 +680,18 @@ def barcodes(
             barcode, filtration_values=filtration_values,
             return_filtration_values=return_filtration_values
         )
-        st_barcode = _to_absolute_barcode(
-            st_barcode, filtration_values=filtration_values,
+        steenrod_barcode = _to_absolute_barcode(
+            steenrod_barcode, filtration_values=filtration_values,
             return_filtration_values=return_filtration_values
         )
 
-        return barcode, st_barcode
+        return barcode, steenrod_barcode
 
     elif return_filtration_values and (filtration_values is not None):
         barcode = _to_values_barcode(barcode, filtration_values)
-        st_barcode = _to_values_barcode(st_barcode, filtration_values)
+        steenrod_barcode = _to_values_barcode(steenrod_barcode, filtration_values)
 
-    return barcode, st_barcode
+    return barcode, steenrod_barcode
 
 
 def _to_absolute_barcode(rel_barcode, filtration_values=None,
@@ -847,7 +847,7 @@ def rips_barcodes(X, max_edge_length=np.inf, distance_matrix=False,
         bars have death equal to ``-1``; otherwise, essential bars have death
         equal to ``numpy.inf``.
 
-    st_barcode : list of ndarray
+    steenrod_barcode : list of ndarray
         The (relative) Sq^k-barcode. For each dimension ``d``, a 2D int or float
         array of shape ``(n_bars, 2)`` containing the birth (entry 1) and death
         (entry 0) indices of Steenrod bars. The same conventions as for
@@ -899,7 +899,7 @@ def rips_barcodes(X, max_edge_length=np.inf, distance_matrix=False,
         zip(*((tuple(t[0]), t[1]) for t in spx_tree.get_filtration()))
     filtration_values = np.asarray(filtration_values, dtype=np.float32)
 
-    barcode, st_barcode = barcodes(
+    barcode, steenrod_barcode = barcodes(
         k,
         filtration,
         filtration_values=filtration_values,
@@ -909,4 +909,4 @@ def rips_barcodes(X, max_edge_length=np.inf, distance_matrix=False,
         verbose=verbose
     )
 
-    return barcode, st_barcode
+    return barcode, steenrod_barcode
