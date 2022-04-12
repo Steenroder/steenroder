@@ -40,7 +40,6 @@ release = __version__
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'nbsphinx',
     'sphinx.ext.githubpages',
     'sphinx.ext.autosummary',
     'sphinx.ext.viewcode',
@@ -68,36 +67,6 @@ autosummary_generate = True
 
 # The suffix of source filenames.
 source_suffix = '.rst'
-
-# This is processed by Jinja2 and inserted before each notebook
-nbsphinx_prolog = r"""
-{% set docname = env.doc2path(env.docname, base='doc') %}
-.. only:: html
-    .. role:: raw-html(raw)
-        :format: html
-    .. nbinfo::
-        This page was generated from `{{ docname }}`__.
-        Interactive online version:
-        :raw-html:`<a href="https://mybinder.org/v2/gh/JohnGriffiths/ConWhAt/{{ env.config.release }}?filepath={{ docname }}"><img alt="Binder badge" src="https://mybinder.org/badge.svg" style="vertical-align:text-bottom"></a>`
-    __ https://github.com/JohnGriffiths/ConWhAt/blob/
-        {{ env.config.release }}/{{ docname }}
-.. raw:: latex
-    \vfil\penalty-1\vfilneg
-    \vspace{\baselineskip}
-    \textcolor{gray}{The following section was generated from
-    \texttt{\strut{}{{ docname }}}\\[-0.5\baselineskip]
-    \noindent\rule{\textwidth}{0.4pt}}
-    \vspace{-2\baselineskip}
-"""
-
-# This is processed by Jinja2 and inserted after each notebook
-nbsphinx_epilog = r"""
-.. raw:: latex
-    \textcolor{gray}{\noindent\rule{\textwidth}{0.4pt}\\
-    \hbox{}\hfill End of
-    \texttt{\strut{}{{ env.doc2path(env.docname, base='doc') }}}}
-    \vfil\penalty-1\vfilneg
-"""
 
 # The encoding of source files.
 # source_encoding = 'utf-8'
