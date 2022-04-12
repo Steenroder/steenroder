@@ -5,7 +5,6 @@ Welcome to steenroder's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-   user_guide
    api_reference
 
 
