@@ -12,6 +12,7 @@ Tutorials
    :glob:
 
    _notebooks/squares.ipynb
+   _notebooks/cp2.ipynb
 
 
 Examples
