@@ -20,7 +20,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="steenroder.rips_barcodes" href="steenroder.rips_barcodes.html" />
-    <link rel="prev" title="steenroder.get_steenrod_barcode" href="steenroder.get_steenrod_barcode.html" /> 
+    <link rel="prev" title="steenroder.compute_steenrod_barcode" href="steenroder.compute_steenrod_barcode.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -49,10 +49,10 @@
 </li>
 <li class="toctree-l1 current"><a class="reference internal" href="../api_reference.html">API Reference</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="../api_reference.html#core">Core</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="steenroder.get_reduced_triangular.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.get_reduced_triangular</a></li>
-<li class="toctree-l3"><a class="reference internal" href="steenroder.get_barcode_and_coho_reps.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.get_barcode_and_coho_reps</a></li>
-<li class="toctree-l3"><a class="reference internal" href="steenroder.get_steenrod_matrix.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.get_steenrod_matrix</a></li>
-<li class="toctree-l3"><a class="reference internal" href="steenroder.get_steenrod_barcode.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.get_steenrod_barcode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="steenroder.compute_reduced_triangular.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.compute_reduced_triangular</a></li>
+<li class="toctree-l3"><a class="reference internal" href="steenroder.compute_barcode_and_coho_reps.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.compute_barcode_and_coho_reps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="steenroder.compute_steenrod_matrix.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.compute_steenrod_matrix</a></li>
+<li class="toctree-l3"><a class="reference internal" href="steenroder.compute_steenrod_barcode.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.compute_steenrod_barcode</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.barcodes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="steenroder.rips_barcodes.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.rips_barcodes</a></li>
 </ul>
@@ -168,7 +168,7 @@ indices or as filtration values depending on <cite>filtration_values</cite> and
 <cite>return_filtration_values</cite>. If they are expressed as indices, essential
 bars have death equal to <code class="docutils literal notranslate"><span class="pre">-1</span></code>; otherwise, essential bars have death
 equal to <code class="docutils literal notranslate"><span class="pre">numpy.inf</span></code>.</p></li>
-<li><p><strong>st_barcode</strong> (<em>list of ndarray</em>) – The (relative) Sq^k-barcode. For each dimension <code class="docutils literal notranslate"><span class="pre">d</span></code>, a 2D int or float
+<li><p><strong>steenrod_barcode</strong> (<em>list of ndarray</em>) – The (relative) Sq^k-barcode. For each dimension <code class="docutils literal notranslate"><span class="pre">d</span></code>, a 2D int or float
 array of shape <code class="docutils literal notranslate"><span class="pre">(n_bars,</span> <span class="pre">2)</span></code> containing the birth (entry 1) and death
 (entry 0) indices of Steenrod bars. The same conventions as for
 <cite>barcode</cite> are used for birth and death values.</p></li>
@@ -184,7 +184,7 @@ array of shape <code class="docutils literal notranslate"><span class="pre">(n_b
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="steenroder.get_steenrod_barcode.html" class="btn btn-neutral float-left" title="steenroder.get_steenrod_barcode" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="steenroder.compute_steenrod_barcode.html" class="btn btn-neutral float-left" title="steenroder.compute_steenrod_barcode" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="steenroder.rips_barcodes.html" class="btn btn-neutral float-right" title="steenroder.rips_barcodes" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

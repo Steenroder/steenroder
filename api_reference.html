@@ -19,7 +19,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="steenroder.get_reduced_triangular" href="generated/steenroder.get_reduced_triangular.html" />
+    <link rel="next" title="steenroder.compute_reduced_triangular" href="generated/steenroder.compute_reduced_triangular.html" />
     <link rel="prev" title="User Guide" href="user_guide.html" /> 
 </head>
 
@@ -49,10 +49,10 @@
 </li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">API Reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#core">Core</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="generated/steenroder.get_reduced_triangular.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.get_reduced_triangular</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/steenroder.get_barcode_and_coho_reps.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.get_barcode_and_coho_reps</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/steenroder.get_steenrod_matrix.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.get_steenrod_matrix</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/steenroder.get_steenrod_barcode.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.get_steenrod_barcode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/steenroder.compute_reduced_triangular.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.compute_reduced_triangular</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/steenroder.compute_barcode_and_coho_reps.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.compute_barcode_and_coho_reps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/steenroder.compute_steenrod_matrix.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.compute_steenrod_matrix</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/steenroder.compute_steenrod_barcode.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.compute_steenrod_barcode</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/steenroder.barcodes.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.barcodes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/steenroder.rips_barcodes.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.rips_barcodes</a></li>
 </ul>
@@ -135,17 +135,17 @@
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/steenroder.get_reduced_triangular.html#steenroder.get_reduced_triangular" title="steenroder.get_reduced_triangular"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_reduced_triangular</span></code></a>(filtration_by_dim)</p></td>
-<td><p>Find a full-rank upper-triangular matrix V such that R = DV is reduced, where D is the anti-transpose of the filtration boundary matrix.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/steenroder.compute_reduced_triangular.html#steenroder.compute_reduced_triangular" title="steenroder.compute_reduced_triangular"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_reduced_triangular</span></code></a>(filtration_by_dim)</p></td>
+<td><p>Compute the matrices R and V in the decomposition R = DV.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/steenroder.get_barcode_and_coho_reps.html#steenroder.get_barcode_and_coho_reps" title="steenroder.get_barcode_and_coho_reps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_barcode_and_coho_reps</span></code></a>(idxs, reduced, ...)</p></td>
-<td><p>Extract the ordinary persistent relative cohomology barcode as well as one persistent relative cohomology representative per bar.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/steenroder.compute_barcode_and_coho_reps.html#steenroder.compute_barcode_and_coho_reps" title="steenroder.compute_barcode_and_coho_reps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_barcode_and_coho_reps</span></code></a>(idxs, reduced, ...)</p></td>
+<td><p>Compute the barcode of relative cohomology and cocycle representatives.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/steenroder.get_steenrod_matrix.html#steenroder.get_steenrod_matrix" title="steenroder.get_steenrod_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_steenrod_matrix</span></code></a>(k, coho_reps, ...[, n_jobs])</p></td>
-<td><p>Compute the Steenrod matrices in each dimension.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/steenroder.compute_steenrod_matrix.html#steenroder.compute_steenrod_matrix" title="steenroder.compute_steenrod_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_steenrod_matrix</span></code></a>(k, coho_reps, ...[, ...])</p></td>
+<td><p>Compute the k-th Steenrod matrices in each dimension.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/steenroder.get_steenrod_barcode.html#steenroder.get_steenrod_barcode" title="steenroder.get_steenrod_barcode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_steenrod_barcode</span></code></a>(k, steenrod_matrix, ...)</p></td>
-<td><p>Compute the (relative) Steenrod barcodes.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/steenroder.compute_steenrod_barcode.html#steenroder.compute_steenrod_barcode" title="steenroder.compute_steenrod_barcode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_steenrod_barcode</span></code></a>(k, steenrod_matrix, ...)</p></td>
+<td><p>Compute the Sq^k-barcode of relative cohomology.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/steenroder.barcodes.html#steenroder.barcodes" title="steenroder.barcodes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">barcodes</span></code></a>(k, filtration[, absolute, ...])</p></td>
 <td><p>Given a filtration, compute ordinary persistent (relative or absolute) cohomology barcodes and relative Steenrod barcodes.</p></td>
@@ -165,25 +165,25 @@
 </colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/steenroder.make_simplices.html#steenroder.make_simplices" title="steenroder.make_simplices"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_simplices</span></code></a>(top_faces)</p></td>
-<td><p>It returns the simplices in a complex given its top dimensional simplices only.</p></td>
+<td><p>Return all simplices of a complex given its top ones.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/steenroder.make_filtration.html#steenroder.make_filtration" title="steenroder.make_filtration"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_filtration</span></code></a>(simplices)</p></td>
-<td><p>It returns an ordering of the simplices of a simplicial complex defining a filtration of it.</p></td>
+<td><p>Return a filtration of a given complex.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/steenroder.sort_filtration_by_dim.html#steenroder.sort_filtration_by_dim" title="steenroder.sort_filtration_by_dim"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sort_filtration_by_dim</span></code></a>(filtration[, maxdim])</p></td>
-<td><p>Organize an input simplex-wise filtration by dimension.</p></td>
+<td><p>Organize an input filtration by dimension.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/steenroder.cone.html#steenroder.cone" title="steenroder.cone"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cone</span></code></a>(simplices)</p></td>
-<td><p>Returns a filtration of the cone of a given simplicial complex.</p></td>
+<td><p>Return a filtration of the cone of a complex.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/steenroder.suspension.html#steenroder.suspension" title="steenroder.suspension"><code class="xref py py-obj docutils literal notranslate"><span class="pre">suspension</span></code></a>(simplices)</p></td>
-<td><p>Returns a filtration of the suspension of a given simplicial complex.</p></td>
+<td><p>Return a filtration of the suspension of a complex.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/steenroder.sphere.html#steenroder.sphere" title="steenroder.sphere"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sphere</span></code></a>(n)</p></td>
-<td><p>Returns a filtration of the n-sphere.</p></td>
+<td><p>Return a filtration of the n-sphere.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/steenroder.wedge.html#steenroder.wedge" title="steenroder.wedge"><code class="xref py py-obj docutils literal notranslate"><span class="pre">wedge</span></code></a>(simplices_1, simplices_2)</p></td>
-<td><p>Returns a filtration wedge of two simplicial complexes.</p></td>
+<td><p>Return a filtration of the wedge of two complexes.</p></td>
 </tr>
 </tbody>
 </table>
@@ -196,7 +196,7 @@
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/steenroder.plot_diagrams.html#steenroder.plot_diagrams" title="steenroder.plot_diagrams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_diagrams</span></code></a>(barcode, st_barcode[, k, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/steenroder.plot_diagrams.html#steenroder.plot_diagrams" title="steenroder.plot_diagrams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_diagrams</span></code></a>(barcode, steenrod_barcode[, ...])</p></td>
 <td><p>Plot a regular persistence barcode and a Steenrod barcode as diagrams on a common birth-death plane.</p></td>
 </tr>
 </tbody>
@@ -209,7 +209,7 @@
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="user_guide.html" class="btn btn-neutral float-left" title="User Guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="generated/steenroder.get_reduced_triangular.html" class="btn btn-neutral float-right" title="steenroder.get_reduced_triangular" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="generated/steenroder.compute_reduced_triangular.html" class="btn btn-neutral float-right" title="steenroder.compute_reduced_triangular" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

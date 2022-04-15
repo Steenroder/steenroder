@@ -46,10 +46,10 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../api_reference.html">API Reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../api_reference.html#core">Core</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../generated/steenroder.get_reduced_triangular.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.get_reduced_triangular</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../generated/steenroder.get_barcode_and_coho_reps.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.get_barcode_and_coho_reps</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../generated/steenroder.get_steenrod_matrix.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.get_steenrod_matrix</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../generated/steenroder.get_steenrod_barcode.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.get_steenrod_barcode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../generated/steenroder.compute_reduced_triangular.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.compute_reduced_triangular</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../generated/steenroder.compute_barcode_and_coho_reps.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.compute_barcode_and_coho_reps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../generated/steenroder.compute_steenrod_matrix.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.compute_steenrod_matrix</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../generated/steenroder.compute_steenrod_barcode.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.compute_steenrod_barcode</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../generated/steenroder.barcodes.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.barcodes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../generated/steenroder.rips_barcodes.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.rips_barcodes</a></li>
 </ul>
@@ -129,7 +129,7 @@
     <span class="k">return</span> <span class="n">min_val_display</span><span class="p">,</span> <span class="n">max_val_display</span><span class="p">,</span> <span class="n">posinfinity_val</span><span class="p">,</span> <span class="n">neginfinity_val</span>
 
 
-<div class="viewcode-block" id="plot_diagrams"><a class="viewcode-back" href="../../generated/steenroder.plot_diagrams.html#steenroder.plot_diagrams">[docs]</a><span class="k">def</span> <span class="nf">plot_diagrams</span><span class="p">(</span><span class="n">barcode</span><span class="p">,</span> <span class="n">st_barcode</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tex</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<div class="viewcode-block" id="plot_diagrams"><a class="viewcode-back" href="../../generated/steenroder.plot_diagrams.html#steenroder.plot_diagrams">[docs]</a><span class="k">def</span> <span class="nf">plot_diagrams</span><span class="p">(</span><span class="n">barcode</span><span class="p">,</span> <span class="n">steenrod_barcode</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tex</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                   <span class="n">plotly_params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Plot a regular persistence barcode and a Steenrod barcode as diagrams on</span>
 <span class="sd">    a common birth-death plane.</span>
@@ -141,14 +141,14 @@
 <span class="sd">        with 2 columns, containing birth-death pairs in degree ``d``, to be used</span>
 <span class="sd">        as coordinates in the two-dimensional plot.</span>
 
-<span class="sd">    st_barcode : list of ndarray</span>
+<span class="sd">    steenrod_barcode : list of ndarray</span>
 <span class="sd">        The (relative) Sq^k-barcode to plot. For each dimension ``d``, a 2D</span>
 <span class="sd">        array with 2 columns, containing the birth-death pairs of Steenrod bars</span>
 <span class="sd">        in degree ``d``, to be used as coordinates in the two-dimensional plot.</span>
 
 <span class="sd">    k : int or None, optional, default: ``None``</span>
 <span class="sd">        Positive integer defining the cohomology operation Sq^k that was</span>
-<span class="sd">        performed to obtain `st_barcode`. Only used for labelling.</span>
+<span class="sd">        performed to obtain `steenrod_barcode`. Only used for labelling.</span>
 
 <span class="sd">    kind : ``&quot;R&quot;`` | ``&quot;A&quot;`` or None, optional, default: ``None``</span>
 <span class="sd">        Whether the barcodes to be plotted come from absolute or relative</span>
@@ -195,10 +195,10 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="n">legend_title</span> <span class="o">=</span> <span class="s2">&quot;Cohomology&quot;</span>
         <span class="n">h_subscript</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;&quot;</span> <span class="k">if</span> <span class="n">tex</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
-    <span class="n">homology_dimensions</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">barcode</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">st_barcode</span><span class="p">)))</span>
+    <span class="n">homology_dimensions</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">barcode</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">steenrod_barcode</span><span class="p">)))</span>
 
     <span class="n">min_val_display</span><span class="p">,</span> <span class="n">max_val_display</span><span class="p">,</span> <span class="n">posinfinity_val</span><span class="p">,</span> <span class="n">neginfinity_val</span> <span class="o">=</span> \
-        <span class="n">_compute_bounds</span><span class="p">(</span><span class="n">barcode</span> <span class="o">+</span> <span class="n">st_barcode</span><span class="p">)</span>
+        <span class="n">_compute_bounds</span><span class="p">(</span><span class="n">barcode</span> <span class="o">+</span> <span class="n">steenrod_barcode</span><span class="p">)</span>
 
     <span class="n">fig</span> <span class="o">=</span> <span class="n">gobj</span><span class="o">.</span><span class="n">Figure</span><span class="p">()</span>
     <span class="n">fig</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span><span class="n">gobj</span><span class="o">.</span><span class="n">Scatter</span><span class="p">(</span>
@@ -214,7 +214,7 @@
         <span class="n">h_label</span> <span class="o">=</span> <span class="p">(</span><span class="sa">rf</span><span class="s2">&quot;\mathcal</span><span class="se">{{</span><span class="s2">H</span><span class="se">}}</span><span class="s2">^</span><span class="se">{{</span><span class="si">{</span><span class="n">dim</span><span class="si">}</span><span class="se">}}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">tex</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;H^</span><span class="si">{</span><span class="n">dim</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">+</span> \
                   <span class="n">h_subscript</span>
         <span class="n">h_label</span><span class="p">,</span> <span class="n">st_h_label</span> <span class="o">=</span> <span class="n">_connect_st_label</span><span class="p">(</span><span class="n">st_label</span><span class="p">,</span> <span class="n">h_label</span><span class="p">,</span> <span class="n">tex</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">symbol</span><span class="p">,</span> <span class="n">ms</span><span class="p">,</span> <span class="n">bc</span> <span class="ow">in</span> <span class="p">([</span><span class="n">st_h_label</span><span class="p">,</span> <span class="s2">&quot;diamond&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">st_barcode</span><span class="p">],</span>
+        <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">symbol</span><span class="p">,</span> <span class="n">ms</span><span class="p">,</span> <span class="n">bc</span> <span class="ow">in</span> <span class="p">([</span><span class="n">st_h_label</span><span class="p">,</span> <span class="s2">&quot;diamond&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">steenrod_barcode</span><span class="p">],</span>
                                       <span class="p">[</span><span class="n">h_label</span><span class="p">,</span> <span class="s2">&quot;circle&quot;</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="n">barcode</span><span class="p">]):</span>
             <span class="n">subbc</span> <span class="o">=</span> <span class="n">bc</span><span class="p">[</span><span class="n">dim</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
             <span class="n">unique</span><span class="p">,</span> <span class="n">inverse</span><span class="p">,</span> <span class="n">counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span>

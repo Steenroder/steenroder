@@ -46,10 +46,10 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../api_reference.html">API Reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../api_reference.html#core">Core</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../generated/steenroder.get_reduced_triangular.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.get_reduced_triangular</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../generated/steenroder.get_barcode_and_coho_reps.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.get_barcode_and_coho_reps</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../generated/steenroder.get_steenrod_matrix.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.get_steenrod_matrix</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../generated/steenroder.get_steenrod_barcode.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.get_steenrod_barcode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../generated/steenroder.compute_reduced_triangular.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.compute_reduced_triangular</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../generated/steenroder.compute_barcode_and_coho_reps.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.compute_barcode_and_coho_reps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../generated/steenroder.compute_steenrod_matrix.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.compute_steenrod_matrix</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../generated/steenroder.compute_steenrod_barcode.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.compute_steenrod_barcode</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../generated/steenroder.barcodes.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.barcodes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../generated/steenroder.rips_barcodes.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.rips_barcodes</a></li>
 </ul>
@@ -197,10 +197,11 @@
         <span class="n">triangular</span><span class="p">[</span><span class="n">rel_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">reduced_prev_dim</span><span class="p">[</span><span class="n">pivots_lookup_prev_dim</span><span class="p">[</span><span class="n">rel_idx</span><span class="p">]]</span>
 
 
-<div class="viewcode-block" id="get_reduced_triangular"><a class="viewcode-back" href="../../generated/steenroder.get_reduced_triangular.html#steenroder.get_reduced_triangular">[docs]</a><span class="k">def</span> <span class="nf">get_reduced_triangular</span><span class="p">(</span><span class="n">filtration_by_dim</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Find a full-rank upper-triangular matrix V such that R = DV is reduced,</span>
-<span class="sd">    where D is the anti-transpose of the filtration boundary matrix. Return both</span>
-<span class="sd">    R and V.</span>
+<div class="viewcode-block" id="compute_reduced_triangular"><a class="viewcode-back" href="../../generated/steenroder.compute_reduced_triangular.html#steenroder.compute_reduced_triangular">[docs]</a><span class="k">def</span> <span class="nf">compute_reduced_triangular</span><span class="p">(</span><span class="n">filtration_by_dim</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Compute the matrices R and V in the decomposition R = DV.</span>
+
+<span class="sd">    Explicitly, D is the coboundary matrix of the filtration, R is a reduced</span>
+<span class="sd">    matrix, and V is a full-rank upper-triangular one.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -283,11 +284,10 @@
     <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">spx2idx_idxs_reduced_triangular</span><span class="p">))</span></div>
 
 
-<div class="viewcode-block" id="get_barcode_and_coho_reps"><a class="viewcode-back" href="../../generated/steenroder.get_barcode_and_coho_reps.html#steenroder.get_barcode_and_coho_reps">[docs]</a><span class="nd">@nb</span><span class="o">.</span><span class="n">njit</span>
-<span class="k">def</span> <span class="nf">get_barcode_and_coho_reps</span><span class="p">(</span><span class="n">idxs</span><span class="p">,</span> <span class="n">reduced</span><span class="p">,</span> <span class="n">triangular</span><span class="p">,</span>
+<div class="viewcode-block" id="compute_barcode_and_coho_reps"><a class="viewcode-back" href="../../generated/steenroder.compute_barcode_and_coho_reps.html#steenroder.compute_barcode_and_coho_reps">[docs]</a><span class="nd">@nb</span><span class="o">.</span><span class="n">njit</span>
+<span class="k">def</span> <span class="nf">compute_barcode_and_coho_reps</span><span class="p">(</span><span class="n">idxs</span><span class="p">,</span> <span class="n">reduced</span><span class="p">,</span> <span class="n">triangular</span><span class="p">,</span>
                               <span class="n">filtration_values</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Extract the ordinary persistent relative cohomology barcode as well as</span>
-<span class="sd">    one persistent relative cohomology representative per bar.</span>
+    <span class="sd">&quot;&quot;&quot;Compute the barcode of relative cohomology and cocycle representatives.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -298,12 +298,12 @@
 <span class="sd">    reduced : tuple of ``numba.typed.List``</span>
 <span class="sd">        One list of int per simplex dimension, representing the</span>
 <span class="sd">        ``d``-dimensional part of the &quot;R&quot; matrix in R = DV. In the same format</span>
-<span class="sd">        as returned by `get_reduced_triangular`.</span>
+<span class="sd">        as returned by `compute_reduced_triangular`.</span>
 
 <span class="sd">    triangular : tuple of ``numba.typed.List``</span>
 <span class="sd">        One list of int per simplex dimension, representing the</span>
 <span class="sd">        ``d``-dimensional part of the &quot;V&quot; matrix in R = DV. In the same format</span>
-<span class="sd">        as returned by `get_reduced_triangular`.</span>
+<span class="sd">        as returned by `compute_reduced_triangular`.</span>
 
 <span class="sd">    filtration_values : ndarray or None, optional, default: None</span>
 <span class="sd">        Optionally, a single 1D array of filtration values for each simplex in</span>
@@ -475,8 +475,8 @@
     <span class="k">return</span> <span class="n">_inner</span>
 
 
-<div class="viewcode-block" id="get_steenrod_matrix"><a class="viewcode-back" href="../../generated/steenroder.get_steenrod_matrix.html#steenroder.get_steenrod_matrix">[docs]</a><span class="k">def</span> <span class="nf">get_steenrod_matrix</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">coho_reps</span><span class="p">,</span> <span class="n">filtration_by_dim</span><span class="p">,</span> <span class="n">spx2idx</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Compute the Steenrod matrices in each dimension.</span>
+<div class="viewcode-block" id="compute_steenrod_matrix"><a class="viewcode-back" href="../../generated/steenroder.compute_steenrod_matrix.html#steenroder.compute_steenrod_matrix">[docs]</a><span class="k">def</span> <span class="nf">compute_steenrod_matrix</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">coho_reps</span><span class="p">,</span> <span class="n">filtration_by_dim</span><span class="p">,</span> <span class="n">spx2idx</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Compute the k-th Steenrod matrices in each dimension.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -486,7 +486,7 @@
 <span class="sd">    coho_reps : list of ``numba.typed.List``</span>
 <span class="sd">        For each dimension ``d``, a list of representatives of persistent</span>
 <span class="sd">        relative cohomology classes in degree ``d``. In the same format as</span>
-<span class="sd">        returned by `get_barcode_and_coho_reps`.</span>
+<span class="sd">        returned by `compute_barcode_and_coho_reps`.</span>
 
 <span class="sd">    filtration_by_dim : list of list of ndarray</span>
 <span class="sd">        For each dimension ``d``, a list of 2 aligned int arrays: the first is</span>
@@ -545,7 +545,7 @@
 
     <span class="n">pivots_lookup</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">n_idxs_dim</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
     <span class="n">alive</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">n_births_dim_minus_k</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">bool_</span><span class="p">)</span>
-    <span class="n">st_barcode_dim</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">steenrod_barcode_dim</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="k">for</span> <span class="n">n_cols_st_curr</span><span class="p">,</span> <span class="n">birth</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">births_dim_minus_k</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">idxs_prev_dim</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">birth</span><span class="p">:</span>
@@ -584,7 +584,7 @@
                 <span class="n">alive</span><span class="p">[</span><span class="n">ii</span> <span class="o">-</span> <span class="n">n_cols_red</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">birth</span> <span class="o">=</span> <span class="n">births_dim_minus_k</span><span class="p">[</span><span class="n">ii</span> <span class="o">-</span> <span class="n">n_cols_red</span><span class="p">]</span>
                 <span class="k">if</span> <span class="n">idx</span> <span class="o">&lt;</span> <span class="n">birth</span><span class="p">:</span>
-                    <span class="n">st_barcode_dim</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">idx</span><span class="p">,</span> <span class="n">birth</span><span class="p">])</span>
+                    <span class="n">steenrod_barcode_dim</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">idx</span><span class="p">,</span> <span class="n">birth</span><span class="p">])</span>
 
         <span class="c1"># Reset pivots_lookup for next iteration</span>
         <span class="k">for</span> <span class="n">col_idx</span> <span class="ow">in</span> <span class="n">pivot_col_idxs_from_st</span><span class="p">:</span>
@@ -592,14 +592,14 @@
 
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_births_dim_minus_k</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">alive</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
-            <span class="n">st_barcode_dim</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">births_dim_minus_k</span><span class="p">[</span><span class="n">i</span><span class="p">]])</span>
+            <span class="n">steenrod_barcode_dim</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">births_dim_minus_k</span><span class="p">[</span><span class="n">i</span><span class="p">]])</span>
 
-    <span class="k">return</span> <span class="n">st_barcode_dim</span>
+    <span class="k">return</span> <span class="n">steenrod_barcode_dim</span>
 
 
-<div class="viewcode-block" id="get_steenrod_barcode"><a class="viewcode-back" href="../../generated/steenroder.get_steenrod_barcode.html#steenroder.get_steenrod_barcode">[docs]</a><span class="k">def</span> <span class="nf">get_steenrod_barcode</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">steenrod_matrix</span><span class="p">,</span> <span class="n">idxs</span><span class="p">,</span> <span class="n">reduced</span><span class="p">,</span> <span class="n">barcode</span><span class="p">,</span>
+<div class="viewcode-block" id="compute_steenrod_barcode"><a class="viewcode-back" href="../../generated/steenroder.compute_steenrod_barcode.html#steenroder.compute_steenrod_barcode">[docs]</a><span class="k">def</span> <span class="nf">compute_steenrod_barcode</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">steenrod_matrix</span><span class="p">,</span> <span class="n">idxs</span><span class="p">,</span> <span class="n">reduced</span><span class="p">,</span> <span class="n">barcode</span><span class="p">,</span>
                          <span class="n">filtration_values</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Compute the (relative) Steenrod barcodes.</span>
+    <span class="sd">&quot;&quot;&quot;Compute the Sq^k-barcode of relative cohomology.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -611,7 +611,7 @@
 <span class="sd">        of computing the Steenrod square of the ``j``th latest (by birth)</span>
 <span class="sd">        persistent relative cohomology representative in degree ``d`` (and this</span>
 <span class="sd">        representative must represent bar ``barcode[d][j]``). See</span>
-<span class="sd">        `get_steenrod_matrix`.</span>
+<span class="sd">        `compute_steenrod_matrix`.</span>
 
 <span class="sd">    idxs : tuple of ndarray</span>
 <span class="sd">        For each dimension ``d``, a 1D int array containing the (ordered)</span>
@@ -620,7 +620,7 @@
 <span class="sd">    reduced : tuple of ``numba.typed.List``</span>
 <span class="sd">        One list of int per simplex dimension, representing the</span>
 <span class="sd">        ``d``-dimensional part of the &quot;R&quot; matrix in R = DV. In the same format</span>
-<span class="sd">        as returned by `get_reduced_triangular`.</span>
+<span class="sd">        as returned by `compute_reduced_triangular`.</span>
 
 <span class="sd">    barcode : list of ndarray</span>
 <span class="sd">        For each dimension ``d``, a 2D int array of shape ``(n_bars, 2)``</span>
@@ -637,7 +637,7 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    st_barcode : list of ndarray</span>
+<span class="sd">    steenrod_barcode : list of ndarray</span>
 <span class="sd">        The (relative) Sq^k-barcode. For each dimension ``d``, a 2D int array</span>
 <span class="sd">        of shape ``(n_bars, 2)`` containing the birth (entry 1) and death (entry</span>
 <span class="sd">        0) indices of Steenrod bars. Essential Steenrod bars are represented by</span>
@@ -653,27 +653,27 @@
                             <span class="n">filtration_values</span><span class="p">[</span><span class="n">barcode_dim</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]]))</span>
         <span class="p">)</span>
 
-    <span class="n">st_barcode</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">k</span><span class="p">)]</span>
+    <span class="n">steenrod_barcode</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">k</span><span class="p">)]</span>
     <span class="k">for</span> <span class="n">dim</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">steenrod_matrix</span><span class="p">)):</span>
         <span class="n">births_dim_minus_k</span> <span class="o">=</span> <span class="n">barcode</span><span class="p">[</span><span class="n">dim</span> <span class="o">-</span> <span class="n">k</span><span class="p">][:,</span> <span class="mi">1</span><span class="p">]</span>
         <span class="n">idxs_dim</span> <span class="o">=</span> <span class="n">idxs</span><span class="p">[</span><span class="n">dim</span><span class="p">]</span>
         <span class="n">idxs_prev_dim</span> <span class="o">=</span> <span class="n">idxs</span><span class="p">[</span><span class="n">dim</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
         <span class="n">reduced_prev_dim</span> <span class="o">=</span> <span class="n">reduced</span><span class="p">[</span><span class="n">dim</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
-        <span class="n">st_barcode_dim</span> <span class="o">=</span> <span class="n">_steenrod_barcode_single_dim</span><span class="p">(</span><span class="n">steenrod_matrix</span><span class="p">[</span><span class="n">dim</span><span class="p">],</span>
+        <span class="n">steenrod_barcode_dim</span> <span class="o">=</span> <span class="n">_steenrod_barcode_single_dim</span><span class="p">(</span><span class="n">steenrod_matrix</span><span class="p">[</span><span class="n">dim</span><span class="p">],</span>
                                                       <span class="nb">len</span><span class="p">(</span><span class="n">idxs_dim</span><span class="p">),</span>
                                                       <span class="n">idxs_prev_dim</span><span class="p">,</span>
                                                       <span class="n">reduced_prev_dim</span><span class="p">,</span>
                                                       <span class="n">births_dim_minus_k</span><span class="p">)</span>
         <span class="c1"># NB: Conversion to array must happen outside jitted code due to</span>
         <span class="c1"># https://github.com/numba/numba/issues/3579</span>
-        <span class="n">st_barcode_dim</span> <span class="o">=</span> \
-            <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">st_barcode_dim</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+        <span class="n">steenrod_barcode_dim</span> <span class="o">=</span> \
+            <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">steenrod_barcode_dim</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">filtration_values</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">nontrivial_mask</span> <span class="o">=</span> <span class="n">nontrivial_bars</span><span class="p">(</span><span class="n">st_barcode_dim</span><span class="p">)</span>
-            <span class="n">st_barcode_dim</span> <span class="o">=</span> <span class="n">st_barcode_dim</span><span class="p">[</span><span class="n">nontrivial_mask</span><span class="p">]</span>
-        <span class="n">st_barcode</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">st_barcode_dim</span><span class="p">)</span>
+            <span class="n">nontrivial_mask</span> <span class="o">=</span> <span class="n">nontrivial_bars</span><span class="p">(</span><span class="n">steenrod_barcode_dim</span><span class="p">)</span>
+            <span class="n">steenrod_barcode_dim</span> <span class="o">=</span> <span class="n">steenrod_barcode_dim</span><span class="p">[</span><span class="n">nontrivial_mask</span><span class="p">]</span>
+        <span class="n">steenrod_barcode</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">steenrod_barcode_dim</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">st_barcode</span></div>
+    <span class="k">return</span> <span class="n">steenrod_barcode</span></div>
 
 
 <div class="viewcode-block" id="barcodes"><a class="viewcode-back" href="../../generated/steenroder.barcodes.html#steenroder.barcodes">[docs]</a><span class="k">def</span> <span class="nf">barcodes</span><span class="p">(</span>
@@ -735,7 +735,7 @@
 <span class="sd">        bars have death equal to ``-1``; otherwise, essential bars have death</span>
 <span class="sd">        equal to ``numpy.inf``.</span>
 
-<span class="sd">    st_barcode : list of ndarray</span>
+<span class="sd">    steenrod_barcode : list of ndarray</span>
 <span class="sd">        The (relative) Sq^k-barcode. For each dimension ``d``, a 2D int or float</span>
 <span class="sd">        array of shape ``(n_bars, 2)`` containing the birth (entry 1) and death</span>
 <span class="sd">        (entry 0) indices of Steenrod bars. The same conventions as for</span>
@@ -746,9 +746,9 @@
         <span class="n">tic</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
     <span class="n">filtration_by_dim</span> <span class="o">=</span> <span class="n">sort_filtration_by_dim</span><span class="p">(</span><span class="n">filtration</span><span class="p">,</span> <span class="n">maxdim</span><span class="o">=</span><span class="n">maxdim</span><span class="p">)</span>
     <span class="n">spx2idx</span><span class="p">,</span> <span class="n">idxs</span><span class="p">,</span> <span class="n">reduced</span><span class="p">,</span> <span class="n">triangular</span> <span class="o">=</span> \
-        <span class="n">get_reduced_triangular</span><span class="p">(</span><span class="n">filtration_by_dim</span><span class="p">)</span>
+        <span class="n">compute_reduced_triangular</span><span class="p">(</span><span class="n">filtration_by_dim</span><span class="p">)</span>
     <span class="n">barcode</span><span class="p">,</span> <span class="n">coho_reps</span> <span class="o">=</span> \
-        <span class="n">get_barcode_and_coho_reps</span><span class="p">(</span><span class="n">idxs</span><span class="p">,</span> <span class="n">reduced</span><span class="p">,</span> <span class="n">triangular</span><span class="p">,</span>
+        <span class="n">compute_barcode_and_coho_reps</span><span class="p">(</span><span class="n">idxs</span><span class="p">,</span> <span class="n">reduced</span><span class="p">,</span> <span class="n">triangular</span><span class="p">,</span>
                                   <span class="n">filtration_values</span><span class="o">=</span><span class="n">filtration_values</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># Sq^0 is the identity</span>
@@ -761,13 +761,13 @@
         <span class="n">toc</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Usual barcode computed, time taken: </span><span class="si">{</span><span class="p">(</span><span class="n">toc</span> <span class="o">-</span> <span class="n">tic</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> s&quot;</span><span class="p">)</span>
         <span class="n">tic</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-    <span class="n">steenrod_matrix</span> <span class="o">=</span> <span class="n">get_steenrod_matrix</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">coho_reps</span><span class="p">,</span> <span class="n">filtration_by_dim</span><span class="p">,</span>
+    <span class="n">steenrod_matrix</span> <span class="o">=</span> <span class="n">compute_steenrod_matrix</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">coho_reps</span><span class="p">,</span> <span class="n">filtration_by_dim</span><span class="p">,</span>
                                           <span class="n">spx2idx</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="n">n_jobs</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
         <span class="n">toc</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Steenrod matrix computed, time taken: </span><span class="si">{</span><span class="p">(</span><span class="n">toc</span> <span class="o">-</span> <span class="n">tic</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> s&quot;</span><span class="p">)</span>
         <span class="n">tic</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-    <span class="n">st_barcode</span> <span class="o">=</span> <span class="n">get_steenrod_barcode</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">steenrod_matrix</span><span class="p">,</span> <span class="n">idxs</span><span class="p">,</span> <span class="n">reduced</span><span class="p">,</span>
+    <span class="n">steenrod_barcode</span> <span class="o">=</span> <span class="n">compute_steenrod_barcode</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">steenrod_matrix</span><span class="p">,</span> <span class="n">idxs</span><span class="p">,</span> <span class="n">reduced</span><span class="p">,</span>
                                       <span class="n">barcode</span><span class="p">,</span>
                                       <span class="n">filtration_values</span><span class="o">=</span><span class="n">filtration_values</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
@@ -779,18 +779,18 @@
             <span class="n">barcode</span><span class="p">,</span> <span class="n">filtration_values</span><span class="o">=</span><span class="n">filtration_values</span><span class="p">,</span>
             <span class="n">return_filtration_values</span><span class="o">=</span><span class="n">return_filtration_values</span>
         <span class="p">)</span>
-        <span class="n">st_barcode</span> <span class="o">=</span> <span class="n">_to_absolute_barcode</span><span class="p">(</span>
-            <span class="n">st_barcode</span><span class="p">,</span> <span class="n">filtration_values</span><span class="o">=</span><span class="n">filtration_values</span><span class="p">,</span>
+        <span class="n">steenrod_barcode</span> <span class="o">=</span> <span class="n">_to_absolute_barcode</span><span class="p">(</span>
+            <span class="n">steenrod_barcode</span><span class="p">,</span> <span class="n">filtration_values</span><span class="o">=</span><span class="n">filtration_values</span><span class="p">,</span>
             <span class="n">return_filtration_values</span><span class="o">=</span><span class="n">return_filtration_values</span>
         <span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">barcode</span><span class="p">,</span> <span class="n">st_barcode</span>
+        <span class="k">return</span> <span class="n">barcode</span><span class="p">,</span> <span class="n">steenrod_barcode</span>
 
     <span class="k">elif</span> <span class="n">return_filtration_values</span> <span class="ow">and</span> <span class="p">(</span><span class="n">filtration_values</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
         <span class="n">barcode</span> <span class="o">=</span> <span class="n">_to_values_barcode</span><span class="p">(</span><span class="n">barcode</span><span class="p">,</span> <span class="n">filtration_values</span><span class="p">)</span>
-        <span class="n">st_barcode</span> <span class="o">=</span> <span class="n">_to_values_barcode</span><span class="p">(</span><span class="n">st_barcode</span><span class="p">,</span> <span class="n">filtration_values</span><span class="p">)</span>
+        <span class="n">steenrod_barcode</span> <span class="o">=</span> <span class="n">_to_values_barcode</span><span class="p">(</span><span class="n">steenrod_barcode</span><span class="p">,</span> <span class="n">filtration_values</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">barcode</span><span class="p">,</span> <span class="n">st_barcode</span></div>
+    <span class="k">return</span> <span class="n">barcode</span><span class="p">,</span> <span class="n">steenrod_barcode</span></div>
 
 
 <span class="k">def</span> <span class="nf">_to_absolute_barcode</span><span class="p">(</span><span class="n">rel_barcode</span><span class="p">,</span> <span class="n">filtration_values</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -946,7 +946,7 @@
 <span class="sd">        bars have death equal to ``-1``; otherwise, essential bars have death</span>
 <span class="sd">        equal to ``numpy.inf``.</span>
 
-<span class="sd">    st_barcode : list of ndarray</span>
+<span class="sd">    steenrod_barcode : list of ndarray</span>
 <span class="sd">        The (relative) Sq^k-barcode. For each dimension ``d``, a 2D int or float</span>
 <span class="sd">        array of shape ``(n_bars, 2)`` containing the birth (entry 1) and death</span>
 <span class="sd">        (entry 0) indices of Steenrod bars. The same conventions as for</span>
@@ -998,7 +998,7 @@
         <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="p">((</span><span class="nb">tuple</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">spx_tree</span><span class="o">.</span><span class="n">get_filtration</span><span class="p">()))</span>
     <span class="n">filtration_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">filtration_values</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
 
-    <span class="n">barcode</span><span class="p">,</span> <span class="n">st_barcode</span> <span class="o">=</span> <span class="n">barcodes</span><span class="p">(</span>
+    <span class="n">barcode</span><span class="p">,</span> <span class="n">steenrod_barcode</span> <span class="o">=</span> <span class="n">barcodes</span><span class="p">(</span>
         <span class="n">k</span><span class="p">,</span>
         <span class="n">filtration</span><span class="p">,</span>
         <span class="n">filtration_values</span><span class="o">=</span><span class="n">filtration_values</span><span class="p">,</span>
@@ -1008,7 +1008,7 @@
         <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span>
     <span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">barcode</span><span class="p">,</span> <span class="n">st_barcode</span></div>
+    <span class="k">return</span> <span class="n">barcode</span><span class="p">,</span> <span class="n">steenrod_barcode</span></div>
 </pre></div>
 
            </div>

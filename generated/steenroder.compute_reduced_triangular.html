@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>steenroder.get_steenrod_barcode &mdash; steenroder version 0.1.0</title>
+  <title>steenroder.compute_reduced_triangular &mdash; steenroder version 0.1.0</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -19,8 +19,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="steenroder.barcodes" href="steenroder.barcodes.html" />
-    <link rel="prev" title="steenroder.get_steenrod_matrix" href="steenroder.get_steenrod_matrix.html" /> 
+    <link rel="next" title="steenroder.compute_barcode_and_coho_reps" href="steenroder.compute_barcode_and_coho_reps.html" />
+    <link rel="prev" title="API Reference" href="../api_reference.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -49,10 +49,10 @@
 </li>
 <li class="toctree-l1 current"><a class="reference internal" href="../api_reference.html">API Reference</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="../api_reference.html#core">Core</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="steenroder.get_reduced_triangular.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.get_reduced_triangular</a></li>
-<li class="toctree-l3"><a class="reference internal" href="steenroder.get_barcode_and_coho_reps.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.get_barcode_and_coho_reps</a></li>
-<li class="toctree-l3"><a class="reference internal" href="steenroder.get_steenrod_matrix.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.get_steenrod_matrix</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.get_steenrod_barcode</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.compute_reduced_triangular</a></li>
+<li class="toctree-l3"><a class="reference internal" href="steenroder.compute_barcode_and_coho_reps.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.compute_barcode_and_coho_reps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="steenroder.compute_steenrod_matrix.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.compute_steenrod_matrix</a></li>
+<li class="toctree-l3"><a class="reference internal" href="steenroder.compute_steenrod_barcode.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.compute_steenrod_barcode</a></li>
 <li class="toctree-l3"><a class="reference internal" href="steenroder.barcodes.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.barcodes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="steenroder.rips_barcodes.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.rips_barcodes</a></li>
 </ul>
@@ -90,9 +90,9 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="../api_reference.html">API Reference</a> &raquo;</li>
-      <li><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.get_steenrod_barcode</li>
+      <li><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.compute_reduced_triangular</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/generated/steenroder.get_steenrod_barcode.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/generated/steenroder.compute_reduced_triangular.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -124,45 +124,41 @@
     text-align: unset;
 }
 </style>
-<section id="steenroder-get-steenrod-barcode">
-<h1><a class="reference internal" href="../api_reference.html#module-steenroder" title="steenroder"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code></a>.get_steenrod_barcode<a class="headerlink" href="#steenroder-get-steenrod-barcode" title="Permalink to this headline"></a></h1>
+<section id="steenroder-compute-reduced-triangular">
+<h1><a class="reference internal" href="../api_reference.html#module-steenroder" title="steenroder"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code></a>.compute_reduced_triangular<a class="headerlink" href="#steenroder-compute-reduced-triangular" title="Permalink to this headline"></a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="steenroder.get_steenrod_barcode">
-<span class="sig-prename descclassname"><span class="pre">steenroder.</span></span><span class="sig-name descname"><span class="pre">get_steenrod_barcode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">steenrod_matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reduced</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">barcode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filtration_values</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/steenroder/core.html#get_steenrod_barcode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#steenroder.get_steenrod_barcode" title="Permalink to this definition"></a></dt>
-<dd><p>Compute the (relative) Steenrod barcodes.</p>
+<dt class="sig sig-object py" id="steenroder.compute_reduced_triangular">
+<span class="sig-prename descclassname"><span class="pre">steenroder.</span></span><span class="sig-name descname"><span class="pre">compute_reduced_triangular</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filtration_by_dim</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/steenroder/core.html#compute_reduced_triangular"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#steenroder.compute_reduced_triangular" title="Permalink to this definition"></a></dt>
+<dd><p>Compute the matrices R and V in the decomposition R = DV.</p>
+<p>Explicitly, D is the coboundary matrix of the filtration, R is a reduced
+matrix, and V is a full-rank upper-triangular one.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>k</strong> (<em>int</em>) – Positive integer defining the cohomology operation Sq^k to be performed.</p></li>
-<li><p><strong>steenrod_matrix</strong> (list of <code class="docutils literal notranslate"><span class="pre">numba.typed.List</span></code>) – One list per simplex dimension. <code class="docutils literal notranslate"><span class="pre">steenrod_matrix[d][j]</span></code> is the result
-of computing the Steenrod square of the <code class="docutils literal notranslate"><span class="pre">j``th</span> <span class="pre">latest</span> <span class="pre">(by</span> <span class="pre">birth)</span>
-<span class="pre">persistent</span> <span class="pre">relative</span> <span class="pre">cohomology</span> <span class="pre">representative</span> <span class="pre">in</span> <span class="pre">degree</span> <span class="pre">``d</span></code> (and this
-representative must represent bar <code class="docutils literal notranslate"><span class="pre">barcode[d][j]</span></code>). See
-<cite>get_steenrod_matrix</cite>.</p></li>
-<li><p><strong>idxs</strong> (<em>tuple of ndarray</em>) – For each dimension <code class="docutils literal notranslate"><span class="pre">d</span></code>, a 1D int array containing the (ordered)
-positional indices of all <code class="docutils literal notranslate"><span class="pre">d</span></code>-dimensional simplices in the filtration.</p></li>
-<li><p><strong>reduced</strong> (tuple of <code class="docutils literal notranslate"><span class="pre">numba.typed.List</span></code>) – One list of int per simplex dimension, representing the
-<code class="docutils literal notranslate"><span class="pre">d</span></code>-dimensional part of the “R” matrix in R = DV. In the same format
-as returned by <cite>get_reduced_triangular</cite>.</p></li>
-<li><p><strong>barcode</strong> (<em>list of ndarray</em>) – For each dimension <code class="docutils literal notranslate"><span class="pre">d</span></code>, a 2D int array of shape <code class="docutils literal notranslate"><span class="pre">(n_bars,</span> <span class="pre">2)</span></code>
-containing the birth (entry 1) and death (entry 0) indices of persistent
-relative homology classes in degree <code class="docutils literal notranslate"><span class="pre">d</span></code>. Essential bars must be
-represented by pairs with death equal to <code class="docutils literal notranslate"><span class="pre">-1</span></code>. Bars must be sorted in
-order of decreasing birth indices.</p></li>
-<li><p><strong>filtration_values</strong> (<em>ndarray</em><em> or </em><em>None</em><em>, </em><em>optional</em><em>, </em><em>default: None</em>) – Optionally, a single 1D array of filtration values for each simplex in
-the filtration and in all dimensions contained in <cite>idxs</cite> and <cite>reduced</cite>.
-Steenrod bars with equal birth and death filtration values are
-discarded.</p></li>
-</ul>
+<dd class="field-odd"><p><strong>filtration_by_dim</strong> (<em>list of list of ndarray</em>) – For each dimension <code class="docutils literal notranslate"><span class="pre">d</span></code>, a list of 2 aligned int arrays: the first is
+a 1D array containing the (ordered) positional indices of all
+<code class="docutils literal notranslate"><span class="pre">d</span></code>-dimensional simplices in <cite>filtration</cite>; the second is a 2D array
+whose <code class="docutils literal notranslate"><span class="pre">i</span></code>-th row is the (sorted) collection of vertices defining the
+<code class="docutils literal notranslate"><span class="pre">i</span></code>-th <code class="docutils literal notranslate"><span class="pre">d</span></code>-dimensional simplex.</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>st_barcode</strong> – The (relative) Sq^k-barcode. For each dimension <code class="docutils literal notranslate"><span class="pre">d</span></code>, a 2D int array
-of shape <code class="docutils literal notranslate"><span class="pre">(n_bars,</span> <span class="pre">2)</span></code> containing the birth (entry 1) and death (entry
-0) indices of Steenrod bars. Essential Steenrod bars are represented by
-pairs with death equal to <code class="docutils literal notranslate"><span class="pre">-1</span></code>.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>list of ndarray</p>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>spx2idx</strong> (tuple of <code class="docutils literal notranslate"><span class="pre">numba.typed.Dict</span></code>) – One dictionary per simplex dimension. The dimension-<code class="docutils literal notranslate"><span class="pre">d</span></code> dictionary has
+the filtration <code class="docutils literal notranslate"><span class="pre">d</span></code>-simplices (tuples of ints) as keys; the
+corresponding values are the positional indices of those simplices
+relative to the <code class="docutils literal notranslate"><span class="pre">d</span></code>-dimensional portion of the filtration.</p></li>
+<li><p><strong>idxs</strong> (<em>tuple of ndarray</em>) – For each dimension <code class="docutils literal notranslate"><span class="pre">d</span></code>, this is the same as
+<code class="docutils literal notranslate"><span class="pre">filtration_by_dim[d][0]</span></code> and is returned for convenience.</p></li>
+<li><p><strong>reduced</strong> (tuple of <code class="docutils literal notranslate"><span class="pre">numba.typed.List</span></code>) – One list of int per simplex dimension. <code class="docutils literal notranslate"><span class="pre">reduced[d]</span></code> is the
+<code class="docutils literal notranslate"><span class="pre">d</span></code>-dimensional part of the “R” matrix in R = DV. In the computation,
+<code class="docutils literal notranslate"><span class="pre">reduced[d][i]</span></code> is initialized as the coboundary of the <code class="docutils literal notranslate"><span class="pre">i``th</span> <span class="pre">input</span>
+<span class="pre">simplex</span> <span class="pre">in</span> <span class="pre">``filtration_by_dim[d][1]</span></code>, i.e. as the sorted list of
+positional indices (relative to the <code class="docutils literal notranslate"><span class="pre">(d+1)</span></code>-dimensional portion of the
+filtration) of that simplex’s cofacets.</p></li>
+<li><p><strong>triangular</strong> (tuple of <code class="docutils literal notranslate"><span class="pre">numba.typed.List</span></code>) – On list of int per simplex dimension. <code class="docutils literal notranslate"><span class="pre">triangular[d]</span></code> is the
+<code class="docutils literal notranslate"><span class="pre">d</span></code>-dimensional part of the “V” matrix in R = DV. In the computation,
+<code class="docutils literal notranslate"><span class="pre">triangular[d][i]</span></code> is initialized as the singleton list <code class="docutils literal notranslate"><span class="pre">[i]</span></code>.</p></li>
+</ul>
+</p>
 </dd>
 </dl>
 </dd></dl>
@@ -173,8 +169,8 @@ pairs with death equal to <code class="docutils literal notranslate"><span class
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="steenroder.get_steenrod_matrix.html" class="btn btn-neutral float-left" title="steenroder.get_steenrod_matrix" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="steenroder.barcodes.html" class="btn btn-neutral float-right" title="steenroder.barcodes" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../api_reference.html" class="btn btn-neutral float-left" title="API Reference" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="steenroder.compute_barcode_and_coho_reps.html" class="btn btn-neutral float-right" title="steenroder.compute_barcode_and_coho_reps" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

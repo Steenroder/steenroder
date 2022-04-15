@@ -1,0 +1,14 @@
+﻿:mod:`steenroder`.compute_barcode_and_coho_reps
+============================================================
+
+.. currentmodule:: steenroder
+
+.. autofunction:: compute_barcode_and_coho_reps
+
+..
+    Exclude sphinx-gallery generated examples since we use binder for now
+    include:: steenroder.compute_barcode_and_coho_reps.examples
+
+.. raw:: html
+
+    <div class="clearer"></div>

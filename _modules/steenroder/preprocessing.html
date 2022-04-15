@@ -46,10 +46,10 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../api_reference.html">API Reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../api_reference.html#core">Core</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../generated/steenroder.get_reduced_triangular.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.get_reduced_triangular</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../generated/steenroder.get_barcode_and_coho_reps.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.get_barcode_and_coho_reps</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../generated/steenroder.get_steenrod_matrix.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.get_steenrod_matrix</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../generated/steenroder.get_steenrod_barcode.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.get_steenrod_barcode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../generated/steenroder.compute_reduced_triangular.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.compute_reduced_triangular</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../generated/steenroder.compute_barcode_and_coho_reps.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.compute_barcode_and_coho_reps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../generated/steenroder.compute_steenrod_matrix.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.compute_steenrod_matrix</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../generated/steenroder.compute_steenrod_barcode.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.compute_steenrod_barcode</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../generated/steenroder.barcodes.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.barcodes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../generated/steenroder.rips_barcodes.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">steenroder</span></code>.rips_barcodes</a></li>
 </ul>
@@ -104,8 +104,7 @@
 
 
 <div class="viewcode-block" id="make_simplices"><a class="viewcode-back" href="../../generated/steenroder.make_simplices.html#steenroder.make_simplices">[docs]</a><span class="k">def</span> <span class="nf">make_simplices</span><span class="p">(</span><span class="n">top_faces</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;It returns the simplices in a complex given its top dimensional</span>
-<span class="sd">    simplices only.</span>
+    <span class="sd">&quot;&quot;&quot;Return all simplices of a complex given its top ones.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -128,8 +127,7 @@
 
 
 <div class="viewcode-block" id="make_filtration"><a class="viewcode-back" href="../../generated/steenroder.make_filtration.html#steenroder.make_filtration">[docs]</a><span class="k">def</span> <span class="nf">make_filtration</span><span class="p">(</span><span class="n">simplices</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;It returns an ordering of the simplices of a simplicial complex defining a</span>
-<span class="sd">    filtration of it.</span>
+    <span class="sd">&quot;&quot;&quot;Return a filtration of a given complex.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -152,7 +150,7 @@
 
 
 <div class="viewcode-block" id="sort_filtration_by_dim"><a class="viewcode-back" href="../../generated/steenroder.sort_filtration_by_dim.html#steenroder.sort_filtration_by_dim">[docs]</a><span class="k">def</span> <span class="nf">sort_filtration_by_dim</span><span class="p">(</span><span class="n">filtration</span><span class="p">,</span> <span class="n">maxdim</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Organize an input simplex-wise filtration by dimension.</span>
+    <span class="sd">&quot;&quot;&quot;Organize an input filtration by dimension.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -193,7 +191,7 @@
 
 
 <div class="viewcode-block" id="cone"><a class="viewcode-back" href="../../generated/steenroder.cone.html#steenroder.cone">[docs]</a><span class="k">def</span> <span class="nf">cone</span><span class="p">(</span><span class="n">simplices</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Returns a filtration of the cone of a given simplicial complex.</span>
+    <span class="sd">&quot;&quot;&quot;Return a filtration of the cone of a complex.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -214,7 +212,7 @@
 
 
 <div class="viewcode-block" id="suspension"><a class="viewcode-back" href="../../generated/steenroder.suspension.html#steenroder.suspension">[docs]</a><span class="k">def</span> <span class="nf">suspension</span><span class="p">(</span><span class="n">simplices</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Returns a filtration of the suspension of a given simplicial complex.</span>
+    <span class="sd">&quot;&quot;&quot;Return a filtration of the suspension of a complex.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -237,7 +235,7 @@
 
 
 <div class="viewcode-block" id="sphere"><a class="viewcode-back" href="../../generated/steenroder.sphere.html#steenroder.sphere">[docs]</a><span class="k">def</span> <span class="nf">sphere</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Returns a filtration of the n-sphere.</span>
+    <span class="sd">&quot;&quot;&quot;Return a filtration of the n-sphere.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -256,7 +254,7 @@
 
 
 <div class="viewcode-block" id="wedge"><a class="viewcode-back" href="../../generated/steenroder.wedge.html#steenroder.wedge">[docs]</a><span class="k">def</span> <span class="nf">wedge</span><span class="p">(</span><span class="n">simplices_1</span><span class="p">,</span> <span class="n">simplices_2</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Returns a filtration wedge of two simplicial complexes.</span>
+    <span class="sd">&quot;&quot;&quot;Return a filtration of the wedge of two complexes.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
