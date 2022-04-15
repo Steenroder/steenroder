@@ -25,7 +25,7 @@ jobs:
     - name: Test notebooks with pytest
       run: |
         notebooks=$(ls notebooks/*.ipynb)
-        long_notebooks=("notebooks/flat_Klein_bottle.ipynb", "notebooks/cyclo-octane.ipynb")
+        long_notebooks=("notebooks/flat_Klein_bottle.ipynb" "notebooks/cyclo-octane.ipynb")
         tested_notebooks=(`echo ${notebooks[@]} ${long_notebooks[@]} | tr ' ' '\n' | sort | uniq -u `)
         pytest --nbmake --overwrite -n=auto ${tested_notebooks[*]}
         cp ${tested_notebooks[*]} docs/_notebooks/
