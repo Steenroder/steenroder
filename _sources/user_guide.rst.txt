@@ -9,7 +9,6 @@ Tutorials
 
 .. toctree::
    :maxdepth: 1
-   :glob:
 
    _notebooks/barcode.ipynb
    _notebooks/st_barcode.ipynb
@@ -23,7 +22,6 @@ Examples
 
 .. toctree::
    :maxdepth: 1
-   :glob:
 
    _notebooks/ran/flat_Klein_bottle.ipynb
    _notebooks/ran/cyclo-octane.ipynb

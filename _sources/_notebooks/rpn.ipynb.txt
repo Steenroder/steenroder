@@ -14,10 +14,10 @@
    "execution_count": 1,
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2022-04-15T13:54:35.833461Z",
-     "iopub.status.busy": "2022-04-15T13:54:35.832793Z",
-     "iopub.status.idle": "2022-04-15T13:54:36.218743Z",
-     "shell.execute_reply": "2022-04-15T13:54:36.218188Z"
+     "iopub.execute_input": "2022-04-15T14:29:42.705795Z",
+     "iopub.status.busy": "2022-04-15T14:29:42.705396Z",
+     "iopub.status.idle": "2022-04-15T14:29:43.023496Z",
+     "shell.execute_reply": "2022-04-15T14:29:43.022974Z"
     }
    },
    "outputs": [],
@@ -63,10 +63,10 @@
    "execution_count": 2,
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2022-04-15T13:54:36.223971Z",
-     "iopub.status.busy": "2022-04-15T13:54:36.222807Z",
-     "iopub.status.idle": "2022-04-15T13:54:36.227377Z",
-     "shell.execute_reply": "2022-04-15T13:54:36.226915Z"
+     "iopub.execute_input": "2022-04-15T14:29:43.028012Z",
+     "iopub.status.busy": "2022-04-15T14:29:43.027019Z",
+     "iopub.status.idle": "2022-04-15T14:29:43.031004Z",
+     "shell.execute_reply": "2022-04-15T14:29:43.030604Z"
     }
    },
    "outputs": [],
@@ -86,10 +86,10 @@
    "execution_count": 3,
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2022-04-15T13:54:36.231590Z",
-     "iopub.status.busy": "2022-04-15T13:54:36.230506Z",
-     "iopub.status.idle": "2022-04-15T13:55:49.721749Z",
-     "shell.execute_reply": "2022-04-15T13:55:49.721197Z"
+     "iopub.execute_input": "2022-04-15T14:29:43.034600Z",
+     "iopub.status.busy": "2022-04-15T14:29:43.033665Z",
+     "iopub.status.idle": "2022-04-15T14:30:44.708043Z",
+     "shell.execute_reply": "2022-04-15T14:30:44.707546Z"
     }
    },
    "outputs": [
@@ -167,10 +167,10 @@
    "execution_count": 4,
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2022-04-15T13:55:49.726412Z",
-     "iopub.status.busy": "2022-04-15T13:55:49.725268Z",
-     "iopub.status.idle": "2022-04-15T13:56:05.259464Z",
-     "shell.execute_reply": "2022-04-15T13:56:05.258921Z"
+     "iopub.execute_input": "2022-04-15T14:30:44.712350Z",
+     "iopub.status.busy": "2022-04-15T14:30:44.711363Z",
+     "iopub.status.idle": "2022-04-15T14:30:57.735657Z",
+     "shell.execute_reply": "2022-04-15T14:30:57.735174Z"
     }
    },
    "outputs": [
@@ -243,10 +243,10 @@
    "execution_count": 5,
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2022-04-15T13:56:05.262813Z",
-     "iopub.status.busy": "2022-04-15T13:56:05.262245Z",
-     "iopub.status.idle": "2022-04-15T13:56:05.474778Z",
-     "shell.execute_reply": "2022-04-15T13:56:05.473699Z"
+     "iopub.execute_input": "2022-04-15T14:30:57.738444Z",
+     "iopub.status.busy": "2022-04-15T14:30:57.738114Z",
+     "iopub.status.idle": "2022-04-15T14:30:57.910689Z",
+     "shell.execute_reply": "2022-04-15T14:30:57.909970Z"
     },
     "scrolled": true
    },
@@ -278,13 +278,7 @@
       "3 [[191 358]\n",
       " [ -1 643]]\n",
       "\n",
-      "**) suspension_RP4 (2975 simplices):\n"
-     ]
-    },
-    {
-     "name": "stdout",
-     "output_type": "stream",
-     "text": [
+      "**) suspension_RP4 (2975 simplices):\n",
       "*) Regular (infinite only):\n",
       "0 [[-1  0]]\n",
       "1 []\n",
@@ -319,10 +313,10 @@
    "execution_count": 6,
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2022-04-15T13:56:05.477903Z",
-     "iopub.status.busy": "2022-04-15T13:56:05.477451Z",
-     "iopub.status.idle": "2022-04-15T13:56:21.548482Z",
-     "shell.execute_reply": "2022-04-15T13:56:21.547934Z"
+     "iopub.execute_input": "2022-04-15T14:30:57.913824Z",
+     "iopub.status.busy": "2022-04-15T14:30:57.913495Z",
+     "iopub.status.idle": "2022-04-15T14:31:11.443937Z",
+     "shell.execute_reply": "2022-04-15T14:31:11.443350Z"
     }
    },
    "outputs": [
@@ -332,7 +326,13 @@
      "text": [
       "Persistent absolute cohomology:\n",
       "\n",
-      "**) cone_sus_RP2 (191 simplices):\n",
+      "**) cone_sus_RP2 (191 simplices):\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
       "*) Regular (length > 500 only):\n",
       "0 []\n",
       "1 []\n",

@@ -42,6 +42,18 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Context</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html#license">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#dependencies">Dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#installation-1">Installation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html#contributing">Contributing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#testing">Testing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../citing.html">Citing steenroder</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../user_guide.html">User Guide</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="../user_guide.html#tutorials">Tutorials</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="barcode.html">The regular barcode of persistent relative cohomology</a><ul>
@@ -79,6 +91,15 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="ran/flat_Klein_bottle.html#Persistent-absolute-cohomology,-no-threshold">Persistent absolute cohomology, no threshold</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ran/cyclo-octane.html">Preliminary checks – regular persistence barcodes</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ran/cyclo-octane.html#Stronger-evidence-when-subsampling">Stronger evidence when subsampling</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="ran/cyclo-octane.html#Steenrod-barcodes">Steenrod barcodes</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ran/cyclo-octane.html#Relative-cohomology,-full-Klein-bottle-component,-threshold-at-R-=-1.2">Relative cohomology, full Klein bottle component, threshold at <span class="math notranslate nohighlight">\(R = 1.2\)</span></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ran/cyclo-octane.html#Absolute-cohomology,-subsampled-Klein-bottle-component,-threshold-at-R-=-1.5">Absolute cohomology, subsampled Klein bottle component, threshold at <span class="math notranslate nohighlight">\(R = 1.5\)</span></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -410,7 +431,7 @@ div.rendered_html tbody tr:hover {
 <h1>Steenrod barcode of a filtration of <span class="math notranslate nohighlight">\(\mathbb RP^2\)</span><a class="headerlink" href="#Steenrod-barcode-of-a-filtration-of-\mathbb-RP^2" title="Permalink to this headline"></a></h1>
 <p>In this notebook we use <code class="docutils literal notranslate"><span class="pre">steenroder</span></code> to computing the Steenrod barcode of a small filtration. We will assume familiarity with the content of the notebook <em>barcode</em> where it is explained how the barcode of persistent relative cohomology and persistent cocycle representatives are computed by <code class="docutils literal notranslate"><span class="pre">steenroder</span></code>.</p>
 <p>The filtered complex <span class="math notranslate nohighlight">\(X\)</span> that we consider is the following model for the real projective plane</p>
-<p><img alt="b7e54a9ba70f4c4bb088ac54d78330db" class="no-scaled-link" src="_notebooks/filtered_rp2.png" style="width: 200px; height: 200px;" /></p>
+<p><img alt="4314a8a88a0b4e2b9363d539d6e7a05d" class="no-scaled-link" src="_notebooks/filtered_rp2.png" style="width: 200px; height: 200px;" /></p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
@@ -556,7 +577,7 @@ R_{\overline i}, & i \neq -1.
 <section id="Steenrod-representatives">
 <h3>Steenrod representatives<a class="headerlink" href="#Steenrod-representatives" title="Permalink to this headline"></a></h3>
 <p>Given vector <span class="math notranslate nohighlight">\(v\)</span> corresponding to a cocycle <span class="math notranslate nohighlight">\(\alpha\)</span>, let <span class="math notranslate nohighlight">\(\mathtt{sq^k}(v)\)</span> be the vector correponding to cocycle representative of <span class="math notranslate nohighlight">\(Sq^k \big( [\alpha] \big)\)</span>. For example, the one obtained using the following pseudo-code, where <span class="math notranslate nohighlight">\(A\)</span> is the support of <span class="math notranslate nohighlight">\(\alpha\)</span>.</p>
-<p><img alt="b5717dbf054644aa9c1f195337fb4eeb" class="no-scaled-link" src="_notebooks/stsq.png" style="width: 550px; height: 550px;" /></p>
+<p><img alt="e74b7dd9d9c24a63b47e62408ef8dcda" class="no-scaled-link" src="_notebooks/stsq.png" style="width: 550px; height: 550px;" /></p>
 </section>
 <section id="Steenrod-matrix">
 <h3>Steenrod matrix<a class="headerlink" href="#Steenrod-matrix" title="Permalink to this headline"></a></h3>
@@ -572,7 +593,7 @@ Q^k_i = \begin{cases}
 <section id="Reduction">
 <h3>Reduction<a class="headerlink" href="#Reduction" title="Permalink to this headline"></a></h3>
 <p>Given <span class="math notranslate nohighlight">\(R\)</span> and <span class="math notranslate nohighlight">\(Q^k\)</span>, we denote by <span class="math notranslate nohighlight">\(R_{\le j}\)</span> and <span class="math notranslate nohighlight">\(Q^k_{\le j}\)</span> the submatrices containing all columns with indices less than or equal to <span class="math notranslate nohighlight">\(j\)</span>, and <span class="math notranslate nohighlight">\(R_{\le j} \mid Q^k_{\le j}\)</span> the matrix obtained by concatenating their columns. With this notation the following pseudo-code computes the <span class="math notranslate nohighlight">\(k\)</span>-Steenrod barcode of the filtration.</p>
-<p><img alt="7c2c9f5723c243239c2a228a2d3eb0df" class="no-scaled-link" src="_notebooks/st_bar.png" style="width: 600px; height: 600px;" /></p>
+<p><img alt="a058db5646b14c2f9b8b8dfe31b43679" class="no-scaled-link" src="_notebooks/st_bar.png" style="width: 600px; height: 600px;" /></p>
 <p>Intuitively, the step from <span class="math notranslate nohighlight">\(j-1\)</span> to <span class="math notranslate nohighlight">\(j\)</span> either adds a new non-zero coboundary <span class="math notranslate nohighlight">\(R_j\)</span> (which implies <span class="math notranslate nohighlight">\(Q^k_j = 0\)</span>) or the image <span class="math notranslate nohighlight">\(Q^k_j\)</span> of a persistent cocycle generator (which implies <span class="math notranslate nohighlight">\(R_j=0\)</span>). In either case, we need to reduce with respect to the subspace of coboundaries, generated by <span class="math notranslate nohighlight">\(R_{\leq j}\)</span>, the image of <span class="math notranslate nohighlight">\(Sq^k\)</span>, which is generated by <span class="math notranslate nohighlight">\(Q^k_{\leq j}\)</span>. This process is done keeping track of when columns in <span class="math notranslate nohighlight">\(Q^k\)</span> become zero and
 extracting from this information the <span class="math notranslate nohighlight">\(Sq^k\)</span>-barcode of the filtration.</p>
 </section>
