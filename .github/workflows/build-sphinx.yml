@@ -26,7 +26,6 @@ jobs:
       - name: Test notebooks with pytest
         run: |
           pytest --nbmake --overwrite -n=auto notebooks/squares.ipynb
-          mkdir -p docs/_notebooks
           mv notebooks/squares.ipynb docs/
       - name: Build documentation
         - uses: sphinx-toolbox/sphinx-action@master
