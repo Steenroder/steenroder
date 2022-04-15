@@ -11,7 +11,6 @@ Tutorials
    :maxdepth: 1
    :glob:
 
-   _notebooks\squares.ipynb
 
 
 Examples
