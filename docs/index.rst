@@ -6,7 +6,6 @@ Welcome to steenroder's documentation!
    :caption: Contents:
 
 
-   squares.ipynb
    user_guide
    api_reference
 
