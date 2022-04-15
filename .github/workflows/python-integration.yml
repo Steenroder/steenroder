@@ -27,3 +27,4 @@ jobs:
     - name: Test notebooks with pytest
       run: |
         pytest --nbmake --overwrite -n=auto notebooks/squares.ipynb
+        mv notebooks/squares.ipynb docs/
