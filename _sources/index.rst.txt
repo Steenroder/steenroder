@@ -6,8 +6,6 @@ Welcome to steenroder's documentation!
    :caption: Contents:
 
    introduction
-   installation
-   citing
    user_guide
    api_reference
 
