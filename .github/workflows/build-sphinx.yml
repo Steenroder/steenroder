@@ -28,8 +28,7 @@ jobs:
           pytest --nbmake --overwrite -n=auto notebooks/squares.ipynb
           mkdir -p docs/_notebooks
           mv notebooks/squares.ipynb docs/
-      - name: Build documentation
-        uses: sphinx-toolbox/sphinx-action@master
+      - uses: sphinx-toolbox/sphinx-action@master
           with:
             pre-build-command: "python -m pip install .[docs]"
             docs-folder: "docs/"
