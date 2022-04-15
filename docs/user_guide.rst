@@ -3,7 +3,6 @@ User Guide
 ==========
 
 
-
 Tutorials
 ---------
 
