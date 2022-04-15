@@ -2,7 +2,7 @@ steenroder: A Python package for the computation of persistence Steenrod barcode
 =================================================================================
 
 
-.. include:: ./docs/introduction.rst
+docs/introduction.rst
 
 
 Documentation
