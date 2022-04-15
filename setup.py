@@ -49,6 +49,8 @@ KEYWORDS = 'topological data analysis, persistent ' + \
 INSTALL_REQUIRES = requirements
 EXTRAS_REQUIRE = {
       'tests': ['pytest',
+                'pytest-xdist',
+                'nbmake',
                 'pytest-cov',
                 'flake8'],
       'docs': doc_requirements,
