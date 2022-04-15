@@ -1,0 +1,2 @@
+docs/_notebooks/ran/flat_Klein_bottle.ipynb filter=lfs diff=lfs merge=lfs -text
+docs/_notebooks/ran/cyclo-octane.ipynb filter=lfs diff=lfs merge=lfs -text
