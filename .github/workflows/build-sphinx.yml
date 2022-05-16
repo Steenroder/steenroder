@@ -1,0 +1,46 @@
+name: build-sphinx-to-gh-pages
+
+env:
+  GITHUB_ACTOR: Steenroder
+  GITHUB_REPOSITORY: Steenroder/steenroder
+  GITHUB_TOKEN: ${{ secrets.CREATE_DEMO_SECRET }}
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        lfs: true
+    - name: Checkout LFS files
+      run: git lfs checkout
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: "3.8"
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install .[tests]
+    - name: Test notebooks with pytest
+      run: |
+        notebooks=$(ls notebooks/*.ipynb)
+        long_notebooks=("notebooks/flat_Klein_bottle.ipynb" "notebooks/cyclo-octane.ipynb")
+        tested_notebooks=(`echo ${notebooks[@]} ${long_notebooks[@]} | tr ' ' '\n' | sort | uniq -u `)
+        pytest --nbmake --overwrite -n=auto ${tested_notebooks[@]}
+        cp ${tested_notebooks[@]} docs/_notebooks/
+    - name: Build documentation
+      uses: sphinx-toolbox/sphinx-action@master
+      with:
+        pre-build-command: "python -m pip install .[docs]"
+        docs-folder: "docs/"
+    - name: Deploy
+      uses: peaceiris/actions-gh-pages@v3
+      if: github.ref == 'refs/heads/main'
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: docs/_build/html

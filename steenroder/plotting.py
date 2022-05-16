@@ -30,7 +30,7 @@ def _compute_bounds(barcode):
     return min_val_display, max_val_display, posinfinity_val, neginfinity_val
 
 
-def plot_diagrams(barcode, st_barcode, k=None, kind=None, tex=False,
+def plot_diagrams(barcode, steenrod_barcode, k=None, kind=None, tex=False,
                   plotly_params=None):
     """Plot a regular persistence barcode and a Steenrod barcode as diagrams on
     a common birth-death plane.
@@ -42,14 +42,14 @@ def plot_diagrams(barcode, st_barcode, k=None, kind=None, tex=False,
         with 2 columns, containing birth-death pairs in degree ``d``, to be used
         as coordinates in the two-dimensional plot.
 
-    st_barcode : list of ndarray
+    steenrod_barcode : list of ndarray
         The (relative) Sq^k-barcode to plot. For each dimension ``d``, a 2D
         array with 2 columns, containing the birth-death pairs of Steenrod bars
         in degree ``d``, to be used as coordinates in the two-dimensional plot.
 
     k : int or None, optional, default: ``None``
         Positive integer defining the cohomology operation Sq^k that was
-        performed to obtain `st_barcode`. Only used for labelling.
+        performed to obtain `steenrod_barcode`. Only used for labelling.
 
     kind : ``"R"`` | ``"A"`` or None, optional, default: ``None``
         Whether the barcodes to be plotted come from absolute or relative
@@ -96,10 +96,10 @@ def plot_diagrams(barcode, st_barcode, k=None, kind=None, tex=False,
     else:
         legend_title = "Cohomology"
         h_subscript = r"" if tex else ""
-    homology_dimensions = range(max(len(barcode), len(st_barcode)))
+    homology_dimensions = range(max(len(barcode), len(steenrod_barcode)))
 
     min_val_display, max_val_display, posinfinity_val, neginfinity_val = \
-        _compute_bounds(barcode + st_barcode)
+        _compute_bounds(barcode + steenrod_barcode)
 
     fig = gobj.Figure()
     fig.add_trace(gobj.Scatter(
@@ -115,7 +115,7 @@ def plot_diagrams(barcode, st_barcode, k=None, kind=None, tex=False,
         h_label = (rf"\mathcal{{H}}^{{{dim}}}" if tex else f"H^{dim}") + \
                   h_subscript
         h_label, st_h_label = _connect_st_label(st_label, h_label, tex)
-        for label, symbol, ms, bc in ([st_h_label, "diamond", 10, st_barcode],
+        for label, symbol, ms, bc in ([st_h_label, "diamond", 10, steenrod_barcode],
                                       [h_label, "circle", 8, barcode]):
             subbc = bc[dim].copy()
             unique, inverse, counts = np.unique(
