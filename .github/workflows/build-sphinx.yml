@@ -29,7 +29,8 @@ jobs:
     - name: Test notebooks with pytest
       run: |
         pytest --nbmake --overwrite -n=auto notebooks/*.ipynb
-        cp notebooks/* docs/_notebooks/
+        cp notebooks/*.ipynb docs/_notebooks/
+        cp notebooks/*.png docs/_notebooks/
     - name: Build documentation
       uses: sphinx-toolbox/sphinx-action@master
       with:
