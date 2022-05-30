@@ -28,11 +28,10 @@ jobs:
         python -m pip install .[tests]
     - name: Test notebooks with pytest
       run: |
-        notebooks=$(ls notebooks/*.ipynb)
-        long_notebooks=("notebooks/flat_Klein_bottle.ipynb" "notebooks/cyclo-octane.ipynb")
-        tested_notebooks=(`echo ${notebooks[@]} ${long_notebooks[@]} | tr ' ' '\n' | sort | uniq -u `)
-        pytest --nbmake --overwrite -n=auto ${tested_notebooks[@]}
-        cp ${tested_notebooks[@]} docs/_notebooks/
+        pytest --nbmake --overwrite -n=auto notebooks/*.ipynb
+        cp notebooks/*.ipynb docs/_notebooks/
+        cp notebooks/*.png docs/_notebooks/
+        cp notebooks/examples/*.ipynb docs/_notebooks/
     - name: Build documentation
       uses: sphinx-toolbox/sphinx-action@master
       with:
